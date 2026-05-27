@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RaceFinder — Full Prototype v4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css" />
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g:#1a7a4a;--gl:#e8f5ed;--gd:#155e38;
+  --or:#e85d1a;--orl:#fef0ea;--ord:#c0481a;
+  --dk:#1a1c20;--mid:#3d4148;--mu:#7a808c;
+  --bd:rgba(0,0,0,.10);--bs:rgba(0,0,0,.18);
+  --bg:#ffffff;--bgs:#f7f8fa;--bgt:#f0f2f5;
+  --tag:#edf0f4;
+  --rm:8px;--rl:12px;
+  --ff:'DM Sans',sans-serif;--ffh:'Space Grotesk',sans-serif;
+  --shadow:0 2px 12px rgba(0,0,0,.08);
+}
+body{font-family:var(--ff);background:var(--bgt);min-height:100vh;color:var(--dk);}
+
+/* NAV */
+.rf-nav{background:var(--bg);border-bottom:1px solid var(--bd);padding:0 32px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.rf-logo{font-family:var(--ffh);font-size:17px;font-weight:600;color:var(--g);letter-spacing:-.3px;display:flex;align-items:center;gap:6px;text-decoration:none;cursor:pointer;}
+.rf-logo-dot{width:7px;height:7px;border-radius:50%;background:var(--or);}
+.rf-nav-links{display:flex;gap:24px;align-items:center;}
+.rf-nav-link{font-size:13px;color:var(--mu);cursor:pointer;text-decoration:none;}
+.rf-nav-link.active{color:var(--dk);font-weight:500;}
+.rf-lang{font-size:12px;font-weight:600;color:var(--mu);background:var(--tag);border-radius:4px;padding:3px 8px;}
+.rf-nav-btn{font-size:13px;font-weight:500;color:#fff;background:var(--g);border:none;border-radius:7px;padding:7px 16px;cursor:pointer;}
+
+/* PAGES */
+.page{display:none;animation:fadeIn .25s ease;}
+.page.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+/* FLOW TABS */
+.flow-tabs{display:flex;padding:24px 32px 0;max-width:960px;margin:0 auto;}
+.flow-tab{flex:1;text-align:center;padding:10px 16px;font-family:var(--ffh);font-size:13px;font-weight:500;cursor:pointer;border-radius:10px 10px 0 0;border:1px solid transparent;border-bottom:none;color:var(--mu);background:rgba(0,0,0,.04);transition:all .2s;}
+.flow-tab.active{background:var(--bg);color:var(--dk);border-color:var(--bd);}
+.tab-badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px;margin-left:6px;vertical-align:middle;}
+.tab-badge.bookable{background:var(--gl);color:var(--g);}
+.tab-badge.not-bookable{background:var(--orl);color:var(--or);}
+
+/* CONTENT CARD */
+.content-card{background:var(--bg);border:1px solid var(--bd);border-radius:0 0 14px 14px;max-width:960px;margin:0 32px 32px;overflow:hidden;}
+@media(min-width:1024px){.content-card{margin:0 auto 32px;}}
+.screen{display:none;animation:fadeIn .25s ease;}
+.screen.active{display:block;}
+
+/* RACE HERO */
+.race-hero{padding:32px 32px 26px;position:relative;overflow:hidden;}
+.race-hero.green-hero{background:linear-gradient(140deg,#0b2318 0%,#1a4a2e 55%,#0e2118 100%);}
+.race-hero.amber-hero{background:linear-gradient(140deg,#1c1100 0%,#3d2800 55%,#160e00 100%);}
+.race-hero::after{content:'';position:absolute;right:-40px;top:-40px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.03);}
+.race-category-pill{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.12);color:rgba(255,255,255,.85);font-size:11px;font-weight:500;padding:4px 11px;border-radius:20px;margin-bottom:12px;}
+.race-hero h1{font-family:var(--ffh);color:#fff;font-size:22px;font-weight:600;line-height:1.2;margin-bottom:16px;letter-spacing:-.3px;}
+.race-meta{display:flex;gap:18px;flex-wrap:wrap;}
+.race-meta-item{display:flex;align-items:center;gap:5px;color:rgba(255,255,255,.7);font-size:12px;}
+.race-meta-item i{font-size:14px;}
+
+/* RACE BODY */
+.race-body{padding:24px 32px;}
+.race-info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:22px;}
+.info-card{background:var(--bgs);border:1px solid var(--bd);border-radius:9px;padding:13px 15px;}
+.info-card-label{font-size:11px;color:var(--mu);margin-bottom:3px;text-transform:uppercase;letter-spacing:.5px;}
+.info-card-value{font-family:var(--ffh);font-size:15px;font-weight:600;color:var(--dk);}
+.book-section{border-top:1px solid var(--bd);padding-top:22px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.price-label{font-size:11px;color:var(--mu);margin-bottom:2px;}
+.price-value{font-family:var(--ffh);font-size:24px;font-weight:600;color:var(--dk);}
+.price-range{font-size:14px;color:var(--mu);}
+.bookable-badge{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--mu);margin-top:4px;}
+.bookable-badge i{color:var(--g);font-size:13px;}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--or);flex-shrink:0;}
+
+/* BUTTONS */
+.btn-book{font-family:var(--ffh);font-size:14px;font-weight:600;color:#fff;border:none;border-radius:9px;padding:13px 30px;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:8px;letter-spacing:-.2px;}
+.btn-book.green{background:var(--g);}
+.btn-book.green:hover{background:var(--gd);}
+.btn-book.orange{background:var(--or);}
+.btn-book.orange:hover{background:var(--ord);}
+.btn-book.full{width:100%;justify-content:center;}
+.btn-sec{font-size:13px;font-weight:500;color:var(--dk);background:var(--bg);border:1.5px solid var(--bd);border-radius:9px;padding:10px 20px;cursor:pointer;font-family:var(--ff);}
+
+/* CHECKOUT HEADER */
+.checkout-header{padding:18px 32px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;}
+.back-btn{font-size:13px;color:var(--mu);cursor:pointer;display:flex;align-items:center;gap:4px;border:none;background:none;font-family:var(--ff);}
+.back-btn:hover{color:var(--dk);}
+.checkout-steps{display:flex;align-items:center;}
+.cstep{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mu);}
+.cstep.active{color:var(--g);font-weight:500;}
+.cstep.done{color:var(--g);}
+.cstep-num{width:20px;height:20px;border-radius:50%;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;}
+.cstep-num.done{background:var(--g);border-color:var(--g);color:#fff;}
+.cstep-divider{width:28px;height:1px;background:var(--bd);margin:0 4px;}
+
+/* CHECKOUT LAYOUT */
+.checkout-body{display:grid;grid-template-columns:1fr 272px;}
+.checkout-form{padding:24px 32px;border-right:1px solid var(--bd);}
+.checkout-sidebar{padding:24px 22px;background:var(--bgs);}
+
+/* FORM ELEMENTS */
+.form-sec{margin-bottom:24px;}
+.form-sec:last-child{margin-bottom:0;}
+.form-sec-head{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+.form-sec-icon{font-size:15px;color:var(--g);}
+.form-sec-title{font-size:13px;font-weight:500;color:var(--dk);}
+.fg{display:grid;gap:10px;margin-bottom:10px;}
+.fg:last-child{margin-bottom:0;}
+.fg-1{grid-template-columns:1fr;}
+.fg-2{grid-template-columns:1fr 1fr;}
+.fg-3{grid-template-columns:1fr 1fr 1fr;}
+.fgroup{display:flex;flex-direction:column;gap:4px;}
+.flabel{font-size:11px;color:var(--mu);font-weight:500;display:flex;align-items:center;gap:4px;}
+.freq{font-size:10px;font-weight:600;border-radius:3px;padding:1px 5px;border:.5px solid;}
+.freq.r{background:#fef0ea;color:#a33e10;border-color:#f5c4a0;}
+.freq.o{background:var(--bg);color:var(--mu);border-color:var(--bd);}
+.finput{width:100%;border:1px solid var(--bd);border-radius:7px;padding:8px 11px;font-size:13px;color:var(--dk);background:var(--bg);font-family:var(--ff);outline:none;transition:border-color .15s;}
+.finput:focus{border-color:var(--g);}
+textarea.finput{resize:vertical;}
+.fhint{font-size:11px;color:var(--mu);margin-top:2px;line-height:1.4;}
+
+/* RADIO */
+.radio-opt{display:flex;align-items:center;gap:5px;border:1px solid var(--bd);border-radius:7px;padding:7px 12px;cursor:pointer;font-size:13px;color:var(--dk);background:var(--bg);transition:border-color .15s,background .15s;}
+.radio-opt.sel{border-color:var(--g);background:var(--gl);color:var(--g);}
+.rdot{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--bd);flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.radio-opt.sel .rdot{border-color:var(--g);}
+.rdot-inner{width:6px;height:6px;border-radius:50%;background:var(--g);display:none;}
+.radio-opt.sel .rdot-inner{display:block;}
+
+/* SIZE */
+.size-row{display:flex;gap:6px;flex-wrap:wrap;}
+.size-opt{min-width:42px;text-align:center;border:1px solid var(--bd);border-radius:7px;padding:6px 10px;cursor:pointer;font-size:12px;color:var(--dk);background:var(--bg);transition:border-color .15s,background .15s;}
+.size-opt:hover{border-color:var(--bs);}
+.size-opt.sel{border-color:var(--g);background:var(--gl);color:var(--g);font-weight:500;}
+
+/* CHECKBOX */
+.check-row{display:flex;align-items:flex-start;gap:9px;padding:11px 13px;background:var(--bgs);border-radius:8px;border:1px solid var(--bd);margin-bottom:8px;}
+.check-row:last-child{margin-bottom:0;}
+.check-box{width:17px;height:17px;border-radius:4px;border:1.5px solid var(--bd);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s,border-color .15s;}
+.check-box.chk{background:var(--g);border-color:var(--g);}
+.check-text{font-size:12px;color:var(--mu);line-height:1.55;}
+.check-text a{color:var(--g);cursor:pointer;text-decoration:none;}
+.check-text strong{color:var(--dk);font-weight:500;}
+
+/* EXTRAS */
+.extra-item{border:1px solid var(--bd);border-radius:11px;overflow:hidden;margin-bottom:9px;background:var(--bg);}
+.extra-item:last-child{margin-bottom:0;}
+.extra-header{display:flex;align-items:center;gap:11px;padding:13px 15px;cursor:pointer;transition:background .15s;user-select:none;}
+.extra-header:hover{background:var(--bgs);}
+.extra-header.open{background:var(--bgs);border-bottom:1px solid var(--bd);}
+.extra-toggle{width:38px;height:21px;border-radius:11px;border:1px solid var(--bd);background:#e2e5e9;position:relative;flex-shrink:0;transition:background .2s,border-color .2s;}
+.extra-toggle.on{background:var(--g);border-color:var(--g);}
+.extra-toggle-knob{position:absolute;top:3px;left:3px;width:13px;height:13px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.15);}
+.extra-toggle.on .extra-toggle-knob{transform:translateX(17px);}
+.extra-label-wrap{flex:1;}
+.extra-name{font-size:13px;font-weight:500;color:var(--dk);}
+.extra-desc{font-size:11px;color:var(--mu);margin-top:1px;}
+.extra-price{font-size:13px;font-weight:600;color:var(--g);margin-left:auto;flex-shrink:0;}
+.extra-body{padding:15px;display:none;}
+.extra-body.open{display:block;}
+.sub-label{font-size:11px;font-weight:500;color:var(--mu);margin-bottom:7px;}
+.style-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:11px;}
+.style-opt{display:flex;align-items:center;gap:5px;border:1px solid var(--bd);border-radius:7px;padding:7px 12px;cursor:pointer;font-size:12px;color:var(--dk);background:var(--bg);transition:border-color .15s,background .15s;}
+.style-opt.sel{border-color:var(--g);background:var(--gl);color:var(--g);}
+.sdot{width:13px;height:13px;border-radius:50%;border:1.5px solid var(--bd);flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.style-opt.sel .sdot{border-color:var(--g);}
+.sdot-inner{width:5px;height:5px;border-radius:50%;background:var(--g);display:none;}
+.style-opt.sel .sdot-inner{display:block;}
+.gender-row{display:flex;gap:6px;margin-bottom:11px;}
+.gender-opt{flex:1;text-align:center;border:1px solid var(--bd);border-radius:7px;padding:6px 8px;cursor:pointer;font-size:12px;color:var(--dk);background:var(--bg);transition:border-color .15s,background .15s;}
+.gender-opt.sel{border-color:var(--g);background:var(--gl);color:var(--g);font-weight:500;}
+.qty-row{display:flex;align-items:center;gap:8px;margin-top:4px;}
+.qty-btn{width:29px;height:29px;border:1px solid var(--bd);border-radius:7px;background:var(--bg);color:var(--dk);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:var(--ff);line-height:1;}
+.qty-btn:hover{background:var(--bgs);}
+.qty-val{font-size:13px;font-weight:500;color:var(--dk);min-width:20px;text-align:center;}
+.info-row{display:flex;align-items:center;gap:8px;background:var(--bgs);border-radius:7px;padding:10px 12px;}
+.info-row i{font-size:14px;color:var(--g);}
+.info-row span{font-size:12px;color:var(--mu);}
+
+/* SECTION BLOCKS */
+.sec-block{display:block;}
+.sec-block.hidden{display:none;}
+.sec-divider{height:1px;background:var(--bd);margin:0 32px;}
+.form-sec-wrap{padding:22px 32px 0;}
+
+/* DEMO BAR */
+.demo-bar{background:var(--bg);border:1px solid var(--bd);border-radius:11px;padding:14px 18px;margin-bottom:20px;}
+.demo-bar-title{font-size:11px;font-weight:500;color:var(--mu);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;}
+.toggles{display:flex;flex-wrap:wrap;gap:6px;}
+.tog{display:flex;align-items:center;gap:6px;background:var(--bgs);border:1px solid var(--bd);border-radius:20px;padding:5px 11px 5px 8px;cursor:pointer;font-size:12px;color:var(--mu);user-select:none;transition:all .15s;}
+.tog.on{border-color:var(--g);color:var(--g);background:var(--gl);}
+.tog-dot{width:8px;height:8px;border-radius:50%;background:var(--bd);flex-shrink:0;transition:background .15s;}
+.tog.on .tog-dot{background:var(--g);}
+
+/* SIDEBAR */
+.sum-tag{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:500;background:var(--gl);color:#27500a;border-radius:4px;padding:2px 7px;margin-bottom:13px;}
+.sum-race{font-family:var(--ffh);font-size:14px;font-weight:600;color:var(--dk);margin-bottom:2px;}
+.sum-meta{font-size:11px;color:var(--mu);margin-bottom:16px;}
+.sum-row{display:flex;justify-content:space-between;font-size:12px;color:var(--mu);padding:3px 0;}
+.sum-row.extra{color:var(--dk);}
+.sum-sep{height:1px;background:var(--bd);margin:10px 0;}
+.sum-total{display:flex;justify-content:space-between;font-size:14px;font-weight:600;color:var(--dk);}
+.sum-info{font-size:11px;color:var(--mu);text-align:center;margin-top:10px;line-height:1.5;}
+
+/* promo in sidebar */
+.promo-field{margin-top:16px;padding-top:14px;border-top:1px solid var(--bd);}
+.promo-wrap{display:flex;gap:6px;}
+.promo-input{flex:1;border:1px solid var(--bd);border-radius:7px;padding:7px 10px;font-size:12px;color:var(--dk);background:var(--bg);font-family:var(--ff);outline:none;transition:border-color .15s;}
+.promo-input:focus{border-color:var(--g);}
+.promo-btn{font-size:12px;font-weight:500;color:var(--g);background:var(--gl);border:1px solid rgba(26,122,74,.25);border-radius:7px;padding:7px 12px;cursor:pointer;font-family:var(--ff);white-space:nowrap;}
+
+/* SUCCESS / ALERT */
+.centered-screen{padding:52px 32px;text-align:center;display:flex;flex-direction:column;align-items:center;}
+.icon-circle{width:66px;height:66px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:18px;}
+.icon-circle.green{background:var(--gl);color:var(--g);}
+.icon-circle.orange{background:var(--orl);color:var(--or);}
+.screen-title{font-family:var(--ffh);font-size:22px;font-weight:600;color:var(--dk);margin-bottom:9px;}
+.screen-sub{font-size:14px;color:var(--mu);max-width:340px;line-height:1.65;margin-bottom:26px;}
+.bib-chip{background:var(--gl);border:1.5px dashed var(--g);border-radius:11px;padding:15px 28px;margin-bottom:26px;}
+.bib-num{font-family:var(--ffh);font-size:38px;font-weight:600;color:var(--g);}
+.bib-label{font-size:11px;color:var(--mu);margin-top:2px;}
+.action-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.alert-chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:26px;}
+.alert-chip{display:flex;align-items:center;gap:5px;background:var(--orl);border:1px solid rgba(232,93,26,.2);border-radius:20px;padding:5px 13px;font-size:12px;color:#7a3010;font-weight:500;}
+
+/* NUDGE */
+.nudge-banner{background:var(--orl);border:1px solid rgba(232,93,26,.2);border-radius:10px;padding:15px 17px;display:flex;gap:13px;align-items:flex-start;margin:20px 32px;}
+.nudge-banner i{font-size:20px;color:var(--or);flex-shrink:0;margin-top:1px;}
+.nudge-banner h3{font-family:var(--ffh);font-size:14px;font-weight:600;color:#7a3010;margin-bottom:3px;}
+.nudge-banner p{font-size:12px;color:#a0481e;line-height:1.55;}
+.register-body{padding:4px 32px 28px;display:grid;grid-template-columns:1fr 256px;gap:28px;}
+.benefit-item{display:flex;align-items:flex-start;gap:11px;padding:13px 0;border-bottom:1px solid var(--bd);}
+.benefit-item:last-child{border-bottom:none;}
+.benefit-icon{width:33px;height:33px;border-radius:8px;background:var(--gl);display:flex;align-items:center;justify-content:center;color:var(--g);font-size:16px;flex-shrink:0;}
+.benefit-text h4{font-size:13px;font-weight:500;color:var(--dk);margin-bottom:2px;}
+.benefit-text p{font-size:12px;color:var(--mu);line-height:1.45;}
+.auth-card{background:var(--bgs);border:1px solid var(--bd);border-radius:11px;padding:18px;}
+.auth-title{font-family:var(--ffh);font-size:14px;font-weight:600;color:var(--dk);margin-bottom:14px;}
+.auth-social{display:flex;gap:8px;margin-bottom:10px;}
+.social-btn{flex:1;border:1px solid var(--bd);border-radius:7px;padding:8px;background:var(--bg);cursor:pointer;font-size:11px;font-weight:500;color:var(--mid);display:flex;align-items:center;justify-content:center;gap:5px;font-family:var(--ff);}
+.auth-divider{text-align:center;font-size:11px;color:var(--mu);margin:10px 0;}
+.auth-input{width:100%;border:1px solid var(--bd);border-radius:7px;padding:9px 11px;font-size:13px;font-family:var(--ff);color:var(--dk);background:var(--bg);outline:none;display:block;margin-bottom:8px;}
+.auth-input:focus{border-color:var(--g);}
+.btn-full{width:100%;font-family:var(--ffh);font-size:13px;font-weight:600;color:#fff;background:var(--g);border:none;border-radius:7px;padding:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;}
+.auth-footer{font-size:10px;color:var(--mu);text-align:center;margin-top:9px;line-height:1.5;}
+.auth-footer a{color:var(--g);cursor:pointer;}
+
+/* HOME CARDS */
+.home-card{cursor:pointer;border:1px solid var(--bd);border-radius:13px;overflow:hidden;background:var(--bg);transition:box-shadow .2s;}
+.home-card:hover{box-shadow:var(--shadow);}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="rf-nav">
+  <div class="rf-logo" onclick="goPage('home')"><div class="rf-logo-dot"></div>RaceFinder</div>
+  <div class="rf-nav-links">
+    <a class="rf-nav-link active" onclick="goPage('home')">Running</a>
+    <a class="rf-nav-link">Cycling</a>
+    <a class="rf-nav-link">Triathlon</a>
+    <a class="rf-nav-link">Swimming</a>
+    <span class="rf-lang">EN</span>
+    <button class="rf-nav-btn">Log in</button>
+  </div>
+</nav>
+
+<!-- ═══ HOME ═══ -->
+<div class="page active" id="page-home" style="padding:32px;max-width:960px;margin:0 auto;">
+  <div style="margin-bottom:28px;">
+    <h1 style="font-family:var(--ffh);font-size:28px;font-weight:600;letter-spacing:-.4px;margin-bottom:6px;">Where your next race finds you.</h1>
+    <p style="font-size:14px;color:var(--mu);">Click any race to explore the booking flows.</p>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+
+    <div class="home-card" onclick="goFlow('a')">
+      <div style="height:6px;background:var(--g);"></div>
+      <div style="padding:18px 20px;">
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px;">
+          <span style="font-size:11px;font-weight:500;background:var(--gl);color:var(--g);border-radius:4px;padding:2px 8px;">Trail Run</span>
+          <span style="font-size:11px;color:var(--mu);">21 km</span>
+        </div>
+        <div style="font-family:var(--ffh);font-size:16px;font-weight:600;margin-bottom:12px;line-height:1.3;">Sintra Mountain Trail 2026</div>
+        <div style="display:flex;gap:14px;margin-bottom:14px;">
+          <span style="font-size:12px;color:var(--mu);display:flex;align-items:center;gap:4px;"><i class="ti ti-calendar" style="font-size:13px;"></i>14 Jun 2026</span>
+          <span style="font-size:12px;color:var(--mu);display:flex;align-items:center;gap:4px;"><i class="ti ti-map-pin" style="font-size:13px;"></i>Sintra, Lisboa</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="font-family:var(--ffh);font-size:18px;font-weight:600;">12–18 €</div>
+            <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--mu);margin-top:2px;"><i class="ti ti-shield-check" style="color:var(--g);font-size:12px;"></i>Bookable on RaceFinder</div>
+          </div>
+          <button class="btn-book green" onclick="goFlow('a');event.stopPropagation()">Book Now</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="home-card" onclick="goFlow('b')">
+      <div style="height:6px;background:var(--or);"></div>
+      <div style="padding:18px 20px;">
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px;">
+          <span style="font-size:11px;font-weight:500;background:var(--orl);color:var(--or);border-radius:4px;padding:2px 8px;">MTB</span>
+          <span style="font-size:11px;color:var(--mu);">60 km</span>
+        </div>
+        <div style="font-family:var(--ffh);font-size:16px;font-weight:600;margin-bottom:12px;line-height:1.3;">Rota dos Templários MTB 2026</div>
+        <div style="display:flex;gap:14px;margin-bottom:14px;">
+          <span style="font-size:12px;color:var(--mu);display:flex;align-items:center;gap:4px;"><i class="ti ti-calendar" style="font-size:13px;"></i>05 Sep 2026</span>
+          <span style="font-size:12px;color:var(--mu);display:flex;align-items:center;gap:4px;"><i class="ti ti-map-pin" style="font-size:13px;"></i>Tomar, Santarém</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="font-family:var(--ffh);font-size:18px;font-weight:600;">~25 €</div>
+            <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--mu);margin-top:2px;"><div class="status-dot"></div>Registrations open Jul 2026</div>
+          </div>
+          <button class="btn-book orange" onclick="goFlow('b');event.stopPropagation()">Book Now</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ FLOW PAGES ═══ -->
+<div class="page" id="page-flows">
+  <div style="max-width:960px;margin:0 auto;">
+    <div class="flow-tabs">
+      <div class="flow-tab active" id="tab-a" onclick="switchTab('a')">Flow A — Bookable race <span class="tab-badge bookable">Book on RaceFinder</span></div>
+      <div class="flow-tab" id="tab-b" onclick="switchTab('b')">Flow B — Not bookable <span class="tab-badge not-bookable">External / No booking</span></div>
+    </div>
+  </div>
+  <div class="content-card">
+
+    <!-- ══ A1: Event detail ══ -->
+    <div class="screen active" id="screen-a1">
+      <div class="race-hero green-hero">
+        <div class="race-category-pill"><i class="ti ti-run"></i> Trail Run · 21 km</div>
+        <h1>Sintra Mountain Trail 2026</h1>
+        <div class="race-meta">
+          <div class="race-meta-item"><i class="ti ti-calendar"></i>14 Jun 2026</div>
+          <div class="race-meta-item"><i class="ti ti-map-pin"></i>Sintra, Lisboa</div>
+          <div class="race-meta-item"><i class="ti ti-users"></i>420 spots left</div>
+          <div class="race-meta-item"><i class="ti ti-clock"></i>Cutoff 5 h 30 min</div>
+        </div>
+      </div>
+      <div class="race-body">
+        <div class="race-info-grid">
+          <div class="info-card"><div class="info-card-label">Distances</div><div class="info-card-value">12 / 21 / 42 km</div></div>
+          <div class="info-card"><div class="info-card-label">Elevation gain</div><div class="info-card-value">+1 240 m</div></div>
+          <div class="info-card"><div class="info-card-label">Terrain</div><div class="info-card-value">Trail / forest</div></div>
+        </div>
+        <div class="book-section">
+          <div>
+            <div class="price-label">Entry fee</div>
+            <div class="price-value">12 € <span class="price-range">— 18 €</span></div>
+            <div class="bookable-badge"><i class="ti ti-shield-check"></i>Bookable directly on RaceFinder</div>
+          </div>
+          <button class="btn-book green" onclick="go('a2')"><i class="ti ti-ticket"></i>Book Now</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ A2: Your details ══ -->
+    <div class="screen" id="screen-a2">
+      <div class="checkout-header">
+        <button class="back-btn" onclick="go('a1')"><i class="ti ti-arrow-left"></i>Back</button>
+        <div class="checkout-steps">
+          <div class="cstep active"><div class="cstep-num">1</div>Your details</div>
+          <div class="cstep-divider"></div>
+          <div class="cstep"><div class="cstep-num">2</div>Payment</div>
+        </div>
+        <div style="width:60px;"></div>
+      </div>
+
+      <div class="checkout-body">
+        <!-- FORM -->
+        <div class="checkout-form" style="padding-top:20px;">
+
+          <!-- Organiser demo toggles -->
+          <div class="demo-bar">
+            <div class="demo-bar-title">Organiser field configuration</div>
+            <div class="toggles">
+              <div class="tog on" onclick="togSec(this,'fs-personal')"><div class="tog-dot"></div>Personal info</div>
+              <div class="tog on" onclick="togSec(this,'fs-contact')"><div class="tog-dot"></div>Contact details</div>
+              <div class="tog on" onclick="togSec(this,'fs-address')"><div class="tog-dot"></div>Address</div>
+              <div class="tog on" onclick="togSec(this,'fs-athletic')"><div class="tog-dot"></div>Athletic profile</div>
+              <div class="tog on" onclick="togSec(this,'fs-kit')"><div class="tog-dot"></div>Kit &amp; extras</div>
+              <div class="tog on" onclick="togSec(this,'fs-emergency')"><div class="tog-dot"></div>Emergency contact</div>
+              <div class="tog on" onclick="togSec(this,'fs-health')"><div class="tog-dot"></div>Health &amp; medical</div>
+              <div class="tog on" onclick="togSec(this,'fs-legal')"><div class="tog-dot"></div>Consent &amp; waiver</div>
+            </div>
+          </div>
+
+          <!-- 1 · PERSONAL INFO -->
+          <div class="sec-block" id="fs-personal">
+            <div class="form-sec-wrap">
+              <div class="form-sec">
+                <div class="form-sec-head"><i class="ti ti-user form-sec-icon"></i><span class="form-sec-title">Personal information</span></div>
+                <div class="fg fg-2">
+                  <div class="fgroup"><span class="flabel">First name <span class="freq r">required</span></span><input class="finput" type="text" placeholder="João" /></div>
+                  <div class="fgroup"><span class="flabel">Last name <span class="freq r">required</span></span><input class="finput" type="text" placeholder="Ferreira" /></div>
+                </div>
+                <div class="fg fg-2">
+                  <div class="fgroup"><span class="flabel">Name on bib <span class="freq o">optional</span></span><input class="finput" type="text" placeholder="e.g. JOÃO" maxlength="20" /><span class="fhint">Max 20 characters · leave blank to use full name</span></div>
+                  <div class="fgroup"><span class="flabel">Date of birth <span class="freq r">required</span></span><input class="finput" type="text" placeholder="DD / MM / YYYY" /></div>
+                </div>
+                <div class="fg fg-3">
+                  <div class="fgroup"><span class="flabel">Gender <span class="freq r">required</span></span><select class="finput"><option value="">Select…</option><option>Male</option><option>Female</option><option>Non-binary</option><option>Prefer not to say</option></select></div>
+                  <div class="fgroup"><span class="flabel">Nationality <span class="freq o">optional</span></span><select class="finput"><option value="">Select…</option><option>Portuguese</option><option>Spanish</option><option>British</option><option>Other</option></select></div>
+                  <div class="fgroup"><span class="flabel">ID / Citizen card no. <span class="freq o">optional</span></span><input class="finput" type="text" placeholder="000000000ZZ0" /></div>
+                </div>
+                <div class="fg fg-2">
+                  <div class="fgroup"><span class="flabel">Club / Team <span class="freq o">optional</span></span><input class="finput" type="text" placeholder="Running Club Lisboa" /></div>
+                </div>
+              </div>
+            </div>
+            <div class="sec-divider"></div>
+          </div>
+
+          <!-- 2 · CONTACT -->
+          <div class="sec-block" id="fs-contact">
+            <div class="form-sec-wrap">
+              <div class="form-sec">
+                <div class="form-sec-head"><i class="ti ti-mail form-sec-icon"></i><span class="form-sec-title">Contact details</span></div>
+                <div class="fg fg-2">
+                  <div class="fgroup"><span class="flabel">Email <span class="freq r">required</span></span><input class="finput" type="email" placeholder="joao@example.com" /></div>
+                  <div class="fgroup"><span class="flabel">Phone number <span class="freq o">optional</span></span><input class="finput" type="tel" placeholder="+351 9xx xxx xxx" /></div>
+                </div>
+                <div class="fg fg-2">
+                  <div class="fgroup"><span class="flabel">VAT / NIF number <span class="freq o">optional</span></span><input class="finput" type="text" placeholder="e.g. 123456789" maxlength="20" /><span class="fhint">Required if you need a VAT receipt for your entry fee</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="sec-divider"></div>
+          </div>
+
+          <!-- 3 · ADDRESS -->
+          <div class="sec-block" id="fs-address">
+            <div class="form-sec-wrap">
+              <div class="form-sec">
+                <div class="form-sec-head"><i class="ti ti-map-pin form-sec-icon"></i><span class="form-sec-title">Address</span></div>
+                <div class="fg fg-1"><div class="fgroup"><span class="flabel">Street address <span class="freq o">optional</span></span><input class="finput" type="text" placeholder="Rua Example, 12, 2º Esq." /></div></div>
+                <div class="fg fg-3">
+                  <div class="fgroup"><span class="flabel">City <span class="freq o">optional</span></span><input class="finput" type="text" placeholder="Lisboa" /></div>
+                  <div class="fgroup"><span class="flabel">Postcode <span class="freq o">optional</span></span><input class="finput" type="text" placeholder="1000-001" /></div>
+                  <div class="fgroup"><span class="flabel">Country <span class="freq o">optional</span></span><select class="finput"><option>Portugal</option><option>Spain</option><option>Other</option></select></div>
+                </div>
+              </div>
+            </div>
+            <div class="sec-divider"></div>
+          </div>
+
+          <!-- 4 · ATHLETIC PROFILE -->
+          <div class="sec-block" id="fs-athletic">
+            <div class="form-sec-wrap">
+              <div class="form-sec">
+                <div class="form-sec-head"><i class="ti ti-run form-sec-icon"></i><span class="form-sec-title">Athletic profile</span></div>
+                <div class="fg fg-3">
+                  <div class="fgroup"><span class="flabel">Expected finish time <span class="freq o">optional</span></span><input class="finput" type="text" placeholder="e.g. 1:45:00" /></div>
+                  <div class="fgroup"><span class="flabel">Federation licence <span class="freq o">optional</span></span><input class="finput" type="text" placeholder="FAP-000000" /></div>
+                  <div class="fgroup"><span class="flabel">Years of experience <span class="freq o">optional</span></span><select class="finput"><option value="">Select…</option><option>Less than 1 year</option><option>1–3 years</option><option>3–5 years</option><option>5+ years</option></select></div>
+                </div>
+                <div class="fg fg-2">
+                  <div class="fgroup"><span class="flabel">Previous best time <span class="freq o">optional</span></span><input class="finput" type="text" placeholder="e.g. 1:38:20 (Lisboa Marathon)" /></div>
+                </div>
+              </div>
+            </div>
+            <div class="sec-divider"></div>
+          </div>
+
+          <!-- 5 · KIT & EXTRAS -->
+          <div class="sec-block" id="fs-kit">
+            <div class="form-sec-wrap">
+              <div class="form-sec">
+                <div class="form-sec-head"><i class="ti ti-shopping-bag form-sec-icon"></i><span class="form-sec-title">Kit &amp; extras</span></div>
+
+                <!-- T-SHIRT -->
+                <div class="extra-item">
+                  <div class="extra-header open" id="exh-tshirt" onclick="toggleExtra('exh-tshirt','exb-tshirt','ext-tshirt')">
+                    <div class="extra-toggle on" id="ext-tshirt"><div class="extra-toggle-knob"></div></div>
+                    <div class="extra-label-wrap"><div class="extra-name">T-shirt</div><div class="extra-desc">Technical race tee included with entry</div></div>
+                    <div class="extra-price">Included</div>
+                  </div>
+                  <div class="extra-body open" id="exb-tshirt">
+                    <div class="sub-label">Sleeve style</div>
+                    <div class="style-row" id="sr-sleeve">
+                      <div class="style-opt sel" onclick="selStyle(this,'sr-sleeve')"><div class="sdot"><div class="sdot-inner"></div></div>Short sleeve</div>
+                      <div class="style-opt" onclick="selStyle(this,'sr-sleeve')"><div class="sdot"><div class="sdot-inner"></div></div>Long sleeve</div>
+                      <div class="style-opt" onclick="selStyle(this,'sr-sleeve')"><div class="sdot"><div class="sdot-inner"></div></div>Sleeveless</div>
+                    </div>
+                    <div class="sub-label">Gender fit</div>
+                    <div class="gender-row" id="gr-tshirt">
+                      <div class="gender-opt sel" onclick="selGender(this,'gr-tshirt')">Unisex</div>
+                      <div class="gender-opt" onclick="selGender(this,'gr-tshirt')">Women's cut</div>
+                    </div>
+                    <div class="sub-label">Size</div>
+                    <div class="size-row" id="sz-tshirt">
+                      <div class="size-opt" onclick="selSize(this,'sz-tshirt')">XS</div><div class="size-opt sel" onclick="selSize(this,'sz-tshirt')">S</div><div class="size-opt" onclick="selSize(this,'sz-tshirt')">M</div><div class="size-opt" onclick="selSize(this,'sz-tshirt')">L</div><div class="size-opt" onclick="selSize(this,'sz-tshirt')">XL</div><div class="size-opt" onclick="selSize(this,'sz-tshirt')">XXL</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- CAP / HAT -->
+                <div class="extra-item">
+                  <div class="extra-header" id="exh-cap" onclick="toggleExtra('exh-cap','exb-cap','ext-cap','cap',6)">
+                    <div class="extra-toggle" id="ext-cap"><div class="extra-toggle-knob"></div></div>
+                    <div class="extra-label-wrap"><div class="extra-name">Cap / hat</div><div class="extra-desc">Technical running cap with event branding</div></div>
+                    <div class="extra-price">6,00 €</div>
+                  </div>
+                  <div class="extra-body" id="exb-cap">
+                    <div class="sub-label">Style</div>
+                    <div class="style-row" id="sr-cap">
+                      <div class="style-opt sel" onclick="selStyle(this,'sr-cap')"><div class="sdot"><div class="sdot-inner"></div></div>Snapback cap</div>
+                      <div class="style-opt" onclick="selStyle(this,'sr-cap')"><div class="sdot"><div class="sdot-inner"></div></div>Bucket hat</div>
+                      <div class="style-opt" onclick="selStyle(this,'sr-cap')"><div class="sdot"><div class="sdot-inner"></div></div>Beanie</div>
+                    </div>
+                    <div class="info-row"><i class="ti ti-check"></i><span>One size fits most · adjustable strap</span></div>
+                  </div>
+                </div>
+
+                <!-- SOCKS -->
+                <div class="extra-item">
+                  <div class="extra-header" id="exh-socks" onclick="toggleExtra('exh-socks','exb-socks','ext-socks','socks',5)">
+                    <div class="extra-toggle" id="ext-socks"><div class="extra-toggle-knob"></div></div>
+                    <div class="extra-label-wrap"><div class="extra-name">Socks</div><div class="extra-desc">Technical running socks</div></div>
+                    <div class="extra-price">5,00 €</div>
+                  </div>
+                  <div class="extra-body" id="exb-socks">
+                    <div class="sub-label">Shoe size (EU)</div>
+                    <div class="size-row" id="sz-socks">
+                      <div class="size-opt" onclick="selSize(this,'sz-socks')">35–37</div><div class="size-opt" onclick="selSize(this,'sz-socks')">38–40</div><div class="size-opt sel" onclick="selSize(this,'sz-socks')">41–43</div><div class="size-opt" onclick="selSize(this,'sz-socks')">44–46</div><div class="size-opt" onclick="selSize(this,'sz-socks')">47+</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- GAITER -->
+                <div class="extra-item">
+                  <div class="extra-header" id="exh-gaiter" onclick="toggleExtra('exh-gaiter','exb-gaiter','ext-gaiter','gaiter',8)">
+                    <div class="extra-toggle" id="ext-gaiter"><div class="extra-toggle-knob"></div></div>
+                    <div class="extra-label-wrap"><div class="extra-name">Trail gaiter</div><div class="extra-desc">Low-cut debris gaiter, one size fits most</div></div>
+                    <div class="extra-price">8,00 €</div>
+                  </div>
+                  <div class="extra-body" id="exb-gaiter">
+                    <div class="info-row"><i class="ti ti-check"></i><span>One size · fits shoe sizes 36–47 · compatible with trail and road shoes</span></div>
+                  </div>
+                </div>
+
+                <!-- BIB PERSONALISATION -->
+                <div class="extra-item">
+                  <div class="extra-header" id="exh-bibp" onclick="toggleExtra('exh-bibp','exb-bibp','ext-bibp','bibp',3)">
+                    <div class="extra-toggle" id="ext-bibp"><div class="extra-toggle-knob"></div></div>
+                    <div class="extra-label-wrap"><div class="extra-name">Bib personalisation</div><div class="extra-desc">Print a custom name or message on your race bib</div></div>
+                    <div class="extra-price">3,00 €</div>
+                  </div>
+                  <div class="extra-body" id="exb-bibp">
+                    <div class="fg fg-2">
+                      <div class="fgroup"><span class="flabel">Name on bib <span class="freq r">required</span></span><input class="finput" type="text" placeholder="e.g. JOÃO" maxlength="20" oninput="updateBibPreview(this.value)" /><span class="fhint">Max 20 characters</span></div>
+                      <div class="fgroup"><span class="flabel" style="margin-bottom:4px;">Preview</span><div style="border:1px solid var(--bd);border-radius:7px;padding:8px 12px;background:var(--bgs);display:flex;align-items:center;justify-content:center;min-height:38px;"><span id="bib-preview" style="font-size:15px;font-weight:600;color:var(--dk);letter-spacing:1.5px;">JOÃO</span></div></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- LUNCH -->
+                <div class="extra-item">
+                  <div class="extra-header" id="exh-lunch" onclick="toggleExtra('exh-lunch','exb-lunch','ext-lunch','lunch',12)">
+                    <div class="extra-toggle" id="ext-lunch"><div class="extra-toggle-knob"></div></div>
+                    <div class="extra-label-wrap"><div class="extra-name">Post-race lunch</div><div class="extra-desc">Hot meal at the finish village, served from 12:00</div></div>
+                    <div class="extra-price">12,00 €</div>
+                  </div>
+                  <div class="extra-body" id="exb-lunch">
+                    <div class="sub-label">Meal option</div>
+                    <div class="style-row" id="sr-meal"><div class="style-opt sel" onclick="selStyle(this,'sr-meal')"><div class="sdot"><div class="sdot-inner"></div></div>Standard</div><div class="style-opt" onclick="selStyle(this,'sr-meal')"><div class="sdot"><div class="sdot-inner"></div></div>Vegetarian</div><div class="style-opt" onclick="selStyle(this,'sr-meal')"><div class="sdot"><div class="sdot-inner"></div></div>Vegan</div><div class="style-opt" onclick="selStyle(this,'sr-meal')"><div class="sdot"><div class="sdot-inner"></div></div>Gluten-free</div></div>
+                  </div>
+                </div>
+
+                <!-- DINNER -->
+                <div class="extra-item">
+                  <div class="extra-header" id="exh-dinner" onclick="toggleExtra('exh-dinner','exb-dinner','ext-dinner','dinner',18)">
+                    <div class="extra-toggle" id="ext-dinner"><div class="extra-toggle-knob"></div></div>
+                    <div class="extra-label-wrap"><div class="extra-name">Awards dinner</div><div class="extra-desc">Sit-down dinner &amp; podium ceremony, Saturday evening</div></div>
+                    <div class="extra-price">18,00 €</div>
+                  </div>
+                  <div class="extra-body" id="exb-dinner">
+                    <div class="sub-label">Meal option</div>
+                    <div class="style-row" id="sr-dinner"><div class="style-opt sel" onclick="selStyle(this,'sr-dinner')"><div class="sdot"><div class="sdot-inner"></div></div>Standard</div><div class="style-opt" onclick="selStyle(this,'sr-dinner')"><div class="sdot"><div class="sdot-inner"></div></div>Vegetarian</div><div class="style-opt" onclick="selStyle(this,'sr-dinner')"><div class="sdot"><div class="sdot-inner"></div></div>Vegan</div><div class="style-opt" onclick="selStyle(this,'sr-dinner')"><div class="sdot"><div class="sdot-inner"></div></div>Gluten-free</div></div>
+                    <div style="margin-top:4px;"><div class="info-row"><i class="ti ti-clock"></i><span>Doors open 19:30 · dress code smart casual · venue TBC</span></div></div>
+                  </div>
+                </div>
+
+                <!-- TRANSPORT -->
+                <div class="extra-item">
+                  <div class="extra-header" id="exh-transport" onclick="toggleExtra('exh-transport','exb-transport','ext-transport','transport',10)">
+                    <div class="extra-toggle" id="ext-transport"><div class="extra-toggle-knob"></div></div>
+                    <div class="extra-label-wrap"><div class="extra-name">Transport</div><div class="extra-desc">Return coach from Lisboa — Sintra on race day</div></div>
+                    <div class="extra-price">10,00 €</div>
+                  </div>
+                  <div class="extra-body" id="exb-transport">
+                    <div class="sub-label">Pickup point</div>
+                    <div class="style-row" id="sr-transport">
+                      <div class="style-opt sel" onclick="selStyle(this,'sr-transport')"><div class="sdot"><div class="sdot-inner"></div></div>Oriente station</div>
+                      <div class="style-opt" onclick="selStyle(this,'sr-transport')"><div class="sdot"><div class="sdot-inner"></div></div>Marquês de Pombal</div>
+                      <div class="style-opt" onclick="selStyle(this,'sr-transport')"><div class="sdot"><div class="sdot-inner"></div></div>Belém</div>
+                    </div>
+                    <div class="info-row"><i class="ti ti-clock"></i><span>Departs 06:00 · returns after prize giving · limited seats</span></div>
+                  </div>
+                </div>
+
+                <!-- BAG STORAGE -->
+                <div class="extra-item">
+                  <div class="extra-header" id="exh-bag" onclick="toggleExtra('exh-bag','exb-bag','ext-bag','bag',2)">
+                    <div class="extra-toggle" id="ext-bag"><div class="extra-toggle-knob"></div></div>
+                    <div class="extra-label-wrap"><div class="extra-name">Bag storage</div><div class="extra-desc">Secure drop bag at the start/finish area</div></div>
+                    <div class="extra-price">2,00 €</div>
+                  </div>
+                  <div class="extra-body" id="exb-bag">
+                    <div class="info-row"><i class="ti ti-check"></i><span>One bag per participant · max 10 kg · collected after the finish</span></div>
+                  </div>
+                </div>
+
+                <!-- PLUS ONE -->
+                <div class="extra-item">
+                  <div class="extra-header" id="exh-plusone" onclick="toggleExtra('exh-plusone','exb-plusone','ext-plusone','plusone',5)">
+                    <div class="extra-toggle" id="ext-plusone"><div class="extra-toggle-knob"></div></div>
+                    <div class="extra-label-wrap"><div class="extra-name">Plus-one guest</div><div class="extra-desc">Bring a supporter — access to finish village &amp; facilities</div></div>
+                    <div class="extra-price">5,00 €</div>
+                  </div>
+                  <div class="extra-body" id="exb-plusone">
+                    <div class="fg fg-2" style="margin-bottom:12px;">
+                      <div class="fgroup"><span class="flabel">Guest full name <span class="freq r">required</span></span><input class="finput" type="text" placeholder="Maria Ferreira" /></div>
+                      <div class="fgroup"><span class="flabel">Number of guests</span><div class="qty-row"><button class="qty-btn" onclick="changeQty(-1)">−</button><span class="qty-val" id="guest-qty">1</span><button class="qty-btn" onclick="changeQty(1)">+</button><span style="font-size:12px;color:var(--mu);margin-left:4px;">× 5,00 € each</span></div></div>
+                    </div>
+                    <div style="border-top:1px solid var(--bd);padding-top:13px;">
+                      <div style="display:flex;align-items:center;justify-content:space-between;">
+                        <div><div style="font-size:12px;font-weight:500;color:var(--dk);">Add lunch for guest(s)</div><div style="font-size:11px;color:var(--mu);margin-top:1px;">12,00 € per guest</div></div>
+                        <div class="extra-toggle" id="ext-guestlunch" onclick="toggleGuestLunch(this)" style="cursor:pointer;flex-shrink:0;"><div class="extra-toggle-knob"></div></div>
+                      </div>
+                      <div id="exb-guestlunch" style="display:none;margin-top:11px;">
+                        <div class="sub-label">Meal option for guest(s)</div>
+                        <div class="style-row" id="sr-gmeal"><div class="style-opt sel" onclick="selStyle(this,'sr-gmeal')"><div class="sdot"><div class="sdot-inner"></div></div>Standard</div><div class="style-opt" onclick="selStyle(this,'sr-gmeal')"><div class="sdot"><div class="sdot-inner"></div></div>Vegetarian</div><div class="style-opt" onclick="selStyle(this,'sr-gmeal')"><div class="sdot"><div class="sdot-inner"></div></div>Vegan</div><div class="style-opt" onclick="selStyle(this,'sr-gmeal')"><div class="sdot"><div class="sdot-inner"></div></div>Gluten-free</div></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+            <div class="sec-divider"></div>
+          </div>
+
+          <!-- 6 · EMERGENCY CONTACT -->
+          <div class="sec-block" id="fs-emergency">
+            <div class="form-sec-wrap">
+              <div class="form-sec">
+                <div class="form-sec-head"><i class="ti ti-heart-rate-monitor form-sec-icon"></i><span class="form-sec-title">Emergency contact</span></div>
+                <div class="fg fg-2">
+                  <div class="fgroup"><span class="flabel">Full name <span class="freq r">required</span></span><input class="finput" type="text" placeholder="Maria Ferreira" /></div>
+                  <div class="fgroup"><span class="flabel">Phone number <span class="freq r">required</span></span><input class="finput" type="tel" placeholder="+351 9xx xxx xxx" /></div>
+                </div>
+              </div>
+            </div>
+            <div class="sec-divider"></div>
+          </div>
+
+          <!-- 7 · HEALTH & MEDICAL -->
+          <div class="sec-block" id="fs-health">
+            <div class="form-sec-wrap">
+              <div class="form-sec">
+                <div class="form-sec-head"><i class="ti ti-stethoscope form-sec-icon"></i><span class="form-sec-title">Health &amp; medical</span></div>
+                <div class="fg fg-1">
+                  <div class="fgroup"><span class="flabel">Allergies / medical conditions <span class="freq o">optional</span></span><textarea class="finput" rows="2" placeholder="e.g. penicillin allergy, asthma, diabetes — anything race medical staff should know"></textarea></div>
+                </div>
+              </div>
+            </div>
+            <div class="sec-divider"></div>
+          </div>
+
+          <!-- 8 · CONSENT & WAIVER -->
+          <div class="sec-block" id="fs-legal">
+            <div class="form-sec-wrap">
+              <div class="form-sec" style="margin-bottom:0;">
+                <div class="form-sec-head"><i class="ti ti-file-certificate form-sec-icon"></i><span class="form-sec-title">Consent &amp; waiver</span></div>
+
+                <!-- Race waivers (organiser) -->
+                <div style="font-size:11px;font-weight:500;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Race waivers</div>
+                <div class="check-row"><div class="check-box chk" onclick="tCheck(this)"><i class="ti ti-check" style="font-size:10px;color:#fff;"></i></div><div class="check-text">I have read and agree to the <a>race waiver and liability release</a>. I understand the risks and participate voluntarily. <strong>Required</strong></div></div>
+                <div class="check-row"><div class="check-box chk" onclick="tCheck(this)"><i class="ti ti-check" style="font-size:10px;color:#fff;"></i></div><div class="check-text">I confirm that I am medically fit to participate and have consulted a physician where required. <strong>Required</strong></div></div>
+                <div class="check-row"><div class="check-box" onclick="tCheck(this)"></div><div class="check-text">I consent to being photographed and filmed during the event, and for images to be used for promotional purposes. <span style="color:var(--mu);">Optional</span></div></div>
+
+                <!-- RaceFinder T&Cs -->
+                <div style="font-size:11px;font-weight:500;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 8px;">RaceFinder</div>
+                <div class="check-row"><div class="check-box chk" onclick="tCheck(this)"><i class="ti ti-check" style="font-size:10px;color:#fff;"></i></div><div class="check-text">I accept RaceFinder's <a>Terms &amp; Conditions</a> and <a>Privacy Policy</a>. <strong>Required</strong></div></div>
+                <div class="check-row"><div class="check-box" onclick="tCheck(this)"></div><div class="check-text">I agree to receive communications from RaceFinder's partners about relevant products, events, and offers. <span style="color:var(--mu);">Optional</span></div></div>
+                <div class="check-row"><div class="check-box" onclick="tCheck(this)"></div><div class="check-text">I'd like to receive news, event recommendations and offers from RaceFinder. <span style="color:var(--mu);">Optional</span></div></div>
+
+              </div>
+            </div>
+          </div>
+
+          <div id="fs-empty" style="display:none;padding:32px;text-align:center;color:var(--mu);font-size:13px;"><i class="ti ti-layout-off" style="font-size:20px;display:block;margin-bottom:8px;"></i>No sections enabled.</div>
+
+          <div style="padding:20px 32px;border-top:1px solid var(--bd);display:flex;justify-content:flex-end;">
+            <button class="btn-book green" onclick="go('a3')">Continue to payment <i class="ti ti-arrow-right"></i></button>
+          </div>
+
+        </div>
+
+        <!-- SIDEBAR -->
+        <div class="checkout-sidebar">
+          <div class="sum-tag"><i class="ti ti-shield-check" style="font-size:11px;"></i>Secure checkout</div>
+          <div class="sum-race">Sintra Mountain Trail 2026</div>
+          <div class="sum-meta">14 Jun · Sintra, Lisboa</div>
+
+          <!-- Distance selector in sidebar -->
+          <div style="margin-bottom:14px;">
+            <div style="font-size:11px;font-weight:500;color:var(--mu);margin-bottom:7px;">Select your distance</div>
+            <div style="display:flex;flex-direction:column;gap:5px;" id="dist-opts">
+              <div class="dist-card sel" data-km="12" data-price="12" onclick="selDistSidebar(this)">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <div style="display:flex;align-items:center;gap:6px;"><div class="rdot" style="border-color:var(--g);"><div class="rdot-inner" style="display:block;"></div></div><span style="font-size:13px;font-weight:500;">12 km</span><span style="font-size:11px;color:var(--mu);">Short trail</span></div>
+                  <span style="font-size:13px;font-weight:600;color:var(--g);">12 €</span>
+                </div>
+              </div>
+              <div class="dist-card" data-km="21" data-price="15" onclick="selDistSidebar(this)">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <div style="display:flex;align-items:center;gap:6px;"><div class="rdot"><div class="rdot-inner"></div></div><span style="font-size:13px;font-weight:500;">21 km</span><span style="font-size:11px;color:var(--mu);">Half trail</span></div>
+                  <span style="font-size:13px;font-weight:600;color:var(--mu);">15 €</span>
+                </div>
+              </div>
+              <div class="dist-card" data-km="42" data-price="18" onclick="selDistSidebar(this)">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <div style="display:flex;align-items:center;gap:6px;"><div class="rdot"><div class="rdot-inner"></div></div><span style="font-size:13px;font-weight:500;">42 km</span><span style="font-size:11px;color:var(--mu);">Full trail</span></div>
+                  <span style="font-size:13px;font-weight:600;color:var(--mu);">18 €</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sum-sep"></div>
+
+          <!-- Line items -->
+          <div class="sum-row"><span>Entry — <span id="s-dist">12 km</span></span><span id="s-entry">12,00 €</span></div>
+          <div class="sum-row extra" id="sr-cap" style="display:none;"><span>Cap / hat</span><span>6,00 €</span></div>
+          <div class="sum-row extra" id="sr-socks" style="display:none;"><span>Socks</span><span>5,00 €</span></div>
+          <div class="sum-row extra" id="sr-gaiter" style="display:none;"><span>Trail gaiter</span><span>8,00 €</span></div>
+          <div class="sum-row extra" id="sr-bibp" style="display:none;"><span>Bib personalisation</span><span>3,00 €</span></div>
+          <div class="sum-row extra" id="sr-lunch" style="display:none;"><span>Post-race lunch</span><span>12,00 €</span></div>
+          <div class="sum-row extra" id="sr-dinner" style="display:none;"><span>Awards dinner</span><span>18,00 €</span></div>
+          <div class="sum-row extra" id="sr-transport" style="display:none;"><span>Transport</span><span>10,00 €</span></div>
+          <div class="sum-row extra" id="sr-bag" style="display:none;"><span>Bag storage</span><span>2,00 €</span></div>
+          <div class="sum-row extra" id="sr-plusone" style="display:none;"><span>Plus-one guest</span><span id="sp-price">5,00 €</span></div>
+          <div class="sum-row extra" id="sr-guestlunch" style="display:none;"><span>Guest lunch</span><span id="sg-price">12,00 €</span></div>
+
+          <div class="sum-sep"></div>
+          <div class="sum-total"><span>Total</span><span id="s-total">12,00 €</span></div>
+
+          <!-- Promo code in sidebar -->
+          <div class="promo-field">
+            <div style="font-size:11px;font-weight:500;color:var(--mu);margin-bottom:7px;">Promo / discount code</div>
+            <div class="promo-wrap">
+              <input class="promo-input" type="text" placeholder="e.g. CLUB2026" id="promo-input" />
+              <button class="promo-btn" onclick="applyPromo()">Apply</button>
+            </div>
+            <div id="promo-msg" style="font-size:11px;color:var(--g);margin-top:5px;display:none;"><i class="ti ti-check" style="font-size:12px;vertical-align:-1px;"></i> Code applied — 10% discount</div>
+          </div>
+
+          <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--bd);">
+            <div style="font-size:11px;color:var(--mu);margin-bottom:5px;font-weight:500;">Visible sections</div>
+            <div id="sec-count" style="font-size:13px;font-weight:500;color:var(--dk);">8 of 8</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ A3: Payment ══ -->
+    <div class="screen" id="screen-a3">
+      <div class="checkout-header">
+        <button class="back-btn" onclick="go('a2')"><i class="ti ti-arrow-left"></i>Back</button>
+        <div class="checkout-steps">
+          <div class="cstep done"><div class="cstep-num done"><i class="ti ti-check" style="font-size:10px;"></i></div>Your details</div>
+          <div class="cstep-divider"></div>
+          <div class="cstep active"><div class="cstep-num">2</div>Payment</div>
+        </div>
+        <div style="width:60px;"></div>
+      </div>
+      <div class="checkout-body">
+        <div class="checkout-form">
+          <div class="form-sec">
+            <div class="form-sec-head"><i class="ti ti-credit-card form-sec-icon"></i><span class="form-sec-title">Payment method</span></div>
+            <div style="display:flex;gap:8px;margin-bottom:16px;">
+              <div class="radio-opt sel" onclick="selRadio(this)" style="gap:6px;"><div class="rdot"><div class="rdot-inner"></div></div><i class="ti ti-credit-card" style="font-size:14px;"></i>Card</div>
+              <div class="radio-opt" onclick="selRadio(this)" style="gap:6px;"><div class="rdot"><div class="rdot-inner"></div></div><i class="ti ti-brand-paypal" style="font-size:14px;"></i>PayPal</div>
+              <div class="radio-opt" onclick="selRadio(this)" style="gap:6px;"><div class="rdot"><div class="rdot-inner"></div></div><i class="ti ti-device-mobile" style="font-size:14px;"></i>MBWay</div>
+            </div>
+            <div class="fg fg-1"><div class="fgroup"><span class="flabel">Card number</span><input class="finput" type="text" placeholder="4242  4242  4242  4242" /></div></div>
+            <div class="fg fg-2">
+              <div class="fgroup"><span class="flabel">Expiry</span><input class="finput" type="text" placeholder="MM / YY" /></div>
+              <div class="fgroup"><span class="flabel">CVC</span><input class="finput" type="text" placeholder="···" /></div>
+            </div>
+            <div class="info-row" style="margin-top:10px;"><i class="ti ti-lock"></i><span>Payments secured by Stripe · Your card details are never stored.</span></div>
+          </div>
+        </div>
+        <div class="checkout-sidebar">
+          <div class="sum-tag"><i class="ti ti-shield-check" style="font-size:11px;"></i>Order summary</div>
+          <div class="sum-race">Sintra Mountain Trail 2026</div>
+          <div class="sum-meta">14 Jun · Sintra · <span id="pay-dist">12 km</span></div>
+          <div class="sum-row"><span>Entry</span><span id="pay-entry">12,00 €</span></div>
+          <div class="sum-sep"></div>
+          <div class="sum-total"><span>Total</span><span id="pay-total">12,00 €</span></div>
+          <button class="btn-book green full" style="margin-top:14px;" onclick="go('a4')"><i class="ti ti-lock"></i>Pay now</button>
+          <div class="sum-info">By completing this booking you agree to the race's terms and RaceFinder's <a style="color:var(--g);cursor:pointer;">Terms of Use</a>.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ A4: Confirmation ══ -->
+    <div class="screen" id="screen-a4">
+      <div class="centered-screen">
+        <div class="icon-circle green"><i class="ti ti-trophy"></i></div>
+        <div class="bib-chip"><div class="bib-num">#3847</div><div class="bib-label">Your bib number</div></div>
+        <div class="screen-title">You're in!</div>
+        <p class="screen-sub">Booking confirmed for Sintra Mountain Trail 2026. A confirmation email is on its way to you.</p>
+        <div class="action-row">
+          <button class="btn-book green" onclick="go('a1')"><i class="ti ti-file-download"></i>Download bib</button>
+          <button class="btn-sec" onclick="goPage('home')">Browse more races</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ B1: Event detail (not bookable) ══ -->
+    <div class="screen" id="screen-b1">
+      <div class="race-hero amber-hero">
+        <div class="race-category-pill"><i class="ti ti-bike"></i> MTB · 60 km</div>
+        <h1>Rota dos Templários MTB 2026</h1>
+        <div class="race-meta">
+          <div class="race-meta-item"><i class="ti ti-calendar"></i>05 Sep 2026</div>
+          <div class="race-meta-item"><i class="ti ti-map-pin"></i>Tomar, Santarém</div>
+          <div class="race-meta-item"><i class="ti ti-clock"></i>Registrations open Jul 2026</div>
+        </div>
+      </div>
+      <div class="race-body">
+        <div class="race-info-grid">
+          <div class="info-card"><div class="info-card-label">Distance</div><div class="info-card-value">60 km</div></div>
+          <div class="info-card"><div class="info-card-label">Elevation gain</div><div class="info-card-value">+1 800 m</div></div>
+          <div class="info-card"><div class="info-card-label">Estimated fee</div><div class="info-card-value">~25 €</div></div>
+        </div>
+        <div class="book-section">
+          <div>
+            <div class="price-label">Booking status</div>
+            <div style="display:flex;align-items:center;gap:7px;margin-top:3px;"><div class="status-dot"></div><span style="font-family:var(--ffh);font-size:16px;font-weight:600;">Not yet open</span></div>
+            <div style="font-size:11px;color:var(--mu);margin-top:4px;">Registrations expected to open July 2026</div>
+          </div>
+          <button class="btn-book orange" onclick="go('b2')"><i class="ti ti-bell"></i>Book Now</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ B2: Nudge + Register ══ -->
+    <div class="screen" id="screen-b2">
+      <div class="checkout-header" style="padding-bottom:16px;">
+        <button class="back-btn" onclick="go('b1')"><i class="ti ti-arrow-left"></i>Back to race</button>
+        <span style="font-size:13px;font-weight:500;color:var(--dk);">Rota dos Templários MTB 2026</span>
+        <div style="width:100px;"></div>
+      </div>
+      <div class="nudge-banner"><i class="ti ti-info-circle"></i><div><h3>Bookings aren't open yet on RaceFinder</h3><p>Registrations are expected to open in July 2026. Create a free account to save this race and get notified the moment booking goes live.</p></div></div>
+      <div class="register-body">
+        <div>
+          <p style="font-size:13px;font-weight:500;color:var(--dk);margin-bottom:13px;">What you get with a free account:</p>
+          <div class="benefit-item"><div class="benefit-icon"><i class="ti ti-bell-ringing"></i></div><div class="benefit-text"><h4>Instant booking alerts</h4><p>We'll email you the moment registrations open — no more missed sign-ups.</p></div></div>
+          <div class="benefit-item"><div class="benefit-icon"><i class="ti ti-heart"></i></div><div class="benefit-text"><h4>Save races to your profile</h4><p>Keep a wishlist of upcoming events and plan your season ahead.</p></div></div>
+          <div class="benefit-item"><div class="benefit-icon"><i class="ti ti-calendar-stats"></i></div><div class="benefit-text"><h4>Race history &amp; stats</h4><p>Track all your past and future races in one place.</p></div></div>
+          <div class="benefit-item"><div class="benefit-icon"><i class="ti ti-filter"></i></div><div class="benefit-text"><h4>Custom race alerts</h4><p>Set filters by sport, region, distance and date.</p></div></div>
+        </div>
+        <div>
+          <div class="auth-card">
+            <div class="auth-title">Create a free account</div>
+            <div class="auth-social"><button class="social-btn"><i class="ti ti-brand-google"></i> Google</button><button class="social-btn"><i class="ti ti-brand-facebook"></i> Facebook</button></div>
+            <div class="auth-divider">or with email</div>
+            <input class="auth-input" type="text" placeholder="Full name" />
+            <input class="auth-input" type="email" placeholder="Email address" />
+            <input class="auth-input" type="password" placeholder="Password" style="margin-bottom:12px;" />
+            <button class="btn-full" onclick="go('b3')"><i class="ti ti-bell"></i>Save &amp; notify me</button>
+            <div class="auth-footer">Already have an account? <a onclick="go('b3')">Log in</a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ B3: Alert saved ══ -->
+    <div class="screen" id="screen-b3">
+      <div class="centered-screen">
+        <div class="icon-circle orange"><i class="ti ti-bell-ringing"></i></div>
+        <div class="screen-title">You're on the list!</div>
+        <p class="screen-sub">Rota dos Templários MTB 2026 has been saved to your profile. We'll alert you the moment bookings open in July 2026.</p>
+        <div class="alert-chips">
+          <div class="alert-chip"><i class="ti ti-mail" style="font-size:13px;"></i>Email alert set</div>
+          <div class="alert-chip"><i class="ti ti-heart" style="font-size:13px;"></i>Saved to profile</div>
+          <div class="alert-chip"><i class="ti ti-calendar" style="font-size:13px;"></i>Jul 2026 reminder</div>
+        </div>
+        <div class="action-row">
+          <button class="btn-book orange" onclick="go('b1')"><i class="ti ti-layout-dashboard"></i>View my profile</button>
+          <button class="btn-sec" onclick="goPage('home')">Browse more races</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content-card -->
+</div><!-- /page-flows -->
+
+<style>
+/* dist card styles (inline because dynamic) */
+.dist-card{border:1px solid var(--bd);border-radius:8px;padding:9px 12px;cursor:pointer;transition:border-color .15s,background .15s;background:var(--bg);}
+.dist-card:hover{border-color:var(--bs);}
+.dist-card.sel{border-color:var(--g);background:var(--gl);}
+.dist-card.sel .rdot{border-color:var(--g);}
+.dist-card.sel .rdot-inner{display:block;}
+.dist-card.sel span[style*="color:var(--mu)"]{color:var(--g) !important;}
+</style>
+
+<script>
+/* ── navigation ── */
+function goPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');}
+function goFlow(flow){goPage('flows');document.getElementById('tab-a').className='flow-tab'+(flow==='a'?' active':'');document.getElementById('tab-b').className='flow-tab'+(flow==='b'?' active':'');go(flow+'1');}
+function switchTab(flow){document.getElementById('tab-a').className='flow-tab'+(flow==='a'?' active':'');document.getElementById('tab-b').className='flow-tab'+(flow==='b'?' active':'');go(flow+'1');}
+function go(sid){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));const t=document.getElementById('screen-'+sid);if(t){t.classList.add('active');window.scrollTo(0,0);}}
+
+/* ── distance selector (sidebar) ── */
+let basePrice=12, guests=1;
+function selDistSidebar(el){
+  document.querySelectorAll('.dist-card').forEach(c=>{
+    c.classList.remove('sel');
+    c.querySelector('.rdot-inner').style.display='none';
+    c.querySelector('.rdot').style.borderColor='';
+    const priceEl=c.querySelector('span:last-child');
+    priceEl.style.color='var(--mu)';
+  });
+  el.classList.add('sel');
+  el.querySelector('.rdot-inner').style.display='block';
+  el.querySelector('.rdot').style.borderColor='var(--g)';
+  el.querySelector('span:last-child').style.color='var(--g)';
+  const km=el.dataset.km;
+  basePrice=parseFloat(el.dataset.price);
+  document.getElementById('s-dist').textContent=km+' km';
+  document.getElementById('s-entry').textContent=basePrice.toFixed(2).replace('.',',')+' €';
+  document.getElementById('pay-dist').textContent=km+' km';
+  document.getElementById('pay-entry').textContent=basePrice.toFixed(2).replace('.',',')+' €';
+  updateTotal();
+}
+
+/* ── extras ── */
+const extraState={cap:false,socks:false,gaiter:false,bibp:false,lunch:false,dinner:false,transport:false,bag:false,plusone:false,guestlunch:false};
+const extraPrices={cap:6,socks:5,gaiter:8,bibp:3,lunch:12,dinner:18,transport:10,bag:2,plusone:5};
+
+function toggleExtra(headerId,bodyId,togId,key){
+  if(!key)return;
+  extraState[key]=!extraState[key];
+  document.getElementById(togId).classList.toggle('on',extraState[key]);
+  document.getElementById(bodyId).classList.toggle('open',extraState[key]);
+  document.getElementById(headerId).classList.toggle('open',extraState[key]);
+  const sr=document.getElementById('sr-'+key);
+  if(sr)sr.style.display=extraState[key]?'flex':'none';
+  updateTotal();
+}
+
+function toggleGuestLunch(tog){
+  extraState.guestlunch=!extraState.guestlunch;
+  tog.classList.toggle('on',extraState.guestlunch);
+  document.getElementById('exb-guestlunch').style.display=extraState.guestlunch?'block':'none';
+  const sr=document.getElementById('sr-guestlunch');
+  if(sr)sr.style.display=(extraState.guestlunch&&extraState.plusone)?'flex':'none';
+  updateTotal();
+}
+
+function changeQty(d){
+  guests=Math.max(1,Math.min(10,guests+d));
+  document.getElementById('guest-qty').textContent=guests;
+  const poe=document.getElementById('sp-price');
+  const gle=document.getElementById('sg-price');
+  if(poe)poe.textContent=(guests*5).toFixed(2).replace('.',',')+' €';
+  if(gle)gle.textContent=(guests*12).toFixed(2).replace('.',',')+' €';
+  updateTotal();
+}
+
+function updateTotal(){
+  let t=basePrice;
+  Object.keys(extraPrices).forEach(k=>{
+    if(extraState[k]) t+=k==='plusone'?guests*extraPrices[k]:extraPrices[k];
+  });
+  if(extraState.plusone&&extraState.guestlunch) t+=guests*12;
+  const fmt=v=>v.toFixed(2).replace('.',',')+' €';
+  const el=document.getElementById('s-total');if(el)el.textContent=fmt(t);
+  const pel=document.getElementById('pay-total');if(pel)pel.textContent=fmt(t);
+}
+
+/* ── promo code ── */
+function applyPromo(){
+  const v=document.getElementById('promo-input').value.trim().toUpperCase();
+  const msg=document.getElementById('promo-msg');
+  if(v.length>0){msg.style.display='block';}
+}
+
+/* ── section toggles ── */
+function togSec(tog,secId){
+  tog.classList.toggle('on');
+  document.getElementById(secId).classList.toggle('hidden');
+  const total=document.querySelectorAll('#screen-a2 .sec-block').length;
+  const visible=document.querySelectorAll('#screen-a2 .sec-block:not(.hidden)').length;
+  document.getElementById('sec-count').textContent=visible+' of '+total;
+  document.getElementById('fs-empty').style.display=visible===0?'block':'none';
+}
+
+/* ── form helpers ── */
+function selRadio(el){el.closest('div').querySelectorAll('.radio-opt').forEach(s=>s.classList.remove('sel'));el.classList.add('sel');}
+function selStyle(el,rowId){document.getElementById(rowId).querySelectorAll('.style-opt').forEach(s=>s.classList.remove('sel'));el.classList.add('sel');}
+function selGender(el,rowId){document.getElementById(rowId).querySelectorAll('.gender-opt').forEach(s=>s.classList.remove('sel'));el.classList.add('sel');}
+function selSize(el,rowId){document.getElementById(rowId).querySelectorAll('.size-opt').forEach(s=>s.classList.remove('sel'));el.classList.add('sel');}
+function tCheck(box){box.classList.toggle('chk');box.innerHTML=box.classList.contains('chk')?'<i class="ti ti-check" style="font-size:10px;color:#fff;"></i>':'';}
+function updateBibPreview(val){const el=document.getElementById('bib-preview');if(el)el.textContent=val.toUpperCase()||'JOÃO';}
+</script>
+</body>
+</html>
