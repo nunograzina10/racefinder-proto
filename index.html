@@ -10,84 +10,56 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --orange: #FF5F1F;
-      --charcoal: #1A1A1A;
-      --mid: #6B6B6B;
-      --light: #F0EBE5;
-      --divider: #E8E0DA;
-      --white: #ffffff;
-      --radius: 14px;
-    }
-
+    :root { --orange: #FF5F1F; --charcoal: #1A1A1A; --mid: #6B6B6B; --light: #F0EBE5; --divider: #E8E0DA; --white: #ffffff; --radius: 14px; }
     body { font-family: 'DM Sans', system-ui, sans-serif; background: var(--light); min-height: 100vh; color: var(--charcoal); }
-
     header { background: var(--white); border-bottom: 1px solid var(--divider); padding: 0 40px; display: flex; align-items: center; height: 60px; gap: 16px; }
     .logo { display: flex; align-items: center; gap: 9px; text-decoration: none; }
     .logo-mark { width: 30px; height: 30px; background: var(--orange); border-radius: 7px; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; }
     .logo-text { font-size: 15px; font-weight: 600; color: var(--charcoal); letter-spacing: -0.01em; }
     .logo-sep { width: 1px; height: 20px; background: var(--divider); }
     .logo-subtitle { font-size: 13px; color: var(--mid); }
-
     .hero-strip { background: var(--orange); padding: 52px 40px 48px; position: relative; overflow: hidden; }
     .hero-strip::before { content: ''; position: absolute; top: -80px; right: -80px; width: 340px; height: 340px; border-radius: 50%; background: rgba(255,255,255,0.07); pointer-events: none; }
     .hero-strip::after { content: ''; position: absolute; bottom: -100px; left: 30%; width: 260px; height: 260px; border-radius: 50%; background: rgba(255,255,255,0.05); pointer-events: none; }
-    .hero-inner { max-width: 940px; margin: 0 auto; position: relative; z-index: 1; }
+    .hero-inner { max-width: 980px; margin: 0 auto; position: relative; z-index: 1; }
     .hero-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.14em; color: rgba(255,255,255,0.6); margin-bottom: 10px; }
     .hero-title { font-family: 'Bebas Neue', sans-serif; font-size: 56px; line-height: 1; color: white; letter-spacing: 0.02em; margin-bottom: 14px; }
     .hero-desc { font-size: 15px; color: rgba(255,255,255,0.75); max-width: 480px; line-height: 1.6; }
     .hero-meta { margin-top: 28px; display: flex; align-items: center; gap: 20px; }
     .hero-meta-item { display: flex; align-items: center; gap: 7px; font-size: 12px; color: rgba(255,255,255,0.6); }
-
-    main { max-width: 940px; margin: 0 auto; padding: 48px 40px 80px; }
-
-    .section-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 20px; }
+    main { max-width: 980px; margin: 0 auto; padding: 48px 40px 80px; }
+    .section-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
     .section-title { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--mid); }
+    .section-group-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--mid); margin: 32px 0 12px; display: flex; align-items: center; gap: 10px; }
+    .section-group-label::after { content: ''; flex: 1; height: 1px; background: var(--divider); }
     .section-count { font-size: 12px; color: var(--mid); }
-
-    .proto-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 16px; }
-
+    .proto-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 14px; }
     .proto-card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--divider); overflow: hidden; text-decoration: none; display: flex; flex-direction: column; transition: box-shadow 0.18s, transform 0.18s, border-color 0.18s; }
     .proto-card:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.1); transform: translateY(-2px); border-color: #d0c8c0; }
-
-    .proto-card-thumb { height: 152px; background: linear-gradient(135deg, #FF5F1F 0%, #FF8C5A 100%); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+    .proto-card-thumb { height: 148px; background: linear-gradient(135deg, #FF5F1F 0%, #FF8C5A 100%); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
     .proto-card-thumb::before { content: ''; position: absolute; top: -30px; right: -30px; width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.08); }
-    .proto-thumb-icon { font-size: 40px; color: rgba(255,255,255,0.55); position: relative; z-index: 1; }
-    .proto-thumb-label { position: absolute; bottom: 12px; left: 14px; font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 0.04em; color: rgba(255,255,255,0.8); }
-
-    .proto-card-body { padding: 18px 20px 20px; flex: 1; display: flex; flex-direction: column; }
-    .proto-card-title { font-size: 15px; font-weight: 600; color: var(--charcoal); margin-bottom: 6px; line-height: 1.3; }
-    .proto-card-desc { font-size: 13px; color: var(--mid); line-height: 1.55; flex: 1; }
-
-    .proto-card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--divider); }
+    .proto-thumb-icon { font-size: 38px; color: rgba(255,255,255,0.55); position: relative; z-index: 1; }
+    .proto-thumb-label { position: absolute; bottom: 12px; left: 14px; font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 0.04em; color: rgba(255,255,255,0.8); }
+    .proto-card-body { padding: 16px 18px 18px; flex: 1; display: flex; flex-direction: column; }
+    .proto-card-title { font-size: 14px; font-weight: 600; color: var(--charcoal); margin-bottom: 5px; line-height: 1.3; }
+    .proto-card-desc { font-size: 12px; color: var(--mid); line-height: 1.55; flex: 1; }
+    .proto-card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--divider); }
     .proto-tag { display: inline-flex; align-items: center; gap: 5px; background: #FFF0E8; color: #C44000; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px; letter-spacing: 0.04em; }
     .proto-date { font-size: 11px; color: var(--mid); }
     .proto-arrow { font-size: 18px; color: var(--orange); opacity: 0; transition: opacity 0.15s, transform 0.15s; }
     .proto-card:hover .proto-arrow { opacity: 1; transform: translateX(3px); }
-
     .proto-card.placeholder { border-style: dashed; border-color: #D8D0C8; background: transparent; pointer-events: none; }
     .proto-card.placeholder .proto-card-thumb { background: #EDE8E2; }
     .proto-thumb-icon.muted { color: #C8C0B8; }
     .proto-card.placeholder .proto-card-title { color: var(--mid); }
     .proto-card.placeholder .proto-card-desc { color: #AAA; }
-
     footer { border-top: 1px solid var(--divider); padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; background: var(--white); }
     .footer-left { font-size: 12px; color: var(--mid); }
     .footer-link { font-size: 12px; color: var(--orange); font-weight: 500; text-decoration: none; }
-    .footer-link:hover { opacity: 0.8; }
-
-    @media (max-width: 600px) {
-      header { padding: 0 20px; }
-      .hero-strip { padding: 36px 20px 32px; }
-      .hero-title { font-size: 40px; }
-      main { padding: 32px 20px 60px; }
-      footer { padding: 20px; flex-direction: column; gap: 8px; text-align: center; }
-    }
+    @media (max-width: 600px) { header { padding: 0 20px; } .hero-strip { padding: 36px 20px 32px; } .hero-title { font-size: 40px; } main { padding: 32px 20px 60px; } footer { padding: 20px; flex-direction: column; gap: 8px; text-align: center; } }
   </style>
 </head>
 <body>
-
   <header>
     <a class="logo" href="https://racefinder.pt" target="_blank">
       <div class="logo-mark"><i class="ti ti-map-pin"></i></div>
@@ -105,19 +77,17 @@
       <div class="hero-meta">
         <div class="hero-meta-item"><i class="ti ti-git-branch"></i> racefinder-proto</div>
         <div class="hero-meta-item"><i class="ti ti-user"></i> nunograzina10</div>
+        <div class="hero-meta-item"><i class="ti ti-layout-grid"></i> 5 published</div>
       </div>
     </div>
   </div>
 
   <main>
-    <div class="section-header">
-      <span class="section-title">All prototypes</span>
-      <span class="section-count">4 published</span>
-    </div>
 
+    <!-- ATHLETE FLOWS -->
+    <div class="section-group-label">🏃 Athlete experience</div>
     <div class="proto-grid">
 
-      <!-- #1 — Booking Confirmation -->
       <a class="proto-card" href="prototypes/booking-confirmation/">
         <div class="proto-card-thumb">
           <i class="ti ti-ticket proto-thumb-icon"></i>
@@ -125,7 +95,7 @@
         </div>
         <div class="proto-card-body">
           <div class="proto-card-title">Booking Confirmation Page</div>
-          <div class="proto-card-desc">Post-purchase confirmation sent to athletes after booking a race through RaceFinder. Includes race details, payment summary, and QR check-in code.</div>
+          <div class="proto-card-desc">Post-purchase confirmation after booking a race. Race details, payment summary, and QR check-in code.</div>
           <div class="proto-card-footer">
             <span class="proto-tag"><i class="ti ti-circle-check"></i> Published</span>
             <span class="proto-date">May 2026</span>
@@ -134,7 +104,6 @@
         </div>
       </a>
 
-      <!-- #2 — Checkout Flow -->
       <a class="proto-card" href="prototypes/checkout-flow/">
         <div class="proto-card-thumb" style="background: linear-gradient(135deg, #1a7a4a 0%, #2ea86a 100%);">
           <i class="ti ti-credit-card proto-thumb-icon"></i>
@@ -142,7 +111,7 @@
         </div>
         <div class="proto-card-body">
           <div class="proto-card-title">Checkout Flow</div>
-          <div class="proto-card-desc">End-to-end booking flow for two race scenarios — directly bookable with full registration form and extras, and not-yet-bookable with account sign-up and alert setting.</div>
+          <div class="proto-card-desc">End-to-end booking for two scenarios — directly bookable race with full form, and not-yet-bookable with sign-up and alert.</div>
           <div class="proto-card-footer">
             <span class="proto-tag"><i class="ti ti-circle-check"></i> Published</span>
             <span class="proto-date">May 2026</span>
@@ -151,15 +120,14 @@
         </div>
       </a>
 
-      <!-- #3 — Onboarding Flow -->
       <a class="proto-card" href="https://nunograzina10.github.io/rf-onboarding/" target="_blank">
         <div class="proto-card-thumb" style="background: linear-gradient(135deg, #0E0E0E 0%, #2C2C2C 100%);">
           <i class="ti ti-user-check proto-thumb-icon"></i>
-          <span class="proto-thumb-label">Onboarding Flow</span>
+          <span class="proto-thumb-label">Athlete Onboarding</span>
         </div>
         <div class="proto-card-body">
-          <div class="proto-card-title">New User Onboarding</div>
-          <div class="proto-card-desc">7-step personalisation wizard for newly registered athletes — sport selection, experience level, preferred regions, and notification preferences. Two versions: desktop sidebar and mobile card-stack.</div>
+          <div class="proto-card-title">New Athlete Onboarding</div>
+          <div class="proto-card-desc">7-step personalisation wizard for new athletes — sports, level, regions, notification preferences. Desktop sidebar + mobile card-stack with version switcher.</div>
           <div class="proto-card-footer">
             <span class="proto-tag"><i class="ti ti-circle-check"></i> Published</span>
             <span class="proto-date">Jun 2026</span>
@@ -168,7 +136,12 @@
         </div>
       </a>
 
-      <!-- #4 — Organizer Portal -->
+    </div>
+
+    <!-- ORGANIZER FLOWS -->
+    <div class="section-group-label">🏢 Organizer experience</div>
+    <div class="proto-grid">
+
       <a class="proto-card" href="prototypes/organizer-portal/">
         <div class="proto-card-thumb" style="background: linear-gradient(135deg, #0F1923 0%, #1C3148 100%);">
           <i class="ti ti-layout-dashboard proto-thumb-icon"></i>
@@ -176,7 +149,7 @@
         </div>
         <div class="proto-card-body">
           <div class="proto-card-title">Organizer Portal</div>
-          <div class="proto-card-desc">Full back-office for race organizers — create and configure races, manage bookings and participants, track revenue and performance analytics transparently within RaceFinder.</div>
+          <div class="proto-card-desc">Full back-office — create and configure races, manage bookings and participants, track revenue and performance analytics.</div>
           <div class="proto-card-footer">
             <span class="proto-tag"><i class="ti ti-circle-check"></i> Published</span>
             <span class="proto-date">Jun 2026</span>
@@ -185,10 +158,25 @@
         </div>
       </a>
 
-      <!-- placeholder -->
+      <a class="proto-card" href="prototypes/organizer-onboarding/">
+        <div class="proto-card-thumb" style="background: linear-gradient(135deg, #2A1A0E 0%, #5C3010 100%);">
+          <i class="ti ti-building-stadium proto-thumb-icon"></i>
+          <span class="proto-thumb-label">Organizer Onboarding</span>
+        </div>
+        <div class="proto-card-body">
+          <div class="proto-card-title">Organizer First-Run Onboarding</div>
+          <div class="proto-card-desc">7-step modal over blurred portal — organisation profile, race categories, booking model, payout setup, and notification preferences.</div>
+          <div class="proto-card-footer">
+            <span class="proto-tag"><i class="ti ti-circle-check"></i> Published</span>
+            <span class="proto-date">Jun 2026</span>
+            <i class="ti ti-arrow-right proto-arrow"></i>
+          </div>
+        </div>
+      </a>
+
       <div class="proto-card placeholder">
         <div class="proto-card-thumb">
-          <i class="ti ti-layout-kanban proto-thumb-icon muted"></i>
+          <i class="ti ti-chart-bar proto-thumb-icon muted"></i>
         </div>
         <div class="proto-card-body">
           <div class="proto-card-title">Next prototype</div>
@@ -206,6 +194,5 @@
     <span class="footer-left">RaceFinder LDA · Cascais, Portugal</span>
     <a class="footer-link" href="https://racefinder.pt" target="_blank">racefinder.pt →</a>
   </footer>
-
 </body>
 </html>
