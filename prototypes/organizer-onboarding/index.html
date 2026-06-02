@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RaceFinder — Organizer Setup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink:      #0F0F0D;
+  --ink-2:    #1C1C19;
+  --ink-3:    #2A2A26;
+  --rule:     #E8E4DC;
+  --rule-2:   #F0EDE6;
+  --muted:    #999890;
+  --body:     #F5F2EC;
+  --paper:    #FDFCF9;
+  --orange:   #E8430C;
+  --orange-l: #FFF0EB;
+  --green:    #1A7A52;
+  --green-l:  #E8F5EE;
+  --amber:    #B86E00;
+  --amber-l:  #FFF4DC;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'DM Sans', sans-serif;
+  background: var(--ink);
+  color: var(--ink);
+  overflow: hidden;
+}
+
+/* ═══════════════════
+   BLURRED PORTAL BG
+═══════════════════ */
+.portal-bg {
+  position: fixed;
+  inset: 0;
+  background: var(--body);
+  display: flex;
+  filter: blur(2px);
+  opacity: 0.35;
+  pointer-events: none;
+  z-index: 0;
+}
+.portal-bg-sidebar {
+  width: 220px;
+  background: var(--ink);
+  flex-shrink: 0;
+}
+.portal-bg-main {
+  flex: 1;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.portal-bg-topbar {
+  height: 52px;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+}
+.portal-bg-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.portal-bg-kpi {
+  height: 88px;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+}
+.portal-bg-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  flex: 1;
+}
+.portal-bg-card {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+}
+
+/* ═══════════════════
+   OVERLAY SHELL
+═══════════════════ */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 15, 13, 0.72);
+  backdrop-filter: blur(1px);
+  padding: 24px;
+}
+
+/* ═══════════════════
+   ONBOARDING PANEL
+═══════════════════ */
+.panel {
+  width: 100%;
+  max-width: 860px;
+  max-height: calc(100vh - 48px);
+  background: var(--paper);
+  border-radius: 20px;
+  border: 1px solid var(--rule);
+  box-shadow: 0 40px 100px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.04);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: panelIn 0.5s cubic-bezier(.22,.68,0,1.2) both;
+}
+@keyframes panelIn {
+  from { transform: scale(0.94) translateY(20px); opacity: 0; }
+  to   { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* ─── PANEL HEADER ─── */
+.panel-header {
+  padding: 24px 32px 0;
+  flex-shrink: 0;
+}
+
+.panel-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.logo-bolt {
+  width: 30px; height: 30px;
+  background: var(--orange);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+}
+.logo-name {
+  font-size: 13px; font-weight: 600;
+  color: var(--ink); letter-spacing: 0.02em; line-height: 1.1;
+}
+.logo-sub { font-size: 10px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+
+/* ─── STEP RAIL ─── */
+.step-rail {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 0;
+  margin: 0 -32px;
+  padding: 0 32px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.step-rail::-webkit-scrollbar { display: none; }
+
+.step-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px 13px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.step-tab:hover { background: var(--body); }
+.step-tab.active { border-bottom-color: var(--orange); }
+.step-tab.done { opacity: 0.6; }
+.step-tab.done:hover { opacity: 1; }
+
+.step-num {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid var(--rule);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700;
+  color: var(--muted);
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.step-tab.active .step-num { border-color: var(--orange); color: var(--orange); background: var(--orange-l); }
+.step-tab.done .step-num { border-color: var(--green); background: var(--green); color: white; font-size: 11px; }
+
+.step-label { font-size: 12px; font-weight: 500; color: var(--muted); transition: color 0.2s; }
+.step-tab.active .step-label { color: var(--ink); }
+
+/* progress bar */
+.progress-bar {
+  height: 2px;
+  background: var(--rule);
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+.progress-fill {
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  background: var(--orange);
+  transition: width 0.4s cubic-bezier(.4,0,.2,1);
+}
+
+/* ─── PANEL BODY ─── */
+.panel-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 32px 32px 24px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--rule) transparent;
+}
+.panel-body::-webkit-scrollbar { width: 4px; }
+.panel-body::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 2px; }
+
+/* ─── STEP SCREENS ─── */
+.screen { display: none; }
+.screen.active { display: block; animation: screenIn 0.3s ease both; }
+@keyframes screenIn {
+  from { opacity: 0; transform: translateX(16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.screen.back { animation: screenInBack 0.3s ease both; }
+@keyframes screenInBack {
+  from { opacity: 0; transform: translateX(-16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.screen-eyebrow {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--orange); margin-bottom: 6px; font-weight: 500;
+}
+.screen-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(22px, 3vw, 30px);
+  color: var(--ink); margin-bottom: 6px;
+  font-style: italic; line-height: 1.2;
+}
+.screen-sub {
+  font-size: 13px; color: var(--muted); line-height: 1.65;
+  max-width: 540px; margin-bottom: 28px; font-weight: 300;
+}
+
+/* ─── FORM ELEMENTS ─── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.form-full { margin-bottom: 14px; }
+
+.field-label {
+  display: block;
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--muted); margin-bottom: 5px; font-weight: 500;
+}
+.field-req { color: var(--orange); margin-left: 2px; }
+
+.field-input, .field-select, .field-textarea {
+  width: 100%;
+  background: var(--body);
+  border: 1px solid var(--rule);
+  border-radius: 9px;
+  padding: 10px 13px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  -webkit-appearance: none;
+}
+.field-input:focus, .field-select:focus, .field-textarea:focus {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px rgba(232,67,12,0.08);
+  background: var(--paper);
+}
+.field-input::placeholder { color: #bbb8b0; }
+.field-textarea { resize: vertical; min-height: 80px; }
+.field-hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+/* ─── CHIPS ─── */
+.chip-group { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.chip {
+  padding: 8px 15px; border-radius: 100px;
+  border: 1.5px solid var(--rule);
+  background: var(--body);
+  color: var(--muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px; cursor: pointer;
+  transition: all 0.15s;
+  display: flex; align-items: center; gap: 6px;
+  user-select: none;
+}
+.chip:hover { border-color: #ccc; color: var(--ink); }
+.chip.sel { border-color: var(--orange); background: var(--orange-l); color: var(--orange); font-weight: 500; }
+.chip em { font-size: 13px; font-style: normal; }
+
+/* ─── TILES ─── */
+.tile-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+.tile {
+  border: 1.5px solid var(--rule);
+  border-radius: 12px; padding: 16px 14px;
+  background: var(--body); cursor: pointer;
+  transition: all 0.15s; position: relative;
+}
+.tile:hover { border-color: #ccc; background: var(--paper); }
+.tile.sel { border-color: var(--orange); background: var(--orange-l); }
+.tile.sel::after {
+  content: '✓';
+  position: absolute; top: 10px; right: 12px;
+  font-size: 10px; color: var(--orange); font-weight: 700;
+}
+.tile-icon { font-size: 20px; margin-bottom: 8px; display: block; }
+.tile-name { font-size: 12px; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+.tile-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
+.tile.sel .tile-desc { color: var(--orange); opacity: 0.8; }
+
+/* ─── SCALE TILE (single select) ─── */
+.scale-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+.scale-tile {
+  border: 1.5px solid var(--rule);
+  border-radius: 12px; padding: 18px 14px;
+  background: var(--body); cursor: pointer;
+  transition: all 0.15s; text-align: center;
+}
+.scale-tile:hover { border-color: #ccc; }
+.scale-tile.sel { border-color: var(--orange); background: var(--orange-l); }
+.scale-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 22px; color: var(--ink);
+  line-height: 1; margin-bottom: 4px;
+}
+.scale-tile.sel .scale-num { color: var(--orange); }
+.scale-sub { font-size: 11px; color: var(--muted); }
+
+/* ─── TOGGLE ─── */
+.tog-list { border: 1px solid var(--rule); border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
+.tog-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--rule);
+  transition: background 0.12s; cursor: pointer;
+}
+.tog-row:last-child { border-bottom: none; }
+.tog-row:hover { background: var(--body); }
+.tog-icon { font-size: 17px; flex-shrink: 0; width: 24px; text-align: center; }
+.tog-body { flex: 1; }
+.tog-title { font-size: 13px; font-weight: 500; color: var(--ink); }
+.tog-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.tog-switch {
+  width: 36px; height: 20px; border-radius: 10px;
+  background: var(--rule); position: relative; flex-shrink: 0;
+  transition: background 0.2s; cursor: pointer;
+}
+.tog-switch::after {
+  content: '';
+  position: absolute;
+  width: 14px; height: 14px;
+  top: 3px; left: 3px;
+  border-radius: 50%; background: var(--muted);
+  transition: all 0.2s cubic-bezier(.4,0,.2,1);
+}
+.tog-switch.on { background: var(--orange); }
+.tog-switch.on::after { left: 19px; background: white; }
+
+/* ─── UPLOAD ZONE ─── */
+.upload-zone {
+  border: 2px dashed var(--rule);
+  border-radius: 12px;
+  padding: 32px 24px;
+  text-align: center;
+  background: var(--body);
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 14px;
+}
+.upload-zone:hover { border-color: var(--orange); background: var(--orange-l); }
+.upload-zone.has-file { border-style: solid; border-color: var(--green); background: var(--green-l); }
+.upload-icon { font-size: 28px; margin-bottom: 8px; display: block; opacity: 0.5; }
+.upload-zone.has-file .upload-icon { opacity: 1; }
+.upload-title { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 4px; }
+.upload-hint { font-size: 11px; color: var(--muted); }
+
+/* ─── ALERT ─── */
+.alert {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 15px; border-radius: 10px;
+  font-size: 12px; line-height: 1.55; margin-bottom: 20px;
+}
+.alert.info { background: #EAF1FC; color: #1555A0; }
+.alert.warm { background: var(--orange-l); color: #9E2E06; border: 1px solid rgba(232,67,12,0.15); }
+.alert.succ { background: var(--green-l); color: var(--green); }
+.alert-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+
+/* ─── DIVIDER ─── */
+.divider { height: 1px; background: var(--rule); margin: 20px 0; }
+.divider-label {
+  display: flex; align-items: center; gap: 12px;
+  font-size: 11px; color: var(--muted); letter-spacing: 0.06em;
+  text-transform: uppercase; margin: 20px 0;
+}
+.divider-label::before, .divider-label::after {
+  content: ''; flex: 1; height: 1px; background: var(--rule);
+}
+
+/* ─── PLAN CARDS ─── */
+.plan-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+.plan-card {
+  border: 1.5px solid var(--rule); border-radius: 14px;
+  padding: 20px 18px; background: var(--body);
+  cursor: pointer; transition: all 0.15s; position: relative;
+}
+.plan-card:hover { border-color: #ccc; }
+.plan-card.sel { border-color: var(--orange); background: var(--paper); }
+.plan-card.featured { border-color: var(--orange); }
+.plan-badge {
+  position: absolute; top: -1px; left: 50%; transform: translateX(-50%);
+  background: var(--orange); color: white;
+  font-size: 9px; font-weight: 700; letter-spacing: 0.08em;
+  padding: 3px 10px; border-radius: 0 0 8px 8px;
+  text-transform: uppercase;
+}
+.plan-name { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 4px; margin-top: 8px; }
+.plan-card.sel .plan-name { color: var(--orange); }
+.plan-price {
+  font-family: 'DM Mono', monospace;
+  font-size: 26px; color: var(--ink); line-height: 1; margin-bottom: 4px;
+}
+.plan-price-note { font-size: 10px; color: var(--muted); margin-bottom: 14px; }
+.plan-features { font-size: 11px; color: var(--muted); line-height: 1.9; }
+.plan-features li { list-style: none; display: flex; align-items: flex-start; gap: 5px; }
+.plan-features li::before { content: '·'; color: var(--orange); }
+
+/* ─── SUCCESS ─── */
+.success-wrap {
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center; padding: 12px 0 8px;
+}
+.success-ring {
+  width: 80px; height: 80px; border-radius: 50%;
+  border: 2px solid var(--orange);
+  background: var(--orange-l);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 34px; margin-bottom: 24px;
+  animation: pop 0.5s cubic-bezier(.17,.67,.48,1.35) both;
+  animation-delay: 0.1s;
+}
+@keyframes pop { from { transform: scale(0.2); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+.success-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 28px; font-style: italic;
+  color: var(--ink); margin-bottom: 8px;
+}
+.success-sub { font-size: 13px; color: var(--muted); line-height: 1.65; max-width: 420px; margin-bottom: 28px; font-weight: 300; }
+
+.next-steps {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 10px; width: 100%; margin-bottom: 28px;
+}
+.next-step {
+  background: var(--body);
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  padding: 16px 14px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-decoration: none;
+}
+.next-step:hover { border-color: var(--orange); background: var(--orange-l); }
+.next-step-icon { font-size: 20px; margin-bottom: 8px; display: block; }
+.next-step-label { font-size: 12px; font-weight: 600; color: var(--ink); margin-bottom: 3px; }
+.next-step-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
+.next-step:hover .next-step-desc { color: var(--orange); opacity: 0.8; }
+
+/* ─── PANEL FOOTER ─── */
+.panel-footer {
+  padding: 16px 32px;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  background: var(--paper);
+}
+
+.footer-step-label {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: 'DM Mono', monospace;
+}
+
+.footer-actions { display: flex; align-items: center; gap: 10px; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 9px 18px; border-radius: 9px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all 0.15s;
+  border: none; white-space: nowrap;
+}
+.btn-primary { background: var(--orange); color: white; }
+.btn-primary:hover { background: #d13a0a; }
+.btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--rule); }
+.btn-ghost:hover { border-color: #ccc; color: var(--ink); }
+.btn-skip { background: none; border: none; color: var(--muted); font-size: 12px; font-family: 'DM Sans', sans-serif; cursor: pointer; padding: 4px; }
+.btn-skip:hover { color: var(--ink); }
+.btn-large {
+  padding: 12px 28px; font-size: 14px; border-radius: 10px;
+}
+
+/* ─── SECTION LABEL ─── */
+.sec-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--muted); margin-bottom: 10px; font-weight: 500;
+}
+
+/* ─── TWO COL ─── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+/* ─── STAT PREVIEW STRIP ─── */
+.preview-strip {
+  background: var(--ink);
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.preview-stat { text-align: center; }
+.preview-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 22px; color: var(--orange); line-height: 1;
+}
+.preview-lbl { font-size: 10px; color: rgba(255,255,255,0.35); margin-top: 4px; letter-spacing: 0.04em; }
+.preview-sep { width: 1px; background: rgba(255,255,255,0.08); align-self: stretch; }
+.preview-msg { flex: 1; font-size: 12px; color: rgba(255,255,255,0.45); line-height: 1.6; }
+.preview-msg strong { color: rgba(255,255,255,0.75); }
+
+/* char counter */
+.field-meta { display: flex; justify-content: space-between; margin-top: 4px; }
+.char-count { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; }
+</style>
+</head>
+<body>
+
+<!-- ─── BLURRED PORTAL BACKGROUND ─── -->
+<div class="portal-bg">
+  <div class="portal-bg-sidebar"></div>
+  <div class="portal-bg-main">
+    <div class="portal-bg-topbar"></div>
+    <div class="portal-bg-row">
+      <div class="portal-bg-kpi"></div>
+      <div class="portal-bg-kpi"></div>
+      <div class="portal-bg-kpi"></div>
+      <div class="portal-bg-kpi"></div>
+    </div>
+    <div class="portal-bg-body">
+      <div class="portal-bg-card"></div>
+      <div class="portal-bg-card"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── OVERLAY ─── -->
+<div class="overlay">
+<div class="panel">
+
+  <!-- PANEL HEADER -->
+  <div class="panel-header">
+    <div class="panel-logo">
+      <div class="logo-bolt">⚡</div>
+      <div>
+        <div class="logo-name">RaceFinder</div>
+        <div class="logo-sub">Organizer Portal</div>
+      </div>
+    </div>
+
+    <!-- STEP RAIL -->
+    <div class="step-rail" id="stepRail">
+      <div class="step-tab active" data-step="0" onclick="goTo(0)">
+        <div class="step-num">1</div>
+        <span class="step-label">Welcome</span>
+      </div>
+      <div class="step-tab" data-step="1" onclick="goTo(1)">
+        <div class="step-num">2</div>
+        <span class="step-label">Organisation</span>
+      </div>
+      <div class="step-tab" data-step="2" onclick="goTo(2)">
+        <div class="step-num">3</div>
+        <span class="step-label">Your races</span>
+      </div>
+      <div class="step-tab" data-step="3" onclick="goTo(3)">
+        <div class="step-num">4</div>
+        <span class="step-label">Booking setup</span>
+      </div>
+      <div class="step-tab" data-step="4" onclick="goTo(4)">
+        <div class="step-num">5</div>
+        <span class="step-label">Payouts</span>
+      </div>
+      <div class="step-tab" data-step="5" onclick="goTo(5)">
+        <div class="step-num">6</div>
+        <span class="step-label">Notifications</span>
+      </div>
+      <div class="step-tab" data-step="6" onclick="goTo(6)">
+        <div class="step-num">7</div>
+        <span class="step-label">Ready</span>
+      </div>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- PANEL BODY -->
+  <div class="panel-body" id="panelBody">
+
+    <!-- ══ SCREEN 0: WELCOME ══ -->
+    <div class="screen active" id="screen0">
+      <div class="screen-eyebrow">First time here</div>
+      <div class="screen-title">Welcome to your organizer portal.</div>
+      <div class="screen-sub">You're 6 steps away from publishing your first race on RaceFinder. We'll set up your organisation profile, configure bookings, and connect your payout account — then you're live.</div>
+
+      <div class="preview-strip">
+        <div class="preview-stat">
+          <div class="preview-num">730+</div>
+          <div class="preview-lbl">Races listed</div>
+        </div>
+        <div class="preview-sep"></div>
+        <div class="preview-stat">
+          <div class="preview-num">51k+</div>
+          <div class="preview-lbl">Registered athletes</div>
+        </div>
+        <div class="preview-sep"></div>
+        <div class="preview-stat">
+          <div class="preview-num">9</div>
+          <div class="preview-lbl">Regions covered</div>
+        </div>
+        <div class="preview-sep"></div>
+        <div class="preview-msg"><strong>Your race page will be live within 24 hours</strong> of submitting — RaceFinder creates and manages it for you at no cost.</div>
+      </div>
+
+      <div class="sec-label">What we'll set up</div>
+      <div class="tile-grid">
+        <div class="tile" style="cursor:default">
+          <span class="tile-icon">🏢</span>
+          <div class="tile-name">Organisation profile</div>
+          <div class="tile-desc">Your name, contacts, and public presence on RaceFinder</div>
+        </div>
+        <div class="tile" style="cursor:default">
+          <span class="tile-icon">🏁</span>
+          <div class="tile-name">Race preferences</div>
+          <div class="tile-desc">Sports, typical scale, and regions you operate in</div>
+        </div>
+        <div class="tile" style="cursor:default">
+          <span class="tile-icon">💳</span>
+          <div class="tile-name">Booking & payouts</div>
+          <div class="tile-desc">Direct booking settings and bank account for payouts</div>
+        </div>
+      </div>
+
+      <div class="alert warm">
+        <span class="alert-icon">⚡</span>
+        <span>Listing your races is <strong>completely free</strong>. Direct booking on RaceFinder is available on Pro and above — you can set it up now or anytime later.</span>
+      </div>
+    </div>
+
+    <!-- ══ SCREEN 1: ORGANISATION ══ -->
+    <div class="screen" id="screen1">
+      <div class="screen-eyebrow">Step 1 of 6 — Organisation</div>
+      <div class="screen-title">Tell us about your organisation.</div>
+      <div class="screen-sub">This information appears on your public organizer page on RaceFinder and on all your event listings.</div>
+
+      <div class="form-grid">
+        <div class="form-full" style="margin-bottom:0">
+          <label class="field-label">Organisation name <span class="field-req">*</span></label>
+          <input class="field-input" type="text" placeholder="e.g. Atlético Cascais" id="orgName">
+        </div>
+        <div class="form-full" style="margin-bottom:0">
+          <label class="field-label">Legal name (if different)</label>
+          <input class="field-input" type="text" placeholder="e.g. Atlético Cascais Associação Desportiva">
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="form-grid">
+        <div>
+          <label class="field-label">Contact email <span class="field-req">*</span></label>
+          <input class="field-input" type="email" placeholder="races@yourorg.pt">
+        </div>
+        <div>
+          <label class="field-label">Phone</label>
+          <input class="field-input" type="tel" placeholder="+351 9xx xxx xxx">
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div>
+          <label class="field-label">Website</label>
+          <input class="field-input" type="url" placeholder="https://yourorg.pt">
+        </div>
+        <div>
+          <label class="field-label">City / Region</label>
+          <input class="field-input" type="text" placeholder="e.g. Cascais, Lisboa">
+        </div>
+      </div>
+
+      <div class="form-full">
+        <label class="field-label">About your organisation <span class="field-req">*</span></label>
+        <textarea class="field-textarea" id="aboutText" oninput="updateCount(this,'aboutCount',300)" placeholder="Briefly describe your organisation — who you are, what events you run, since when, and what makes your races special. This appears on your public profile."></textarea>
+        <div class="field-meta">
+          <span class="field-hint">Shown on your public RaceFinder organizer page.</span>
+          <span class="char-count"><span id="aboutCount">0</span> / 300</span>
+        </div>
+      </div>
+
+      <div class="form-full">
+        <label class="field-label">Logo</label>
+        <div class="upload-zone" onclick="this.classList.toggle('has-file'); this.querySelector('.upload-title').textContent = this.classList.contains('has-file') ? '✓ logo_atletico.png uploaded' : 'Upload your logo'; this.querySelector('.upload-hint').textContent = this.classList.contains('has-file') ? 'Click to replace' : 'PNG or SVG · min 200×200px · shown on your event pages'">
+          <span class="upload-icon">🖼</span>
+          <div class="upload-title">Upload your logo</div>
+          <div class="upload-hint">PNG or SVG · min 200×200px · shown on your event pages</div>
+        </div>
+      </div>
+
+      <div class="form-full" style="margin-bottom:0">
+        <label class="field-label">NIF / VAT number</label>
+        <input class="field-input" type="text" placeholder="PT 519 040 163">
+        <div class="field-hint">Required for invoicing and payout processing.</div>
+      </div>
+    </div>
+
+    <!-- ══ SCREEN 2: YOUR RACES ══ -->
+    <div class="screen" id="screen2">
+      <div class="screen-eyebrow">Step 2 of 6 — Your races</div>
+      <div class="screen-title">What kind of races do you organise?</div>
+      <div class="screen-sub">This helps RaceFinder categorise your events correctly, promote them to the right athletes, and suggest relevant features.</div>
+
+      <div class="sec-label">Sport categories <span class="field-req">*</span></div>
+      <div class="chip-group" id="sportsChips">
+        <button class="chip" onclick="multi(this)"><em>🏃</em> Running</button>
+        <button class="chip" onclick="multi(this)"><em>🚴</em> Cycling</button>
+        <button class="chip" onclick="multi(this)"><em>🏊</em> Swimming</button>
+        <button class="chip" onclick="multi(this)"><em>🏅</em> Triathlon</button>
+        <button class="chip" onclick="multi(this)"><em>🔄</em> Duathlon</button>
+        <button class="chip" onclick="multi(this)"><em>🏔️</em> Trail Running</button>
+        <button class="chip" onclick="multi(this)"><em>🌊</em> Open Water</button>
+        <button class="chip" onclick="multi(this)"><em>🚵</em> MTB / Gravel</button>
+        <button class="chip" onclick="multi(this)"><em>🪨</em> OCR / Obstacle</button>
+        <button class="chip" onclick="multi(this)"><em>⚡</em> Hybrid Events</button>
+        <button class="chip" onclick="multi(this)"><em>👧</em> Kids & Youth</button>
+        <button class="chip" onclick="multi(this)"><em>🏢</em> Corporate / Team</button>
+      </div>
+
+      <div class="sec-label">Regions you operate in</div>
+      <div class="chip-group">
+        <button class="chip" onclick="multi(this)"><em>🏙️</em> Lisboa</button>
+        <button class="chip sel" onclick="multi(this)"><em>🌊</em> Cascais / Sintra</button>
+        <button class="chip" onclick="multi(this)"><em>🏛️</em> Porto</button>
+        <button class="chip" onclick="multi(this)"><em>🍷</em> Douro</button>
+        <button class="chip" onclick="multi(this)"><em>🏔️</em> Serra da Estrela</button>
+        <button class="chip" onclick="multi(this)"><em>🌿</em> Peneda-Gerês</button>
+        <button class="chip" onclick="multi(this)"><em>☀️</em> Algarve</button>
+        <button class="chip" onclick="multi(this)"><em>🌾</em> Alentejo</button>
+        <button class="chip" onclick="multi(this)"><em>🏝️</em> Açores / Madeira</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="sec-label">Typical race scale</div>
+      <div class="scale-grid">
+        <div class="scale-tile" onclick="soloScale(this)">
+          <div class="scale-num">&lt;200</div>
+          <div class="scale-sub">Small / local</div>
+        </div>
+        <div class="scale-tile" onclick="soloScale(this)">
+          <div class="scale-num">200–500</div>
+          <div class="scale-sub">Mid-size</div>
+        </div>
+        <div class="scale-tile sel" onclick="soloScale(this)">
+          <div class="scale-num">500–2k</div>
+          <div class="scale-sub">Regional</div>
+        </div>
+        <div class="scale-tile" onclick="soloScale(this)">
+          <div class="scale-num">2k+</div>
+          <div class="scale-sub">Large / flagship</div>
+        </div>
+      </div>
+
+      <div class="sec-label">Races per year</div>
+      <div class="chip-group">
+        <button class="chip" onclick="soloChip(this,'freq')">1–2</button>
+        <button class="chip sel" onclick="soloChip(this,'freq')">3–5</button>
+        <button class="chip" onclick="soloChip(this,'freq')">6–10</button>
+        <button class="chip" onclick="soloChip(this,'freq')">10+</button>
+      </div>
+
+      <div class="form-full" style="margin-bottom:0">
+        <label class="field-label">Your existing registration system (if any)</label>
+        <select class="field-select">
+          <option value="">— We use our own website / link</option>
+          <option>SportChip</option>
+          <option>RunSignUp</option>
+          <option>Eventbrite</option>
+          <option>Weezevent</option>
+          <option>Custom system</option>
+          <option>No system yet</option>
+        </select>
+        <div class="field-hint">RaceFinder links directly to your existing system, or you can switch to direct booking — your choice.</div>
+      </div>
+    </div>
+
+    <!-- ══ SCREEN 3: BOOKING SETUP ══ -->
+    <div class="screen" id="screen3">
+      <div class="screen-eyebrow">Step 3 of 6 — Booking setup</div>
+      <div class="screen-title">How do you want to handle registrations?</div>
+      <div class="screen-sub">You can list your races for free with a link to your own system, or enable direct booking on RaceFinder. You can change this per-race at any time.</div>
+
+      <div class="sec-label">Registration model</div>
+      <div class="tile-grid" style="grid-template-columns: 1fr 1fr; margin-bottom:24px">
+        <div class="tile sel" onclick="soloTile(this,'regmodel')" style="padding:20px 18px">
+          <span class="tile-icon">🔗</span>
+          <div class="tile-name">External link</div>
+          <div class="tile-desc">RaceFinder shows your race and links athletes to your existing registration page. Free forever.</div>
+        </div>
+        <div class="tile" onclick="soloTile(this,'regmodel')" style="padding:20px 18px">
+          <span class="tile-icon">⚡</span>
+          <div class="tile-name">Direct booking on RaceFinder</div>
+          <div class="tile-desc">Athletes register and pay without leaving RaceFinder. 5% platform fee per booking. Pro plan required.</div>
+        </div>
+      </div>
+
+      <div class="alert info">
+        <span class="alert-icon">ℹ</span>
+        <span>You can mix both models — keep some races external and enable direct booking on your flagship events. No migration required.</span>
+      </div>
+
+      <div class="divider-label">Default booking options</div>
+
+      <div class="tog-list">
+        <div class="tog-row" onclick="togRow(this)">
+          <div class="tog-icon">⏰</div>
+          <div class="tog-body">
+            <div class="tog-title">Waitlist when capacity is reached</div>
+            <div class="tog-sub">Automatically collect athletes on a waitlist when your race sells out</div>
+          </div>
+          <div class="tog-switch on"></div>
+        </div>
+        <div class="tog-row" onclick="togRow(this)">
+          <div class="tog-icon">👕</div>
+          <div class="tog-body">
+            <div class="tog-title">Collect t-shirt size by default</div>
+            <div class="tog-sub">Adds a size selector field to all registration forms</div>
+          </div>
+          <div class="tog-switch on"></div>
+        </div>
+        <div class="tog-row" onclick="togRow(this)">
+          <div class="tog-icon">📋</div>
+          <div class="tog-body">
+            <div class="tog-title">Require waiver acceptance</div>
+            <div class="tog-sub">Athletes must check a consent box before completing registration</div>
+          </div>
+          <div class="tog-switch"></div>
+        </div>
+        <div class="tog-row" onclick="togRow(this)">
+          <div class="tog-icon">🔄</div>
+          <div class="tog-body">
+            <div class="tog-title">Allow bib transfers between athletes</div>
+            <div class="tog-sub">Participants can reassign their spot to another person</div>
+          </div>
+          <div class="tog-switch"></div>
+        </div>
+        <div class="tog-row" onclick="togRow(this)">
+          <div class="tog-icon">👥</div>
+          <div class="tog-body">
+            <div class="tog-title">Show participant list publicly</div>
+            <div class="tog-sub">Display confirmed starters on the race page</div>
+          </div>
+          <div class="tog-switch on"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SCREEN 4: PAYOUTS ══ -->
+    <div class="screen" id="screen4">
+      <div class="screen-eyebrow">Step 4 of 6 — Payouts</div>
+      <div class="screen-title">Where should we send your money?</div>
+      <div class="screen-sub">Payouts are processed via SEPA bank transfer 14 days after each race ends. Add your bank account now so there are no delays when your first race closes.</div>
+
+      <div class="alert warm">
+        <span class="alert-icon">🔒</span>
+        <span>Bank details are encrypted and stored securely. RaceFinder never stores card numbers. Payouts go through a licensed payment processor.</span>
+      </div>
+
+      <div class="form-grid">
+        <div>
+          <label class="field-label">Account holder name <span class="field-req">*</span></label>
+          <input class="field-input" type="text" placeholder="Name on the bank account">
+        </div>
+        <div>
+          <label class="field-label">IBAN <span class="field-req">*</span></label>
+          <input class="field-input" type="text" placeholder="PT50 0000 0000 0000 0000 0000 0">
+        </div>
+      </div>
+      <div class="form-grid">
+        <div>
+          <label class="field-label">BIC / SWIFT</label>
+          <input class="field-input" type="text" placeholder="e.g. CGDIPTPL">
+        </div>
+        <div>
+          <label class="field-label">Bank name</label>
+          <input class="field-input" type="text" placeholder="e.g. Caixa Geral de Depósitos">
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="sec-label">Payout schedule</div>
+      <div class="chip-group">
+        <button class="chip sel" onclick="soloChip(this,'payout')">14 days after race</button>
+        <button class="chip" onclick="soloChip(this,'payout')">30 days after race</button>
+        <button class="chip" onclick="soloChip(this,'payout')">Monthly batch</button>
+      </div>
+
+      <div class="sec-label">Invoicing preference</div>
+      <div class="tile-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 0">
+        <div class="tile sel" onclick="soloTile(this,'invoice')">
+          <span class="tile-icon">📄</span>
+          <div class="tile-name">RaceFinder issues invoices</div>
+          <div class="tile-desc">We handle all invoicing to athletes on your behalf</div>
+        </div>
+        <div class="tile" onclick="soloTile(this,'invoice')">
+          <span class="tile-icon">🏢</span>
+          <div class="tile-name">I issue my own invoices</div>
+          <div class="tile-desc">You invoice athletes directly; RaceFinder sends you a summary</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SCREEN 5: NOTIFICATIONS ══ -->
+    <div class="screen" id="screen5">
+      <div class="screen-eyebrow">Step 5 of 6 — Notifications</div>
+      <div class="screen-title">How do you want to stay informed?</div>
+      <div class="screen-sub">Choose what triggers an alert. You can fine-tune these anytime from Settings → Notifications.</div>
+
+      <div class="tog-list">
+        <div class="tog-row" onclick="togRow(this)">
+          <div class="tog-icon">🎉</div>
+          <div class="tog-body">
+            <div class="tog-title">New booking received</div>
+            <div class="tog-sub">Instant email per booking — good for small races; may be noisy for large events</div>
+          </div>
+          <div class="tog-switch on"></div>
+        </div>
+        <div class="tog-row" onclick="togRow(this)">
+          <div class="tog-icon">📊</div>
+          <div class="tog-body">
+            <div class="tog-title">Daily bookings summary</div>
+            <div class="tog-sub">One email each morning with yesterday's registrations, revenue and views</div>
+          </div>
+          <div class="tog-switch on"></div>
+        </div>
+        <div class="tog-row" onclick="togRow(this)">
+          <div class="tog-icon">🎯</div>
+          <div class="tog-body">
+            <div class="tog-title">Capacity milestones</div>
+            <div class="tog-sub">Alerts when a race hits 50%, 75%, 90% and sell-out</div>
+          </div>
+          <div class="tog-switch on"></div>
+        </div>
+        <div class="tog-row" onclick="togRow(this)">
+          <div class="tog-icon">💰</div>
+          <div class="tog-body">
+            <div class="tog-title">Payout processed</div>
+            <div class="tog-sub">When a transfer is initiated to your bank account</div>
+          </div>
+          <div class="tog-switch on"></div>
+        </div>
+        <div class="tog-row" onclick="togRow(this)">
+          <div class="tog-icon">📰</div>
+          <div class="tog-body">
+            <div class="tog-title">Newsletter feature notification</div>
+            <div class="tog-sub">When your race is included in a RaceFinder campaign</div>
+          </div>
+          <div class="tog-switch"></div>
+        </div>
+        <div class="tog-row" onclick="togRow(this)">
+          <div class="tog-icon">❌</div>
+          <div class="tog-body">
+            <div class="tog-title">Cancellations</div>
+            <div class="tog-sub">Alert when an athlete cancels their registration</div>
+          </div>
+          <div class="tog-switch"></div>
+        </div>
+        <div class="tog-row" onclick="togRow(this)">
+          <div class="tog-icon">📣</div>
+          <div class="tog-body">
+            <div class="tog-title">Price change reminders</div>
+            <div class="tog-sub">3-day warning before your early-bird pricing expires</div>
+          </div>
+          <div class="tog-switch on"></div>
+        </div>
+      </div>
+
+      <div class="form-grid" style="margin-bottom:0">
+        <div>
+          <label class="field-label">Notification email</label>
+          <input class="field-input" type="email" placeholder="races@yourorg.pt">
+          <div class="field-hint">Separate from your login email if needed.</div>
+        </div>
+        <div>
+          <label class="field-label">CC address (optional)</label>
+          <input class="field-input" type="email" placeholder="teammate@yourorg.pt">
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SCREEN 6: READY ══ -->
+    <div class="screen" id="screen6">
+      <div class="success-wrap">
+        <div class="success-ring">🏁</div>
+        <div class="success-title">Your portal is ready.</div>
+        <div class="success-sub">Welcome to RaceFinder. Your organizer profile is set up and your dashboard is live. Create your first race to get it in front of thousands of athletes.</div>
+
+        <div class="next-steps">
+          <div class="next-step" onclick="alert('Opening race creation wizard…')">
+            <span class="next-step-icon">➕</span>
+            <div class="next-step-label">Create your first race</div>
+            <div class="next-step-desc">Use the 5-step race wizard to go live within 24h</div>
+          </div>
+          <div class="next-step" onclick="alert('Opening organizer profile…')">
+            <span class="next-step-icon">🏢</span>
+            <div class="next-step-label">Preview your organizer page</div>
+            <div class="next-step-desc">See how athletes will find and follow your organisation</div>
+          </div>
+          <div class="next-step" onclick="alert('Opening payout settings…')">
+            <span class="next-step-icon">💳</span>
+            <div class="next-step-label">Verify bank account</div>
+            <div class="next-step-desc">Complete identity verification to unlock payouts</div>
+          </div>
+        </div>
+
+        <div class="alert succ" style="max-width:100%;width:100%;text-align:left">
+          <span class="alert-icon">ℹ</span>
+          <span>Your dedicated RaceFinder contact is <strong>Paula Veloso</strong> — reach her at <strong>support@racefinder.pt</strong> for any questions about your listing, promotions, or direct booking setup.</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /panel-body -->
+
+  <!-- PANEL FOOTER -->
+  <div class="panel-footer">
+    <span class="footer-step-label" id="footerLabel">Step 1 of 6</span>
+    <div class="footer-actions">
+      <button class="btn-skip" id="skipBtn" onclick="goTo(6)">Skip setup</button>
+      <button class="btn btn-ghost" id="backBtn" onclick="goBack()" style="display:none">← Back</button>
+      <button class="btn btn-primary" id="nextBtn" onclick="goNext()">Begin setup →</button>
+    </div>
+  </div>
+
+</div><!-- /panel -->
+</div><!-- /overlay -->
+
+<script>
+const TOTAL = 7; // screens 0–6
+let current = 0;
+let dir = 1; // 1 = forward, -1 = back
+
+const labels = [
+  'Introduction',
+  'Step 1 of 6', 'Step 2 of 6', 'Step 3 of 6',
+  'Step 4 of 6', 'Step 5 of 6', 'Step 6 of 6',
+  'All done'
+];
+const nextLabels = [
+  'Begin setup →', 'Next: Your races →', 'Next: Booking setup →',
+  'Next: Payouts →', 'Next: Notifications →', 'Finish setup →', 'Go to dashboard →'
+];
+
+function render() {
+  // screens
+  document.querySelectorAll('.screen').forEach((s, i) => {
+    s.classList.remove('active', 'back');
+    if (i === current) {
+      s.classList.add('active');
+      if (dir < 0) s.classList.add('back');
+    }
+  });
+
+  // rail tabs
+  document.querySelectorAll('.step-tab').forEach((t, i) => {
+    const step = parseInt(t.dataset.step);
+    t.classList.remove('active', 'done');
+    const numEl = t.querySelector('.step-num');
+    if (step < current) {
+      t.classList.add('done');
+      numEl.textContent = '✓';
+    } else if (step === current) {
+      t.classList.add('active');
+      numEl.textContent = step + 1;
+    } else {
+      numEl.textContent = step + 1;
+    }
+  });
+
+  // progress
+  const pct = current === 0 ? 0 : (current / (TOTAL - 1)) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+
+  // footer
+  document.getElementById('footerLabel').textContent = current === 0 ? 'Welcome' : current === 6 ? 'All set!' : `Step ${current} of 6`;
+  document.getElementById('nextBtn').textContent = nextLabels[current] || 'Next →';
+  document.getElementById('backBtn').style.display = current > 0 && current < 6 ? 'inline-flex' : 'none';
+  document.getElementById('skipBtn').style.display = current >= 6 ? 'none' : 'inline-block';
+
+  // scroll body to top
+  document.getElementById('panelBody').scrollTop = 0;
+}
+
+function goTo(step) {
+  dir = step > current ? 1 : -1;
+  current = Math.max(0, Math.min(TOTAL - 1, step));
+  render();
+}
+function goNext() {
+  if (current >= TOTAL - 1) { alert('Taking you to your dashboard…'); return; }
+  dir = 1; current++; render();
+}
+function goBack() {
+  if (current <= 0) return;
+  dir = -1; current--; render();
+}
+
+// interaction helpers
+function multi(el) { el.classList.toggle('sel'); }
+function soloChip(el, group) {
+  el.closest('.chip-group').querySelectorAll('.chip').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+}
+function soloScale(el) {
+  el.closest('.scale-grid').querySelectorAll('.scale-tile').forEach(t => t.classList.remove('sel'));
+  el.classList.add('sel');
+}
+function soloTile(el, group) {
+  el.closest('.tile-grid').querySelectorAll('.tile').forEach(t => t.classList.remove('sel'));
+  el.classList.add('sel');
+}
+function togRow(row) {
+  const sw = row.querySelector('.tog-switch');
+  sw.classList.toggle('on');
+}
+function updateCount(el, countId, max) {
+  const n = Math.min(el.value.length, max);
+  document.getElementById(countId).textContent = n;
+  if (n >= max) el.value = el.value.slice(0, max);
+}
+
+render();
+</script>
+</body>
+</html>
