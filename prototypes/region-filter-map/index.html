@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RaceFinder · Region Filter & Map — Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --orange: #FF5F1F; --charcoal: #1A1A1A; --mid: #6B6B6B;
+      --light: #F0EBE5; --divider: #E8E0DA; --white: #ffffff;
+      --green: #1a7a4a; --green-light: #e8f5ee; --green-mid: #2d9e62;
+      --green-border: #b8dfc9; --radius: 14px;
+      --blue: #1a6fb5; --blue-light: #ddeaf8; --blue-border: #b5d4f4;
+      --land-green: #27500A; --land-green-light: #eaf3de; --land-green-border: #c0dd97;
+    }
+    body { font-family: 'DM Sans', system-ui, sans-serif; background: var(--light); color: var(--charcoal); min-height: 100vh; }
+
+    /* ── HEADER ── */
+    header { background: var(--white); border-bottom: 1px solid var(--divider); padding: 0 32px; display: flex; align-items: center; height: 56px; gap: 14px; }
+    .logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+    .logo-mark { width: 28px; height: 28px; background: var(--orange); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-size: 13px; }
+    .logo-text { font-size: 14px; font-weight: 600; color: var(--charcoal); }
+    .logo-sep { width: 1px; height: 18px; background: var(--divider); }
+    .logo-subtitle { font-size: 12px; color: var(--mid); }
+    .back-link { margin-left: auto; font-size: 12px; color: var(--mid); text-decoration: none; display: flex; align-items: center; gap: 5px; }
+    .back-link:hover { color: var(--orange); }
+
+    /* ── HERO ── */
+    .hero { background: var(--green); padding: 36px 32px 32px; position: relative; overflow: hidden; }
+    .hero::before { content:''; position:absolute; top:-60px; right:-60px; width:280px; height:280px; border-radius:50%; background:rgba(255,255,255,0.06); }
+    .hero-inner { max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
+    .hero-eyebrow { font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: rgba(255,255,255,0.55); margin-bottom: 8px; }
+    .hero-title { font-family: 'Bebas Neue', sans-serif; font-size: 46px; line-height: 1; color: white; margin-bottom: 10px; }
+    .hero-desc { font-size: 14px; color: rgba(255,255,255,0.7); max-width: 520px; line-height: 1.6; }
+    .hero-tags { margin-top: 18px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .hero-tag { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.75); border: 1px solid rgba(255,255,255,0.15); }
+
+    /* ── MAIN LAYOUT ── */
+    .page-body { max-width: 1100px; margin: 0 auto; padding: 32px; display: grid; grid-template-columns: 340px 1fr; gap: 24px; align-items: start; }
+    @media (max-width: 860px) { .page-body { grid-template-columns: 1fr; } }
+
+    /* ── FILTER PANEL ── */
+    .filter-panel { background: var(--white); border: 1px solid var(--divider); border-radius: var(--radius); overflow: hidden; position: sticky; top: 24px; }
+    .filter-header { padding: 18px 18px 14px; border-bottom: 1px solid var(--divider); display: flex; align-items: center; justify-content: space-between; }
+    .filter-title { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 7px; }
+    .clear-btn { font-size: 12px; color: var(--orange); background: none; border: none; cursor: pointer; font-family: inherit; font-weight: 500; opacity: 0; transition: opacity .2s; padding: 4px 8px; border-radius: 6px; }
+    .clear-btn:hover { background: #fff3ee; }
+    .clear-btn.visible { opacity: 1; }
+    .tags-bar { padding: 0 18px; max-height: 0; overflow: hidden; transition: max-height .3s, padding .3s; display: flex; flex-wrap: wrap; gap: 5px; }
+    .tags-bar.open { max-height: 120px; padding: 12px 18px 0; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; background: var(--green-light); color: var(--green); border: 1px solid var(--green-border); border-radius: 20px; padding: 3px 9px; font-size: 11px; font-weight: 500; cursor: pointer; animation: tagIn .15s ease; }
+    .tag:hover { background: #d0eadc; }
+    @keyframes tagIn { from{transform:scale(.85);opacity:0} to{transform:scale(1);opacity:1} }
+
+    .layer-nav { display: flex; border-bottom: 1px solid var(--divider); }
+    .layer-btn { flex: 1; padding: 10px 6px; font-size: 11px; font-weight: 500; color: var(--mid); background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; font-family: inherit; transition: all .15s; text-align: center; }
+    .layer-btn.active { color: var(--green); border-bottom-color: var(--green); }
+
+    .regions-list { max-height: 420px; overflow-y: auto; }
+    .region-row { border-bottom: 1px solid var(--divider); }
+    .region-row:last-child { border-bottom: none; }
+    .region-header { display: flex; align-items: center; justify-content: space-between; padding: 11px 18px; cursor: pointer; transition: background .15s; gap: 8px; }
+    .region-header:hover { background: var(--light); }
+    .region-left { display: flex; align-items: center; gap: 9px; flex: 1; min-width: 0; }
+    .rcheck { width: 17px; height: 17px; border: 1.5px solid var(--divider); border-radius: 5px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all .15s; background: var(--white); }
+    .rcheck.checked { background: var(--green); border-color: var(--green); }
+    .rcheck.partial { border-color: var(--green); }
+    .rcheck svg { display: none; }
+    .rcheck.checked svg.full { display: block; }
+    .rcheck.partial svg.part { display: block; }
+    .rdot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .rname { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rsub { font-size: 11px; color: var(--mid); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rright { display: flex; align-items: center; gap: 7px; }
+    .rcount { font-size: 11px; color: var(--mid); background: var(--light); border-radius: 10px; padding: 2px 7px; white-space: nowrap; }
+    .chevron { color: var(--mid); font-size: 13px; transition: transform .2s; flex-shrink: 0; }
+    .chevron.open { transform: rotate(180deg); }
+
+    .districts-panel { max-height: 0; overflow: hidden; transition: max-height .25s; background: var(--light); }
+    .districts-panel.open { max-height: 400px; }
+    .districts-inner { padding: 8px 18px 12px 44px; display: flex; flex-wrap: wrap; gap: 5px; }
+    .subgroup-label { width: 100%; font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--mid); margin: 8px 0 2px; }
+    .subgroup-label:first-child { margin-top: 0; }
+    .dchip { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 20px; border: 1.5px solid var(--divider); background: var(--white); font-size: 11px; color: var(--charcoal); cursor: pointer; transition: all .15s; font-family: inherit; }
+    .dchip:hover { border-color: var(--green-mid); background: var(--green-light); }
+    .dchip.selected { background: var(--green-light); border-color: var(--green); color: var(--green); font-weight: 500; }
+
+    .filter-footer { padding: 14px 18px; border-top: 1px solid var(--divider); display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .result-count { font-size: 13px; color: var(--mid); }
+    .result-count strong { color: var(--charcoal); font-weight: 600; }
+    .apply-btn { background: var(--green); color: #fff; border: none; border-radius: 9px; padding: 9px 20px; font-size: 13px; font-weight: 500; font-family: inherit; cursor: pointer; transition: background .15s; }
+    .apply-btn:hover { background: var(--green-mid); }
+
+    /* ── MAP PANEL ── */
+    .map-panel { background: var(--white); border: 1px solid var(--divider); border-radius: var(--radius); overflow: hidden; }
+    .map-header { padding: 18px 20px 14px; border-bottom: 1px solid var(--divider); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+    .map-title { font-size: 14px; font-weight: 600; }
+    .layer-tabs { display: flex; gap: 5px; flex-wrap: wrap; }
+    .ltab { padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 500; border: 1.5px solid var(--divider); background: var(--white); color: var(--mid); cursor: pointer; font-family: inherit; transition: all .15s; }
+    .ltab.active { background: var(--white); border-color: var(--charcoal); color: var(--charcoal); }
+    .map-body { padding: 16px; }
+    .info-bar { margin-top: 12px; padding: 10px 14px; border-radius: 9px; background: var(--light); border: 1px solid var(--divider); font-size: 12px; color: var(--mid); display: flex; align-items: flex-start; gap: 8px; line-height: 1.5; }
+    .info-bar strong { color: var(--charcoal); }
+    .map-legend { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 10px; padding: 10px 14px; border-radius: 9px; border: 1px solid var(--divider); }
+    .leg-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--mid); }
+    .leg-swatch { width: 20px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+    .leg-stripe { background: repeating-linear-gradient(45deg,#1a6fb566,#1a6fb566 2px,transparent 2px,transparent 6px); border: 1px solid #1a6fb5; }
+
+    /* ── TAXONOMY REFERENCE ── */
+    .taxonomy-section { margin-top: 24px; background: var(--white); border: 1px solid var(--divider); border-radius: var(--radius); overflow: hidden; }
+    .taxonomy-header { padding: 16px 20px; border-bottom: 1px solid var(--divider); display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; }
+    .taxonomy-header h3 { font-size: 13px; font-weight: 600; }
+    .taxonomy-body { padding: 20px; display: none; }
+    .taxonomy-body.open { display: block; }
+    .tax-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+    .tax-block { }
+    .tax-region { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+    .tax-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .tax-districts { display: flex; flex-wrap: wrap; gap: 4px; }
+    .tax-chip { font-size: 11px; padding: 2px 8px; border-radius: 10px; border: 1px solid var(--divider); background: var(--light); color: var(--mid); }
+    .tax-divider { border: none; border-top: 1px dashed var(--divider); margin: 20px 0; }
+    .tax-label { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--mid); margin-bottom: 12px; }
+    .land-chip { font-size: 11px; padding: 2px 8px; border-radius: 10px; border: 1px solid var(--land-green-border); background: var(--land-green-light); color: var(--land-green); margin-right: 4px; margin-bottom: 4px; display: inline-block; }
+
+    /* ── FOOTER ── */
+    footer { border-top: 1px solid var(--divider); padding: 18px 32px; display: flex; justify-content: space-between; align-items: center; background: var(--white); margin-top: 40px; }
+    .footer-left { font-size: 12px; color: var(--mid); }
+    .footer-link { font-size: 12px; color: var(--orange); font-weight: 500; text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="https://racefinder.pt" target="_blank">
+    <div class="logo-mark"><i class="ti ti-map-pin"></i></div>
+    <span class="logo-text">RaceFinder</span>
+  </a>
+  <div class="logo-sep"></div>
+  <span class="logo-subtitle">Prototypes</span>
+  <a class="back-link" href="../../index.html"><i class="ti ti-arrow-left"></i> All prototypes</a>
+</header>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Filter system · June 2026</div>
+    <div class="hero-title">Region Filter & Map</div>
+    <div class="hero-desc">Three-layer regional taxonomy for Portugal — NUT II administrative regions, historic provinces, and athlete-first landscape/sport zones. Interactive filter panel with live map highlighting.</div>
+    <div class="hero-tags">
+      <span class="hero-tag"><i class="ti ti-filter"></i> Filter UI</span>
+      <span class="hero-tag"><i class="ti ti-map"></i> Interactive map</span>
+      <span class="hero-tag"><i class="ti ti-layers-difference"></i> 3-layer taxonomy</span>
+      <span class="hero-tag"><i class="ti ti-accessible"></i> Athlete-first</span>
+    </div>
+  </div>
+</div>
+
+<div class="page-body">
+
+  <!-- ── FILTER PANEL ── -->
+  <div class="filter-panel">
+    <div class="filter-header">
+      <div class="filter-title"><i class="ti ti-map-pin" style="color:var(--green)"></i> Região</div>
+      <button class="clear-btn" id="clearBtn" onclick="clearAll()">Limpar tudo</button>
+    </div>
+    <div class="tags-bar" id="tagsBar"></div>
+
+    <div class="layer-nav">
+      <button class="layer-btn active" onclick="setFilterLayer(0)">Regiões</button>
+      <button class="layer-btn" onclick="setFilterLayer(1)">Províncias</button>
+      <button class="layer-btn" onclick="setFilterLayer(2)">Paisagem</button>
+    </div>
+
+    <div class="regions-list" id="regionsList"></div>
+
+    <div class="filter-footer">
+      <div class="result-count" id="resultCount"><strong>730</strong> eventos</div>
+      <button class="apply-btn">Ver resultados</button>
+    </div>
+  </div>
+
+  <!-- ── RIGHT COLUMN ── -->
+  <div>
+    <!-- MAP -->
+    <div class="map-panel">
+      <div class="map-header">
+        <div class="map-title">Braga — cross-layer view</div>
+        <div class="layer-tabs" id="mapTabs">
+          <button class="ltab active" onclick="setMapLayer(0)">NUT II</button>
+          <button class="ltab" onclick="setMapLayer(1)">Província</button>
+          <button class="ltab" onclick="setMapLayer(2)">Zonas desportivas</button>
+          <button class="ltab" onclick="setMapLayer(3)">Todas as camadas</button>
+        </div>
+      </div>
+      <div class="map-body">
+        <svg id="map" width="100%" viewBox="0 0 680 530" role="img">
+          <title>Portugal map — Braga across three regional layers</title>
+          <desc>Simplified map of mainland Portugal showing how Braga sits across NUT II Norte, the historic Minho province, and the Peneda-Gerês and Costa Verde sport zones.</desc>
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </marker>
+            <pattern id="mhatch" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)">
+              <line x1="0" y1="0" x2="0" y2="8" stroke="#1a6fb5" stroke-width="1.4" stroke-opacity=".4"/>
+            </pattern>
+          </defs>
+
+          <!-- Districts -->
+          <polygon id="d-viana"    points="100,36 168,36 182,74 177,112 148,122 112,104 92,64"  fill="#e0e9f5" stroke="white" stroke-width="1.5"/>
+          <polygon id="d-braga"   points="168,36 232,41 252,79 233,112 177,112 182,74"          fill="#b5d4f4" stroke="white" stroke-width="2"/>
+          <polygon id="d-porto"   points="112,104 148,122 177,112 192,147 163,170 112,162 96,132" fill="#e0e9f5" stroke="white" stroke-width="1.5"/>
+          <polygon id="d-vilareal" points="232,41 320,46 340,94 311,132 272,142 233,112 252,79"  fill="#e0e9f5" stroke="white" stroke-width="1.5"/>
+          <polygon id="d-braganca" points="320,46 428,51 443,104 399,142 340,94"                fill="#e0e9f5" stroke="white" stroke-width="1.5"/>
+          <polygon id="d-aveiro"  points="96,132 112,162 163,170 178,205 143,220 96,206 86,167"  fill="#d8f0e8" stroke="white" stroke-width="1.5"/>
+          <polygon id="d-viseu"   points="192,147 232,112 272,142 301,157 286,200 241,220 192,210" fill="#d8f0e8" stroke="white" stroke-width="1.5"/>
+          <polygon id="d-guarda"  points="272,142 311,132 399,142 404,186 361,220 301,215 286,200" fill="#d8f0e8" stroke="white" stroke-width="1.5"/>
+          <polygon id="d-coimbra" points="86,167 143,220 178,205 188,240 152,259 96,250 76,206"  fill="#d8f0e8" stroke="white" stroke-width="1.5"/>
+          <polygon id="d-castelo" points="301,157 361,220 366,264 322,293 272,279 256,240 286,200" fill="#d8f0e8" stroke="white" stroke-width="1.5"/>
+          <polygon id="d-leiria"  points="76,206 152,259 156,297 122,321 76,298 61,259"          fill="#d8f0e8" stroke="white" stroke-width="1.5"/>
+          <polygon id="d-lisboa"  points="61,298 122,321 132,356 103,380 57,366 44,332"          fill="#eae7fc" stroke="white" stroke-width="1.5"/>
+          <polygon id="d-setubal" points="103,380 132,356 151,380 146,413 112,428 82,409"        fill="#eae7fc" stroke="white" stroke-width="1.5"/>
+          <polygon id="d-santarem" points="122,321 156,297 191,312 200,350 176,374 132,360"      fill="#faeeda" stroke="white" stroke-width="1.5"/>
+          <polygon id="d-portalegre" points="272,279 322,293 330,332 296,361 252,348 242,313"   fill="#faeeda" stroke="white" stroke-width="1.5"/>
+          <polygon id="d-evora"   points="146,413 176,374 200,350 252,348 261,387 232,421 182,438" fill="#faeeda" stroke="white" stroke-width="1.5"/>
+          <polygon id="d-beja"    points="112,428 146,413 182,438 191,477 157,507 106,492 90,458" fill="#faeeda" stroke="white" stroke-width="1.5"/>
+          <polygon id="d-faro"    points="90,492 157,507 191,502 210,525 176,490 108,488"        fill="#faebd7" stroke="white" stroke-width="1.5"/>
+
+          <!-- Layer overlays -->
+          <g id="ov-norte" opacity="0">
+            <polygon points="92,64 100,36 232,41 320,46 428,51 443,104 399,142 340,94 272,142 233,112 177,112 148,122 112,104" fill="#1a6fb5" fill-opacity=".16" stroke="#1a6fb5" stroke-width="2.5"/>
+          </g>
+          <g id="ov-minho" opacity="0">
+            <polygon points="100,36 168,36 182,74 177,112 148,122 112,104 92,64" fill="url(#mhatch)"/>
+            <polygon points="168,36 232,41 252,79 233,112 177,112 182,74" fill="url(#mhatch)"/>
+            <polygon points="100,36 232,41 252,79 233,112 177,112 148,122 112,104 92,64" fill="none" stroke="#1a6fb5" stroke-width="2.5" stroke-dasharray="8 4"/>
+          </g>
+          <g id="ov-geres" opacity="0">
+            <polygon points="100,36 168,36 222,38 226,70 196,94 164,90 112,76 92,50" fill="#3B6D11" fill-opacity=".24" stroke="#3B6D11" stroke-width="2" stroke-dasharray="6 3"/>
+          </g>
+          <g id="ov-costaverde" opacity="0">
+            <polygon points="92,46 118,38 138,64 128,98 108,118 90,110 78,76" fill="#0F6E56" fill-opacity=".22" stroke="#0F6E56" stroke-width="2" stroke-dasharray="6 3"/>
+          </g>
+
+          <!-- Braga outline emphasis -->
+          <polygon points="168,36 232,41 252,79 233,112 177,112 182,74" fill="none" stroke="#1a6fb5" stroke-width="2"/>
+
+          <!-- Braga city dot -->
+          <circle cx="204" cy="78" r="6" fill="#1a6fb5" stroke="white" stroke-width="2"/>
+          <circle cx="204" cy="78" r="2.5" fill="white"/>
+
+          <!-- Labels -->
+          <text x="216" y="75" font-family="'DM Sans',sans-serif" font-size="13" font-weight="600" fill="#0c447c">Braga</text>
+          <text x="216" y="89" font-family="'DM Sans',sans-serif" font-size="10" fill="#1a6fb5">848k hab.</text>
+
+          <!-- Callouts -->
+          <g id="call-norte" opacity="0">
+            <line x1="380" y1="85" x2="460" y2="85" stroke="#1a6fb5" stroke-width="1" stroke-dasharray="4 3"/>
+            <rect x="460" y="68" width="195" height="38" rx="7" fill="#ddeaf8" stroke="#b5d4f4" stroke-width="1"/>
+            <text x="472" y="84" font-family="'DM Sans',sans-serif" font-size="12" font-weight="600" fill="#0c447c">NUT II: Norte</text>
+            <text x="472" y="99" font-family="'DM Sans',sans-serif" font-size="11" fill="#185fa5">198 eventos · 5 distritos</text>
+          </g>
+          <g id="call-minho" opacity="0">
+            <line x1="200" y1="36" x2="270" y2="16" stroke="#1a6fb5" stroke-width="1" stroke-dasharray="4 3"/>
+            <rect x="270" y="4" width="175" height="36" rx="7" fill="#ddeaf8" stroke="#1a6fb5" stroke-width="1.5" stroke-dasharray="5 3"/>
+            <text x="282" y="18" font-family="'DM Sans',sans-serif" font-size="12" font-weight="600" fill="#0c447c">Província: Minho</text>
+            <text x="282" y="32" font-family="'DM Sans',sans-serif" font-size="11" fill="#185fa5">Braga + Viana do Castelo</text>
+          </g>
+          <g id="call-geres" opacity="0">
+            <line x1="148" y1="62" x2="50" y2="46" stroke="#3B6D11" stroke-width="1" stroke-dasharray="4 3"/>
+            <rect x="2" y="30" width="142" height="36" rx="7" fill="#eaf3de" stroke="#c0dd97" stroke-width="1"/>
+            <text x="12" y="45" font-family="'DM Sans',sans-serif" font-size="12" font-weight="600" fill="#27500A">Peneda-Gerês</text>
+            <text x="12" y="59" font-family="'DM Sans',sans-serif" font-size="11" fill="#3B6D11">Trail · Ultra · BTT</text>
+          </g>
+          <g id="call-costaverde" opacity="0">
+            <line x1="92" y1="84" x2="50" y2="132" stroke="#0F6E56" stroke-width="1" stroke-dasharray="4 3"/>
+            <rect x="2" y="120" width="142" height="36" rx="7" fill="#d8f0e8" stroke="#9fe1cb" stroke-width="1"/>
+            <text x="12" y="135" font-family="'DM Sans',sans-serif" font-size="12" font-weight="600" fill="#085041">Costa Verde</text>
+            <text x="12" y="149" font-family="'DM Sans',sans-serif" font-size="11" fill="#0F6E56">Estrada · Triatlo · Open water</text>
+          </g>
+
+          <!-- Compass -->
+          <g transform="translate(640,498)">
+            <circle r="16" fill="white" stroke="#E8E0DA" stroke-width="1"/>
+            <text text-anchor="middle" y="-3" font-family="'DM Sans',sans-serif" font-size="8" fill="#999">N</text>
+            <line x1="0" y1="0" x2="0" y2="-10" stroke="#bbb" stroke-width="1.5" stroke-linecap="round"/>
+            <polygon points="0,-12 2.5,-6 -2.5,-6" fill="#bbb"/>
+          </g>
+          <text x="460" y="523" font-family="'DM Sans',sans-serif" font-size="9" fill="#bbb">Simplificado · não à escala</text>
+        </svg>
+
+        <div class="info-bar" id="infoBar">
+          <i class="ti ti-info-circle" style="flex-shrink:0;margin-top:1px"></i>
+          <span id="infoText"><strong>Braga</strong> — selecione uma camada para ver como o distrito se encaixa na taxonomia regional.</span>
+        </div>
+        <div class="map-legend" id="mapLegend"></div>
+      </div>
+    </div>
+
+    <!-- TAXONOMY REFERENCE -->
+    <div class="taxonomy-section">
+      <div class="taxonomy-header" onclick="toggleTax()">
+        <h3><i class="ti ti-list-tree" style="margin-right:6px"></i>Referência da taxonomia completa</h3>
+        <i class="ti ti-chevron-down" id="taxChevron"></i>
+      </div>
+      <div class="taxonomy-body" id="taxBody">
+        <div class="tax-label">Camada 1 — NUT II</div>
+        <div class="tax-grid">
+          <div class="tax-block">
+            <div class="tax-region"><div class="tax-dot" style="background:#378add"></div><span style="color:#0c447c">Norte</span></div>
+            <div class="tax-districts"><span class="tax-chip">Braga</span><span class="tax-chip">Bragança</span><span class="tax-chip">Porto</span><span class="tax-chip">Viana do Castelo</span><span class="tax-chip">Vila Real</span></div>
+          </div>
+          <div class="tax-block">
+            <div class="tax-region"><div class="tax-dot" style="background:#1d9e75"></div><span style="color:#085041">Centro</span></div>
+            <div class="tax-districts"><span class="tax-chip">Aveiro</span><span class="tax-chip">Castelo Branco</span><span class="tax-chip">Coimbra</span><span class="tax-chip">Guarda</span><span class="tax-chip">Leiria</span><span class="tax-chip">Viseu</span></div>
+          </div>
+          <div class="tax-block">
+            <div class="tax-region"><div class="tax-dot" style="background:#7f77dd"></div><span style="color:#3c3489">Lisboa Metro</span></div>
+            <div class="tax-districts"><span class="tax-chip">Lisboa</span><span class="tax-chip">Setúbal</span></div>
+          </div>
+          <div class="tax-block">
+            <div class="tax-region"><div class="tax-dot" style="background:#ba7517"></div><span style="color:#633806">Alentejo</span></div>
+            <div class="tax-districts"><span class="tax-chip">Beja</span><span class="tax-chip">Évora</span><span class="tax-chip">Portalegre</span><span class="tax-chip">Santarém</span></div>
+          </div>
+          <div class="tax-block">
+            <div class="tax-region"><div class="tax-dot" style="background:#d85a30"></div><span style="color:#712b13">Algarve</span></div>
+            <div class="tax-districts"><span class="tax-chip">Faro</span></div>
+          </div>
+          <div class="tax-block">
+            <div class="tax-region"><div class="tax-dot" style="background:#1d9e75"></div><span style="color:#085041">Açores</span></div>
+            <div class="tax-districts"><span class="tax-chip">São Miguel</span><span class="tax-chip">Terceira</span><span class="tax-chip">Faial</span><span class="tax-chip">Pico</span><span class="tax-chip">+5</span></div>
+          </div>
+          <div class="tax-block">
+            <div class="tax-region"><div class="tax-dot" style="background:#1d9e75"></div><span style="color:#085041">Madeira</span></div>
+            <div class="tax-districts"><span class="tax-chip">Funchal</span><span class="tax-chip">Machico</span><span class="tax-chip">Porto Santo</span><span class="tax-chip">+8</span></div>
+          </div>
+        </div>
+        <hr class="tax-divider"/>
+        <div class="tax-label">Camada 2 — Províncias históricas</div>
+        <div class="tax-districts" style="gap:6px">
+          <span class="tax-chip">Minho</span><span class="tax-chip">Trás-os-Montes</span><span class="tax-chip">Douro</span><span class="tax-chip">Beira Alta</span><span class="tax-chip">Beira Baixa</span><span class="tax-chip">Beira Litoral</span><span class="tax-chip">Estremadura</span><span class="tax-chip">Ribatejo</span>
+        </div>
+        <hr class="tax-divider"/>
+        <div class="tax-label">Camada 3 — Zonas desportivas</div>
+        <div>
+          <span class="land-chip">Peneda-Gerês</span><span class="land-chip">Vale do Douro</span><span class="land-chip">Montesinho</span><span class="land-chip">Serra da Estrela</span><span class="land-chip">Serra de Sintra</span><span class="land-chip">Arrábida</span><span class="land-chip">Costa Vicentina</span><span class="land-chip">Alqueva</span><span class="land-chip">Costa Verde</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <span class="footer-left">RaceFinder LDA · Cascais, Portugal · Protótipo — Junho 2026</span>
+  <a class="footer-link" href="https://racefinder.pt" target="_blank">racefinder.pt →</a>
+</footer>
+
+<script>
+/* ── FILTER DATA ── */
+const NUT = [
+  { id:'norte',    name:'Norte',        color:'#378add', events:198, districts:['Braga','Bragança','Porto','Viana do Castelo','Vila Real'] },
+  { id:'centro',   name:'Centro',       color:'#1d9e75', events:156, districts:['Aveiro','Castelo Branco','Coimbra','Guarda','Leiria','Viseu'] },
+  { id:'lisboa',   name:'Lisboa',       color:'#7f77dd', events:210, districts:['Lisboa','Setúbal'] },
+  { id:'alentejo', name:'Alentejo',     color:'#ba7517', events:87,  districts:['Beja','Évora','Portalegre','Santarém'] },
+  { id:'algarve',  name:'Algarve',      color:'#d85a30', events:54,  districts:['Faro'] },
+  { id:'acores',   name:'Açores',       color:'#1d9e75', events:14,  subgroups:[
+    {label:'Grupo Oriental', items:['São Miguel','Santa Maria']},
+    {label:'Grupo Central',  items:['Faial','Pico','São Jorge','Graciosa','Terceira']},
+    {label:'Grupo Ocidental',items:['Corvo','Flores']},
+  ]},
+  { id:'madeira',  name:'Madeira',      color:'#1d9e75', events:11,  subgroups:[
+    {label:'Ilha da Madeira',items:['Funchal','Câmara de Lobos','Ribeira Brava','Ponta do Sol','Calheta','Santana','São Vicente','Porto Moniz','Machico','Santa Cruz']},
+    {label:'Ilha',           items:['Porto Santo']},
+  ]},
+];
+const PROV = [
+  { id:'minho',   name:'Minho',          color:'#378add', events:112, sub:'Braga, Viana do Castelo', districts:['Braga','Viana do Castelo'] },
+  { id:'trasmontes',name:'Trás-os-Montes',color:'#378add',events:54,  sub:'Bragança, Vila Real',     districts:['Bragança','Vila Real'] },
+  { id:'douro',   name:'Douro',           color:'#378add', events:67, sub:'Porto, Vila Real',         districts:['Porto','Vila Real'] },
+  { id:'beialta', name:'Beira Alta',      color:'#1d9e75', events:41, sub:'Guarda, Viseu',            districts:['Guarda','Viseu'] },
+  { id:'beibaix', name:'Beira Baixa',     color:'#1d9e75', events:28, sub:'Castelo Branco',           districts:['Castelo Branco'] },
+  { id:'beilit',  name:'Beira Litoral',   color:'#1d9e75', events:63, sub:'Aveiro, Coimbra, Leiria',  districts:['Aveiro','Coimbra','Leiria'] },
+  { id:'estrem',  name:'Estremadura',     color:'#7f77dd', events:95, sub:'Lisboa, Leiria',           districts:['Lisboa','Leiria'] },
+  { id:'ribatejo',name:'Ribatejo',        color:'#ba7517', events:31, sub:'Santarém',                 districts:['Santarém'] },
+];
+const LAND = [
+  { id:'geres',    name:'Peneda-Gerês',   color:'#3B6D11', events:22, sub:'Trail · Ultra · BTT', districts:['Braga','Viana do Castelo','Vila Real'] },
+  { id:'douro',    name:'Vale do Douro',  color:'#3B6D11', events:34, sub:'Trail · Ciclismo · Gravel', districts:['Vila Real','Porto','Bragança'] },
+  { id:'montes',   name:'Montesinho',     color:'#3B6D11', events:12, sub:'Trail · BTT · Ultra', districts:['Bragança'] },
+  { id:'estrela',  name:'Serra da Estrela',color:'#3B6D11',events:28, sub:'Trail · Ultra · Ciclismo', districts:['Guarda','Castelo Branco','Coimbra'] },
+  { id:'sintra',   name:'Serra de Sintra',color:'#3B6D11', events:19, sub:'Trail · BTT · Estrada', districts:['Lisboa'] },
+  { id:'arrabida', name:'Arrábida',       color:'#0F6E56', events:14, sub:'Trail · Open water · Triatlo', districts:['Setúbal'] },
+  { id:'costvic',  name:'Costa Vicentina',color:'#0F6E56', events:17, sub:'Trail · Open water · Ciclismo', districts:['Beja','Faro'] },
+  { id:'alqueva',  name:'Alqueva',        color:'#0F6E56', events:9,  sub:'Open water · Triatlo · Ciclismo', districts:['Beja','Évora'] },
+  { id:'costverd', name:'Costa Verde',    color:'#0F6E56', events:21, sub:'Estrada · Triatlo · Open water', districts:['Braga','Viana do Castelo','Porto'] },
+];
+
+let filterLayer = 0;
+const sources = [NUT, PROV, LAND];
+const selected = {};
+const expanded = {};
+
+function getItems(r) { return r.districts || (r.subgroups ? r.subgroups.flatMap(g=>g.items) : []); }
+function rState(r) {
+  if (!selected[r.id]) return 'none';
+  const s = selected[r.id];
+  if (s.size === 0) return 'full';
+  if (s.size === getItems(r).length) return 'full';
+  return 'partial';
+}
+function toggleRegion(rid) {
+  const src = sources[filterLayer];
+  const r = src.find(x=>x.id===rid);
+  const st = rState(r);
+  if (st==='none') selected[rid] = new Set();
+  else delete selected[rid];
+  renderFilter();
+}
+function toggleDistrict(rid, name) {
+  const src = sources[filterLayer];
+  const r = src.find(x=>x.id===rid);
+  const all = getItems(r);
+  if (!selected[rid]) {
+    selected[rid] = new Set([name]);
+  } else if (selected[rid].size === 0) {
+    selected[rid] = new Set(all.filter(d=>d!==name));
+  } else {
+    if (selected[rid].has(name)) {
+      selected[rid].delete(name);
+      if (selected[rid].size === 0) delete selected[rid];
+    } else {
+      selected[rid].add(name);
+      if (selected[rid].size === all.length) selected[rid] = new Set();
+    }
+  }
+  renderFilter();
+}
+function isDSel(rid, name) {
+  if (!selected[rid]) return false;
+  return selected[rid].size === 0 || selected[rid].has(name);
+}
+function clearAll() { Object.keys(selected).forEach(k=>delete selected[k]); renderFilter(); }
+function setFilterLayer(i) {
+  filterLayer = i;
+  Object.keys(selected).forEach(k=>delete selected[k]);
+  Object.keys(expanded).forEach(k=>delete expanded[k]);
+  document.querySelectorAll('.layer-btn').forEach((b,j)=>b.classList.toggle('active',j===i));
+  renderFilter();
+}
+function estimateEvents() {
+  const keys = Object.keys(selected);
+  if (!keys.length) return 730;
+  let t = 0;
+  const src = sources[filterLayer];
+  for (const rid of keys) {
+    const r = src.find(x=>x.id===rid);
+    if (!r) continue;
+    const all = getItems(r);
+    const ratio = !selected[rid] || selected[rid].size===0 ? 1 : selected[rid].size/all.length;
+    t += Math.round(r.events * ratio);
+  }
+  return t;
+}
+function buildTags() {
+  const tags = [];
+  const src = sources[filterLayer];
+  for (const [rid,s] of Object.entries(selected)) {
+    const r = src.find(x=>x.id===rid);
+    if (!r) continue;
+    if (s.size===0) tags.push({label:r.name,rid,district:null});
+    else for (const d of s) tags.push({label:d,rid,district:d});
+  }
+  return tags;
+}
+
+function renderFilter() {
+  const src = sources[filterLayer];
+  const tags = buildTags();
+  const tagsBar = document.getElementById('tagsBar');
+  tagsBar.innerHTML = tags.map(t=>`<span class="tag" onclick="removeTag('${t.rid}',${t.district?`'${t.district}'`:'null'})">${t.label} ×</span>`).join('');
+  tagsBar.classList.toggle('open', tags.length>0);
+  document.getElementById('clearBtn').classList.toggle('visible', Object.keys(selected).length>0);
+  document.getElementById('resultCount').innerHTML = `<strong>${estimateEvents()}</strong> eventos`;
+
+  const list = document.getElementById('regionsList');
+  list.innerHTML = src.map(r => {
+    const st = rState(r);
+    const isExp = !!expanded[r.id];
+    const all = getItems(r);
+    const hasExp = all.length > 1;
+    const chkCls = st==='full'?'checked':st==='partial'?'partial':'';
+    let innerHTML = '';
+    if (r.districts) {
+      innerHTML = r.districts.map(d=>`<button class="dchip ${isDSel(r.id,d)?'selected':''}" onclick="toggleDistrict('${r.id}','${d}')">${d}</button>`).join('');
+    } else if (r.subgroups) {
+      innerHTML = r.subgroups.map(sg=>`<div class="subgroup-label">${sg.label}</div>${sg.items.map(d=>`<button class="dchip ${isDSel(r.id,d)?'selected':''}" onclick="toggleDistrict('${r.id}','${d}')">${d}</button>`).join('')}`).join('');
+    }
+    return `<div class="region-row">
+      <div class="region-header" onclick="toggleRegion('${r.id}')">
+        <div class="region-left">
+          <div class="rcheck ${chkCls}">
+            <svg class="full" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <svg class="part" width="9" height="2" viewBox="0 0 9 2" fill="none"><path d="M1 1H8" stroke="#1a7a4a" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="rdot" style="background:${r.color}"></div>
+          <div>
+            <div class="rname">${r.name}</div>
+            ${r.sub?`<div class="rsub">${r.sub}</div>`:''}
+          </div>
+        </div>
+        <div class="rright">
+          <span class="rcount">${r.events}</span>
+          ${hasExp?`<span class="chevron ${isExp?'open':''}" onclick="event.stopPropagation();expanded['${r.id}']=!expanded['${r.id}'];renderFilter()">▾</span>`:''}
+        </div>
+      </div>
+      ${hasExp?`<div class="districts-panel ${isExp?'open':''}"><div class="districts-inner">${innerHTML}</div></div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function removeTag(rid, district) {
+  if (!district) delete selected[rid];
+  else if (selected[rid]) { selected[rid].delete(district); if (selected[rid].size===0) delete selected[rid]; }
+  renderFilter();
+}
+
+/* ── MAP ── */
+const mapLayers = [
+  { show:['ov-norte','call-norte'], hide:['ov-minho','call-minho','ov-geres','call-geres','ov-costaverde','call-costaverde'],
+    info:'<strong>NUT II: Norte</strong> — Braga é um dos 5 distritos da região Norte. Usado para etiquetagem oficial de eventos e como filtro primário na UI. 198 eventos no RaceFinder.',
+    legend:[{s:'#1a6fb5',o:.2,l:'Região Norte'},{s:'#b5d4f4',l:'Distrito de Braga'}] },
+  { show:['ov-minho','call-minho'], hide:['ov-norte','call-norte','ov-geres','call-geres','ov-costaverde','call-costaverde'],
+    info:'<strong>Província histórica: Minho</strong> — Braga e Viana do Castelo formam juntas o Minho. Já não é uma divisão administrativa, mas é amplamente usada em conteúdo de viagens e listagens de provas. Funciona como alias de pesquisa.',
+    legend:[{s:'#1a6fb5',stripe:true,l:'Província do Minho'},{s:'#b5d4f4',l:'Distrito de Braga'}] },
+  { show:['ov-geres','call-geres','ov-costaverde','call-costaverde'], hide:['ov-norte','call-norte','ov-minho','call-minho'],
+    info:'<strong>Zonas desportivas: Peneda-Gerês + Costa Verde</strong> — O Braga sobrepõe-se a duas zonas de paisagem. O Gerês (norte) atrai atletas de trail, BTT e ultra. A Costa Verde (costa oeste) acolhe corridas de estrada, triatlos e eventos de open water.',
+    legend:[{s:'#3B6D11',o:.28,l:'Peneda-Gerês — Trail · Ultra · BTT'},{s:'#0F6E56',o:.28,l:'Costa Verde — Estrada · Triatlo · Open water'},{s:'#b5d4f4',l:'Distrito de Braga'}] },
+  { show:['ov-norte','call-norte','ov-minho','call-minho','ov-geres','call-geres','ov-costaverde','call-costaverde'], hide:[],
+    info:'<strong>Todas as camadas</strong> — Braga pertence a: NUT II Norte (admin), Província do Minho (cultural), Peneda-Gerês e Costa Verde (zonas desportivas). Cada camada serve um propósito de filtragem diferente.',
+    legend:[{s:'#1a6fb5',o:.2,l:'Norte (NUT II)'},{s:'#1a6fb5',stripe:true,l:'Minho (província)'},{s:'#3B6D11',o:.28,l:'Gerês'},{s:'#0F6E56',o:.28,l:'Costa Verde'},{s:'#b5d4f4',l:'Braga'}] },
+];
+
+function setMapLayer(i) {
+  document.querySelectorAll('.ltab').forEach((t,j)=>t.classList.toggle('active',j===i));
+  const l = mapLayers[i];
+  l.show.forEach(id=>{ const el=document.getElementById(id); if(el) el.setAttribute('opacity','1'); });
+  l.hide.forEach(id=>{ const el=document.getElementById(id); if(el) el.setAttribute('opacity','0'); });
+  document.getElementById('infoText').innerHTML = l.info;
+  const leg = document.getElementById('mapLegend');
+  leg.innerHTML = l.legend.map(item=>{
+    let sw;
+    if (item.stripe) sw=`<div class="leg-swatch leg-stripe"></div>`;
+    else if (item.o) sw=`<div class="leg-swatch" style="background:${item.s};opacity:${item.o+0.5}"></div>`;
+    else sw=`<div class="leg-swatch" style="background:${item.s}"></div>`;
+    return `<div class="leg-item">${sw} ${item.l}</div>`;
+  }).join('');
+}
+
+function toggleTax() {
+  const body = document.getElementById('taxBody');
+  const chev = document.getElementById('taxChevron');
+  body.classList.toggle('open');
+  chev.style.transform = body.classList.contains('open') ? 'rotate(180deg)' : '';
+}
+
+renderFilter();
+setMapLayer(0);
+</script>
+</body>
+</html>
