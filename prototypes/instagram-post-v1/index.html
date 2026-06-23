@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RaceFinder · Instagram Post · Neon Stencil</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #111;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      font-family: Arial, sans-serif;
+      padding: 40px 20px;
+    }
+
+    .meta {
+      color: rgba(255,255,255,0.3);
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* ── POST FRAME ──────────────────────────────────────── */
+    .post {
+      width: 540px;
+      height: 540px;
+      background: #060606;
+      border-radius: 0;
+      overflow: hidden;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    /* Scanline texture overlay */
+    .post::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(198,255,0,0.022) 0px,
+        rgba(198,255,0,0.022) 1px,
+        transparent 1px,
+        transparent 5px
+      );
+      pointer-events: none;
+      z-index: 20;
+    }
+
+    /* ── CORNER BRACKETS ─────────────────────────────────── */
+    .corner {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      z-index: 10;
+      opacity: 0;
+      animation: fadeIn 0.3s forwards;
+    }
+    .corner--tl { top: 18px; left: 18px; border-top: 2px solid #C6FF00; border-left: 2px solid #C6FF00; animation-delay: 0.1s; }
+    .corner--tr { top: 18px; right: 18px; border-top: 2px solid #C6FF00; border-right: 2px solid #C6FF00; animation-delay: 0.15s; }
+    .corner--bl { bottom: 18px; left: 18px; border-bottom: 2px solid #C6FF00; border-left: 2px solid #C6FF00; animation-delay: 0.1s; }
+    .corner--br { bottom: 18px; right: 18px; border-bottom: 2px solid #C6FF00; border-right: 2px solid #C6FF00; animation-delay: 0.15s; }
+
+    /* ── ROW 1 — eyebrow (top: 18px, h: 28px) ───────────── */
+    .eyebrow {
+      position: absolute;
+      top: 22px;
+      left: 46px;
+      right: 46px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      font-family: 'Courier New', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      color: rgba(198,255,0,0.5);
+      letter-spacing: 2px;
+      z-index: 5;
+      opacity: 0;
+      animation: slideUp 0.4s 0.25s forwards;
+    }
+
+    /* ── ROW 2 — big number (top: 58px, h: 200px) ───────── */
+    .big-num {
+      position: absolute;
+      top: 54px;
+      left: 28px;
+      right: 28px;
+      height: 200px;
+      display: flex;
+      align-items: flex-start;
+      font-family: Impact, 'Arial Narrow', sans-serif;
+      font-size: 220px;
+      font-weight: 900;
+      color: #C6FF00;
+      letter-spacing: -14px;
+      line-height: 1;
+      z-index: 5;
+      opacity: 0;
+      animation: glitch 0.65s 0.3s cubic-bezier(.34,1.3,.64,1) forwards;
+      /* prevent overflow */
+      overflow: hidden;
+    }
+
+    /* ── ROW 3 — sub-label (top: 262px, h: 22px) ────────── */
+    .sub-label {
+      position: absolute;
+      top: 258px;
+      left: 28px;
+      right: 28px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      font-family: 'Courier New', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      color: rgba(198,255,0,0.38);
+      letter-spacing: 3.5px;
+      z-index: 5;
+      opacity: 0;
+      animation: slideUp 0.35s 0.6s forwards;
+    }
+
+    /* ── ROW 4 — rolling stripe (top: 286px, h: 48px) ───── */
+    .stripe {
+      position: absolute;
+      top: 286px;
+      left: 0;
+      right: 0;
+      height: 48px;
+      background: #C6FF00;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      z-index: 5;
+      opacity: 0;
+      transform: translateX(-100%);
+      animation: slideRight 0.55s 0.65s cubic-bezier(.4,0,.2,1) forwards;
+    }
+    .stripe-inner {
+      white-space: nowrap;
+      display: flex;
+      font-family: Impact, 'Arial Narrow', sans-serif;
+      font-size: 21px;
+      color: #060606;
+      letter-spacing: 1.5px;
+      animation: ticker 12s linear infinite;
+    }
+
+    /* ── ROW 5 — headline (top: 346px, h: 50px) ─────────── */
+    .headline {
+      position: absolute;
+      top: 344px;
+      left: 28px;
+      right: 28px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      font-family: Impact, 'Arial Narrow', sans-serif;
+      font-size: 21px;
+      color: #fff;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      line-height: 1;
+      z-index: 5;
+      opacity: 0;
+      animation: slideUp 0.4s 0.88s forwards;
+    }
+    .headline em { color: #C6FF00; font-style: normal; }
+
+    /* ── ROW 6 — code block (top: 404px, h: 36px) ───────── */
+    .code-block {
+      position: absolute;
+      top: 402px;
+      left: 28px;
+      height: 34px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(198,255,0,0.1);
+      border: 1.5px solid #C6FF00;
+      border-radius: 2px;
+      padding: 0 12px;
+      z-index: 5;
+      opacity: 0;
+      animation: popIn 0.45s 1.0s cubic-bezier(.34,1.4,.64,1) forwards;
+    }
+    .code-pre {
+      font-family: 'Courier New', monospace;
+      font-size: 10px;
+      color: rgba(198,255,0,0.5);
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+    .code-val {
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      color: #C6FF00;
+      letter-spacing: 2px;
+      white-space: nowrap;
+    }
+
+    /* ── ROW 7 — CTA (bottom: 18px, h: 42px) ────────────── */
+    .cta {
+      position: absolute;
+      bottom: 18px;
+      left: 28px;
+      right: 28px;
+      height: 42px;
+      border: 2px solid #C6FF00;
+      border-radius: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      z-index: 5;
+      opacity: 0;
+      animation: slideUp 0.4s 1.12s forwards;
+      transition: background 0.2s;
+    }
+    .cta:hover { background: #C6FF00; }
+    .cta:hover .cta-text { color: #060606; }
+    .cta-text {
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: #C6FF00;
+      letter-spacing: 2.5px;
+    }
+
+    /* ── KEYFRAMES ───────────────────────────────────────── */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideRight {
+      from { opacity: 0; transform: translateX(-100%); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes glitch {
+      0%   { opacity: 0; transform: scale(0.78) translateX(-8px); }
+      55%  { opacity: 1; transform: scale(1.03) translateX(3px); }
+      75%  { transform: scale(0.99) translateX(-1px); }
+      100% { opacity: 1; transform: scale(1) translateX(0); }
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.8); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+    @keyframes ticker {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+  </style>
+</head>
+<body>
+
+  <p class="meta">RaceFinder · Post Instagram · Neon Stencil · 1080×1080</p>
+
+  <div class="post" role="img" aria-label="RaceFinder — 100 mais provas com inscrição direta, 30% de desconto com código RFBOOKING30">
+
+    <!-- Corner brackets -->
+    <div class="corner corner--tl"></div>
+    <div class="corner corner--tr"></div>
+    <div class="corner corner--bl"></div>
+    <div class="corner corner--br"></div>
+
+    <!-- Row 1: eyebrow -->
+    <div class="eyebrow">// NOVA FUNCIONALIDADE · RACEFINDER.PT</div>
+
+    <!-- Row 2: big number -->
+    <div class="big-num">100+</div>
+
+    <!-- Row 3: sub-label -->
+    <div class="sub-label">PROVAS · INSCRIÇÃO DIRETA</div>
+
+    <!-- Row 4: rolling stripe -->
+    <div class="stripe">
+      <div class="stripe-inner">
+        SEM&nbsp;RODEIOS&ensp;·&ensp;SEM&nbsp;RODEIOS&ensp;·&ensp;SEM&nbsp;RODEIOS&ensp;·&ensp;SEM&nbsp;RODEIOS&ensp;·&ensp;SEM&nbsp;RODEIOS&ensp;·&ensp;SEM&nbsp;RODEIOS&ensp;·&ensp;SEM&nbsp;RODEIOS&ensp;·&ensp;SEM&nbsp;RODEIOS&ensp;·&ensp;
+      </div>
+    </div>
+
+    <!-- Row 5: headline -->
+    <div class="headline">INSCRIÇÃO DIRETA.&nbsp;<em>SEM RODEIOS.</em></div>
+
+    <!-- Row 6: code block -->
+    <div class="code-block">
+      <span class="code-pre">-30% · código /</span>
+      <span class="code-val">RFBOOKING30</span>
+    </div>
+
+    <!-- Row 7: CTA -->
+    <a class="cta" href="https://racefinder.pt/all-races/?bookable_on_racefinder=1">
+      <span class="cta-text">[ INSCREVE-TE AGORA ]</span>
+    </a>
+
+  </div>
+
+  <p class="meta" style="font-size:10px; color:rgba(255,255,255,0.18);">540×540px · exportar a 2× para 1080×1080</p>
+
+</body>
+</html>
