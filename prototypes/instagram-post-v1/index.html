@@ -8,44 +8,43 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background: #111;
+      background: #0D0D0D;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 24px;
+      gap: 20px;
       font-family: Arial, sans-serif;
       padding: 40px 20px;
     }
 
     .meta {
-      color: rgba(255,255,255,0.3);
+      color: rgba(255,255,255,0.28);
       font-size: 11px;
-      letter-spacing: 1px;
+      letter-spacing: 1.2px;
       text-transform: uppercase;
     }
 
-    /* ── POST FRAME ──────────────────────────────────────── */
+    /* ── POST FRAME 540×540 (exports @2x = 1080×1080) ── */
     .post {
       width: 540px;
       height: 540px;
       background: #060606;
-      border-radius: 0;
       overflow: hidden;
       position: relative;
       flex-shrink: 0;
     }
 
-    /* Scanline texture overlay */
+    /* Scanline texture */
     .post::after {
       content: '';
       position: absolute;
       inset: 0;
       background: repeating-linear-gradient(
         0deg,
-        rgba(198,255,0,0.022) 0px,
-        rgba(198,255,0,0.022) 1px,
+        rgba(198,255,0,0.018) 0px,
+        rgba(198,255,0,0.018) 1px,
         transparent 1px,
         transparent 5px
       );
@@ -53,262 +52,257 @@
       z-index: 20;
     }
 
-    /* ── CORNER BRACKETS ─────────────────────────────────── */
+    /* ── ORANGE ACCENT BAR — left edge ── */
+    .orange-bar {
+      position: absolute;
+      top: 0; left: 0; bottom: 0;
+      width: 6px;
+      background: #FF5C1A;
+      z-index: 8;
+      transform: scaleY(0);
+      transform-origin: top;
+      animation: growBar 0.5s 0.08s cubic-bezier(.4,0,.2,1) forwards;
+    }
+
+    /* ── ORANGE ACCENT DASH — right of number ── */
+    .orange-dash {
+      position: absolute;
+      top: 260px; left: 28px;
+      width: 56px; height: 3px;
+      background: #FF5C1A;
+      z-index: 8;
+      transform: scaleX(0);
+      transform-origin: left;
+      animation: growDash 0.45s 0.62s cubic-bezier(.4,0,.2,1) forwards;
+    }
+
+    /* ── CORNER BRACKETS (acid green) ── */
     .corner {
       position: absolute;
-      width: 22px;
-      height: 22px;
+      width: 22px; height: 22px;
       z-index: 10;
       opacity: 0;
       animation: fadeIn 0.3s forwards;
     }
-    .corner--tl { top: 18px; left: 18px; border-top: 2px solid #C6FF00; border-left: 2px solid #C6FF00; animation-delay: 0.1s; }
-    .corner--tr { top: 18px; right: 18px; border-top: 2px solid #C6FF00; border-right: 2px solid #C6FF00; animation-delay: 0.15s; }
-    .corner--bl { bottom: 18px; left: 18px; border-bottom: 2px solid #C6FF00; border-left: 2px solid #C6FF00; animation-delay: 0.1s; }
-    .corner--br { bottom: 18px; right: 18px; border-bottom: 2px solid #C6FF00; border-right: 2px solid #C6FF00; animation-delay: 0.15s; }
+    .c-tl { top: 18px; left: 18px; border-top: 2px solid #C6FF00; border-left: 2px solid #C6FF00; animation-delay: 0.12s; }
+    .c-tr { top: 18px; right: 18px; border-top: 2px solid #C6FF00; border-right: 2px solid #C6FF00; animation-delay: 0.17s; }
+    .c-bl { bottom: 18px; left: 18px; border-bottom: 2px solid #C6FF00; border-left: 2px solid #C6FF00; animation-delay: 0.12s; }
+    .c-br { bottom: 18px; right: 18px; border-bottom: 2px solid #C6FF00; border-right: 2px solid #C6FF00; animation-delay: 0.17s; }
 
-    /* ── ROW 1 — eyebrow (top: 18px, h: 28px) ───────────── */
+    /* ── ROW 1 — eyebrow  top:22  h:24 ── */
     .eyebrow {
       position: absolute;
-      top: 22px;
-      left: 46px;
-      right: 46px;
+      top: 22px; left: 42px; right: 28px;
       height: 24px;
-      display: flex;
-      align-items: center;
+      display: flex; align-items: center;
       font-family: 'Courier New', monospace;
-      font-size: 10px;
-      font-weight: 700;
-      color: rgba(198,255,0,0.5);
+      font-size: 10px; font-weight: 700;
+      color: rgba(198,255,0,0.48);
       letter-spacing: 2px;
-      z-index: 5;
+      z-index: 6;
       opacity: 0;
-      animation: slideUp 0.4s 0.25s forwards;
+      animation: slideUp 0.4s 0.22s forwards;
     }
 
-    /* ── ROW 2 — big number (top: 58px, h: 200px) ───────── */
+    /* ── ROW 2 — big number  top:54  h:202 ── */
     .big-num {
       position: absolute;
-      top: 54px;
-      left: 28px;
-      right: 28px;
-      height: 200px;
-      display: flex;
-      align-items: flex-start;
+      top: 50px; left: 24px;
+      height: 210px;
+      display: flex; align-items: flex-start;
       font-family: Impact, 'Arial Narrow', sans-serif;
-      font-size: 220px;
-      font-weight: 900;
+      font-size: 222px; font-weight: 900;
+      /* split color: green digit + orange plus */
       color: #C6FF00;
-      letter-spacing: -14px;
-      line-height: 1;
-      z-index: 5;
-      opacity: 0;
-      animation: glitch 0.65s 0.3s cubic-bezier(.34,1.3,.64,1) forwards;
-      /* prevent overflow */
+      letter-spacing: -14px; line-height: 1;
       overflow: hidden;
+      z-index: 6;
+      opacity: 0;
+      animation: glitch 0.7s 0.28s cubic-bezier(.34,1.3,.64,1) forwards;
+    }
+    .big-num .plus {
+      color: #FF5C1A;
+      font-size: 180px;
+      align-self: flex-start;
+      margin-top: 10px;
+      letter-spacing: 0;
     }
 
-    /* ── ROW 3 — sub-label (top: 262px, h: 22px) ────────── */
+    /* ── ROW 3 — sub-label  top:268  h:20 ── */
     .sub-label {
       position: absolute;
-      top: 258px;
-      left: 28px;
-      right: 28px;
-      height: 22px;
-      display: flex;
-      align-items: center;
+      top: 264px; left: 28px; right: 28px;
+      height: 20px;
+      display: flex; align-items: center;
       font-family: 'Courier New', monospace;
-      font-size: 10px;
-      font-weight: 700;
-      color: rgba(198,255,0,0.38);
+      font-size: 10px; font-weight: 700;
+      color: rgba(198,255,0,0.36);
       letter-spacing: 3.5px;
-      z-index: 5;
+      z-index: 6;
       opacity: 0;
       animation: slideUp 0.35s 0.6s forwards;
     }
 
-    /* ── ROW 4 — rolling stripe (top: 286px, h: 48px) ───── */
+    /* ── ROW 4 — rolling stripe  top:292  h:52 ── */
     .stripe {
       position: absolute;
-      top: 286px;
-      left: 0;
-      right: 0;
-      height: 48px;
+      top: 292px; left: 0; right: 0;
+      height: 52px;
       background: #C6FF00;
       overflow: hidden;
-      display: flex;
-      align-items: center;
-      z-index: 5;
+      display: flex; align-items: center;
+      z-index: 6;
       opacity: 0;
       transform: translateX(-100%);
-      animation: slideRight 0.55s 0.65s cubic-bezier(.4,0,.2,1) forwards;
+      animation: slideRight 0.55s 0.64s cubic-bezier(.4,0,.2,1) forwards;
+    }
+    /* orange tick marks inside stripe */
+    .stripe::before {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0; left: 0; right: 0;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent 0px,
+        transparent 120px,
+        rgba(255,92,26,0.25) 120px,
+        rgba(255,92,26,0.25) 122px
+      );
+      pointer-events: none;
+      z-index: 1;
     }
     .stripe-inner {
       white-space: nowrap;
       display: flex;
       font-family: Impact, 'Arial Narrow', sans-serif;
-      font-size: 21px;
+      font-size: 22px;
       color: #060606;
       letter-spacing: 1.5px;
-      animation: ticker 12s linear infinite;
+      animation: ticker 11s linear infinite;
+      position: relative; z-index: 2;
     }
 
-    /* ── ROW 5 — headline (top: 346px, h: 50px) ─────────── */
+    /* ── ROW 5 — headline  top:354  h:48 ── */
     .headline {
       position: absolute;
-      top: 344px;
-      left: 28px;
-      right: 28px;
-      height: 52px;
-      display: flex;
-      align-items: center;
+      top: 354px; left: 28px; right: 28px;
+      height: 46px;
+      display: flex; align-items: center;
       font-family: Impact, 'Arial Narrow', sans-serif;
-      font-size: 21px;
-      color: #fff;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      line-height: 1;
-      z-index: 5;
+      font-size: 22px; color: #fff;
+      letter-spacing: 0.5px; text-transform: uppercase; line-height: 1;
+      z-index: 6;
       opacity: 0;
       animation: slideUp 0.4s 0.88s forwards;
     }
-    .headline em { color: #C6FF00; font-style: normal; }
+    .headline em { color: #FF5C1A; font-style: normal; }
 
-    /* ── ROW 6 — code block (top: 404px, h: 36px) ───────── */
+    /* ── ROW 6 — code block  top:408  h:38 ── */
     .code-block {
       position: absolute;
-      top: 402px;
-      left: 28px;
-      height: 34px;
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      background: rgba(198,255,0,0.1);
-      border: 1.5px solid #C6FF00;
+      top: 408px; left: 28px;
+      height: 36px;
+      display: inline-flex; align-items: center; gap: 10px;
+      background: rgba(255,92,26,0.1);
+      border: 1.5px solid #FF5C1A;
+      border-left: 4px solid #FF5C1A;
       border-radius: 2px;
-      padding: 0 12px;
-      z-index: 5;
+      padding: 0 14px 0 10px;
+      z-index: 6;
       opacity: 0;
-      animation: popIn 0.45s 1.0s cubic-bezier(.34,1.4,.64,1) forwards;
+      animation: popIn 0.45s 1.02s cubic-bezier(.34,1.4,.64,1) forwards;
     }
     .code-pre {
       font-family: 'Courier New', monospace;
-      font-size: 10px;
-      color: rgba(198,255,0,0.5);
-      letter-spacing: 1px;
-      white-space: nowrap;
+      font-size: 10px; color: rgba(255,255,255,0.4);
+      letter-spacing: 1px; white-space: nowrap;
     }
     .code-val {
       font-family: 'Courier New', monospace;
-      font-size: 14px;
-      font-weight: 700;
-      color: #C6FF00;
-      letter-spacing: 2px;
-      white-space: nowrap;
+      font-size: 15px; font-weight: 700;
+      color: #FF5C1A;
+      letter-spacing: 2px; white-space: nowrap;
     }
 
-    /* ── ROW 7 — CTA (bottom: 18px, h: 42px) ────────────── */
+    /* ── ROW 7 — CTA  bottom:20  h:44 ── */
     .cta {
       position: absolute;
-      bottom: 18px;
-      left: 28px;
-      right: 28px;
-      height: 42px;
+      bottom: 20px; left: 28px; right: 28px;
+      height: 44px;
       border: 2px solid #C6FF00;
       border-radius: 1px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center;
       text-decoration: none;
-      z-index: 5;
+      z-index: 6;
       opacity: 0;
-      animation: slideUp 0.4s 1.12s forwards;
-      transition: background 0.2s;
+      animation: slideUp 0.4s 1.14s forwards;
+      transition: background 0.2s, border-color 0.2s;
     }
-    .cta:hover { background: #C6FF00; }
-    .cta:hover .cta-text { color: #060606; }
+    .cta:hover { background: #FF5C1A; border-color: #FF5C1A; }
+    .cta:hover .cta-text { color: #fff; }
     .cta-text {
       font-family: 'Courier New', monospace;
-      font-size: 13px;
-      font-weight: 700;
-      color: #C6FF00;
-      letter-spacing: 2.5px;
+      font-size: 13px; font-weight: 700;
+      color: #C6FF00; letter-spacing: 2.5px;
     }
 
-    /* ── KEYFRAMES ───────────────────────────────────────── */
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to   { opacity: 1; }
-    }
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(10px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes slideRight {
-      from { opacity: 0; transform: translateX(-100%); }
-      to   { opacity: 1; transform: translateX(0); }
-    }
+    /* ── KEYFRAMES ── */
+    @keyframes fadeIn   { from { opacity:0; } to { opacity:1; } }
+    @keyframes growBar  { from { transform:scaleY(0); } to { transform:scaleY(1); } }
+    @keyframes growDash { from { transform:scaleX(0); } to { transform:scaleX(1); } }
+    @keyframes slideUp  { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes slideRight { from { opacity:0; transform:translateX(-100%); } to { opacity:1; transform:translateX(0); } }
     @keyframes glitch {
-      0%   { opacity: 0; transform: scale(0.78) translateX(-8px); }
-      55%  { opacity: 1; transform: scale(1.03) translateX(3px); }
-      75%  { transform: scale(0.99) translateX(-1px); }
-      100% { opacity: 1; transform: scale(1) translateX(0); }
+      0%   { opacity:0; transform:scale(0.78) translateX(-8px); }
+      55%  { opacity:1; transform:scale(1.03) translateX(3px); }
+      75%  { transform:scale(0.99) translateX(-1px); }
+      100% { opacity:1; transform:scale(1) translateX(0); }
     }
-    @keyframes popIn {
-      from { opacity: 0; transform: scale(0.8); }
-      to   { opacity: 1; transform: scale(1); }
-    }
-    @keyframes ticker {
-      0%   { transform: translateX(0); }
-      100% { transform: translateX(-50%); }
-    }
+    @keyframes popIn  { from { opacity:0; transform:scale(0.82); } to { opacity:1; transform:scale(1); } }
+    @keyframes ticker { 0% { transform:translateX(0); } 100% { transform:translateX(-50%); } }
   </style>
 </head>
 <body>
 
   <p class="meta">RaceFinder · Post Instagram · Neon Stencil · 1080×1080</p>
 
-  <div class="post" role="img" aria-label="RaceFinder — 100 mais provas com inscrição direta, 30% de desconto com código RFBOOKING30">
+  <div class="post" role="img" aria-label="RaceFinder — 100+ provas com inscrição direta, 30% de desconto com código RFBOOKING30">
 
-    <!-- Corner brackets -->
-    <div class="corner corner--tl"></div>
-    <div class="corner corner--tr"></div>
-    <div class="corner corner--bl"></div>
-    <div class="corner corner--br"></div>
+    <div class="orange-bar"></div>
 
-    <!-- Row 1: eyebrow -->
+    <div class="corner c-tl"></div>
+    <div class="corner c-tr"></div>
+    <div class="corner c-bl"></div>
+    <div class="corner c-br"></div>
+
     <div class="eyebrow">// NOVA FUNCIONALIDADE · RACEFINDER.PT</div>
 
-    <!-- Row 2: big number -->
-    <div class="big-num">100+</div>
+    <div class="big-num">100<span class="plus">+</span></div>
 
-    <!-- Row 3: sub-label -->
+    <div class="orange-dash"></div>
+
     <div class="sub-label">PROVAS · INSCRIÇÃO DIRETA</div>
 
-    <!-- Row 4: rolling stripe -->
     <div class="stripe">
       <div class="stripe-inner">
         SEM&nbsp;RODEIOS&ensp;·&ensp;SEM&nbsp;RODEIOS&ensp;·&ensp;SEM&nbsp;RODEIOS&ensp;·&ensp;SEM&nbsp;RODEIOS&ensp;·&ensp;SEM&nbsp;RODEIOS&ensp;·&ensp;SEM&nbsp;RODEIOS&ensp;·&ensp;SEM&nbsp;RODEIOS&ensp;·&ensp;SEM&nbsp;RODEIOS&ensp;·&ensp;
       </div>
     </div>
 
-    <!-- Row 5: headline -->
     <div class="headline">INSCRIÇÃO DIRETA.&nbsp;<em>SEM RODEIOS.</em></div>
 
-    <!-- Row 6: code block -->
     <div class="code-block">
       <span class="code-pre">-30% · código /</span>
       <span class="code-val">RFBOOKING30</span>
     </div>
 
-    <!-- Row 7: CTA -->
     <a class="cta" href="https://racefinder.pt/all-races/?bookable_on_racefinder=1">
       <span class="cta-text">[ INSCREVE-TE AGORA ]</span>
     </a>
 
   </div>
 
-  <p class="meta" style="font-size:10px; color:rgba(255,255,255,0.18);">540×540px · exportar a 2× para 1080×1080</p>
+  <p class="meta" style="font-size:10px; color:rgba(255,255,255,0.16);">540×540px · exportar a 2× para 1080×1080</p>
 
 </body>
 </html>
