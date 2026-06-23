@@ -8,7 +8,7 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background: #0D0D0D;
+      background: #080808;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -20,246 +20,263 @@
     }
 
     .meta {
-      color: rgba(255,255,255,0.28);
+      color: rgba(255,255,255,0.25);
       font-size: 11px;
       letter-spacing: 1.2px;
       text-transform: uppercase;
     }
 
-    /* ── POST FRAME 540×540 (exports @2x = 1080×1080) ── */
+    /* ── POST FRAME ── */
     .post {
       width: 540px;
       height: 540px;
-      background: #060606;
+      background: #050505;
       overflow: hidden;
       position: relative;
       flex-shrink: 0;
     }
 
-    /* Scanline texture */
+    /* Heavy scanlines */
     .post::after {
       content: '';
-      position: absolute;
-      inset: 0;
+      position: absolute; inset: 0;
       background: repeating-linear-gradient(
         0deg,
-        rgba(198,255,0,0.018) 0px,
-        rgba(198,255,0,0.018) 1px,
-        transparent 1px,
-        transparent 5px
+        rgba(0,0,0,0.45) 0px, rgba(0,0,0,0.45) 1px,
+        transparent 1px, transparent 3px
       );
       pointer-events: none;
-      z-index: 20;
+      z-index: 30;
     }
 
-    /* ── ORANGE ACCENT BAR — left edge ── */
+    /* ── GLITCH LAYERS on number ── */
+    @keyframes glitch-main {
+      0%,100% { transform: translate(0,0); opacity:1; }
+      7%       { transform: translate(-6px, 2px) skewX(-3deg); }
+      8%       { transform: translate(5px,-2px) skewX(2deg); }
+      9%       { transform: translate(-3px, 0); }
+      10%      { transform: translate(0,0); }
+      60%      { transform: translate(0,0); opacity:1; }
+      61%      { transform: translate(4px,0) skewX(4deg); opacity:0.85; }
+      62%      { transform: translate(-4px,0) skewX(-2deg); }
+      63%      { transform: translate(0,0); opacity:1; }
+    }
+    @keyframes glitch-r {
+      0%,100% { clip-path: inset(100% 0 0 0); transform: translate(0,0); }
+      7%  { clip-path: inset(20% 0 60% 0); transform: translate(8px,0); }
+      8%  { clip-path: inset(55% 0 10% 0); transform: translate(-6px,0); }
+      9%  { clip-path: inset(80% 0 5%  0); transform: translate(4px,0); }
+      10% { clip-path: inset(100% 0 0  0); transform: translate(0,0); }
+      61% { clip-path: inset(30% 0 40% 0); transform: translate(-8px,0); }
+      62% { clip-path: inset(60% 0 20% 0); transform: translate(6px,0); }
+      63% { clip-path: inset(100% 0 0  0); transform: translate(0,0); }
+    }
+    @keyframes glitch-g {
+      0%,100% { clip-path: inset(100% 0 0 0); transform: translate(0,0); }
+      7%  { clip-path: inset(40% 0 30% 0); transform: translate(-10px,0); }
+      8%  { clip-path: inset(10% 0 70% 0); transform: translate(8px,0); }
+      9%  { clip-path: inset(65% 0 15% 0); transform: translate(-5px,0); }
+      10% { clip-path: inset(100% 0 0  0); transform: translate(0,0); }
+      61% { clip-path: inset(50% 0 10% 0); transform: translate(10px,0); }
+      62% { clip-path: inset(15% 0 55% 0); transform: translate(-7px,0); }
+      63% { clip-path: inset(100% 0 0  0); transform: translate(0,0); }
+    }
+    @keyframes stripe-glitch {
+      0%,100% { transform: translateX(0) skewX(0deg); }
+      7%  { transform: translateX(-8px) skewX(-1.5deg); }
+      8%  { transform: translateX(6px) skewX(1deg); }
+      9%  { transform: translateX(-3px) skewX(0deg); }
+      10% { transform: translateX(0); }
+      61% { transform: translateX(5px) skewX(1deg); }
+      62% { transform: translateX(-4px); }
+      63% { transform: translateX(0); }
+    }
+    @keyframes flicker {
+      0%,100% { opacity:1; }
+      7%  { opacity:0.6; }
+      7.5%{ opacity:1; }
+      8%  { opacity:0.3; }
+      8.3%{ opacity:1; }
+      61% { opacity:0.7; }
+      61.4%{ opacity:1; }
+    }
+    @keyframes code-pulse {
+      0%,100% { box-shadow: 0 0 0px rgba(255,92,26,0); border-color:#FF5C1A; }
+      50%      { box-shadow: 0 0 14px rgba(255,92,26,0.5); border-color:#FF8040; }
+    }
+    @keyframes cta-scan {
+      0%   { background-position: 0 -100%; }
+      100% { background-position: 0 200%; }
+    }
+    @keyframes bar-flicker {
+      0%,100% { opacity:1; }
+      30% { opacity:0.7; }
+      31% { opacity:1; }
+      61% { opacity:0.4; }
+      61.5%{ opacity:1; }
+    }
+    @keyframes ticker { 0% { transform:translateX(0); } 100% { transform:translateX(-50%); } }
+    @keyframes growBar  { from { transform:scaleY(0); } to { transform:scaleY(1); } }
+    @keyframes growDash { from { transform:scaleX(0); opacity:0; } to { transform:scaleX(1); opacity:1; } }
+    @keyframes eyeIn    { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes numIn    { 0% { opacity:0; transform:scale(0.6) translateX(-20px); } 60% { opacity:1; transform:scale(1.04) translateX(4px); } 80% { transform:scale(0.98); } 100% { opacity:1; transform:scale(1) translateX(0); } }
+    @keyframes subIn    { from { opacity:0; letter-spacing:8px; } to { opacity:1; letter-spacing:3.5px; } }
+    @keyframes stripeIn { from { opacity:0; transform:translateX(-100%) skewX(-3deg); } to { opacity:1; transform:translateX(0) skewX(0deg); } }
+    @keyframes hlIn     { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }
+    @keyframes codeIn   { from { opacity:0; transform:scale(0.85) translateY(6px); } to { opacity:1; transform:scale(1) translateY(0); } }
+    @keyframes ctaIn    { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes fadeIn   { from { opacity:0; } to { opacity:1; } }
+
+    /* ── ORANGE LEFT BAR ── */
     .orange-bar {
-      position: absolute;
-      top: 0; left: 0; bottom: 0;
-      width: 6px;
+      position: absolute; top:0; left:0; bottom:0; width:7px;
       background: #FF5C1A;
+      transform: scaleY(0); transform-origin: top;
+      animation: growBar 0.4s 0.05s cubic-bezier(.4,0,.2,1) forwards,
+                 bar-flicker 4s 1s infinite;
       z-index: 8;
-      transform: scaleY(0);
-      transform-origin: top;
-      animation: growBar 0.5s 0.08s cubic-bezier(.4,0,.2,1) forwards;
     }
 
-    /* ── ORANGE ACCENT DASH — right of number ── */
-    .orange-dash {
-      position: absolute;
-      top: 260px; left: 28px;
-      width: 56px; height: 3px;
-      background: #FF5C1A;
-      z-index: 8;
-      transform: scaleX(0);
-      transform-origin: left;
-      animation: growDash 0.45s 0.62s cubic-bezier(.4,0,.2,1) forwards;
-    }
+    /* ── CORNER BRACKETS ── */
+    .corner { position:absolute; width:24px; height:24px; z-index:10; opacity:0; animation:fadeIn 0.3s forwards; }
+    .c-tl { top:16px; left:16px; border-top:2.5px solid #C6FF00; border-left:2.5px solid #C6FF00; animation-delay:0.1s; }
+    .c-tr { top:16px; right:16px; border-top:2.5px solid #C6FF00; border-right:2.5px solid #C6FF00; animation-delay:0.14s; }
+    .c-bl { bottom:16px; left:16px; border-bottom:2.5px solid #C6FF00; border-left:2.5px solid #C6FF00; animation-delay:0.1s; }
+    .c-br { bottom:16px; right:16px; border-bottom:2.5px solid #C6FF00; border-right:2.5px solid #C6FF00; animation-delay:0.14s; }
 
-    /* ── CORNER BRACKETS (acid green) ── */
-    .corner {
-      position: absolute;
-      width: 22px; height: 22px;
-      z-index: 10;
-      opacity: 0;
-      animation: fadeIn 0.3s forwards;
-    }
-    .c-tl { top: 18px; left: 18px; border-top: 2px solid #C6FF00; border-left: 2px solid #C6FF00; animation-delay: 0.12s; }
-    .c-tr { top: 18px; right: 18px; border-top: 2px solid #C6FF00; border-right: 2px solid #C6FF00; animation-delay: 0.17s; }
-    .c-bl { bottom: 18px; left: 18px; border-bottom: 2px solid #C6FF00; border-left: 2px solid #C6FF00; animation-delay: 0.12s; }
-    .c-br { bottom: 18px; right: 18px; border-bottom: 2px solid #C6FF00; border-right: 2px solid #C6FF00; animation-delay: 0.17s; }
-
-    /* ── ROW 1 — eyebrow  top:22  h:24 ── */
+    /* ── EYEBROW ── */
     .eyebrow {
-      position: absolute;
-      top: 22px; left: 42px; right: 28px;
-      height: 24px;
-      display: flex; align-items: center;
-      font-family: 'Courier New', monospace;
-      font-size: 10px; font-weight: 700;
-      color: rgba(198,255,0,0.48);
-      letter-spacing: 2px;
-      z-index: 6;
-      opacity: 0;
-      animation: slideUp 0.4s 0.22s forwards;
+      position:absolute; top:20px; left:46px; right:24px; height:26px;
+      display:flex; align-items:center;
+      font-family:'Courier New',monospace; font-size:10px; font-weight:700;
+      color:rgba(198,255,0,0.5); letter-spacing:2.2px;
+      z-index:6; opacity:0;
+      animation: eyeIn 0.4s 0.2s forwards;
     }
 
-    /* ── ROW 2 — big number  top:54  h:202 ── */
-    .big-num {
-      position: absolute;
-      top: 50px; left: 24px;
-      height: 210px;
-      display: flex; align-items: flex-start;
-      font-family: Impact, 'Arial Narrow', sans-serif;
-      font-size: 222px; font-weight: 900;
-      /* split color: green digit + orange plus */
-      color: #C6FF00;
-      letter-spacing: -14px; line-height: 1;
-      overflow: hidden;
-      z-index: 6;
-      opacity: 0;
-      animation: glitch 0.7s 0.28s cubic-bezier(.34,1.3,.64,1) forwards;
+    /* ── BIG NUMBER — triple layered for glitch ── */
+    .num-wrap {
+      position:absolute; top:46px; left:22px;
+      height:218px; width:400px;
+      z-index:6; overflow:hidden;
     }
-    .big-num .plus {
-      color: #FF5C1A;
-      font-size: 180px;
-      align-self: flex-start;
-      margin-top: 10px;
-      letter-spacing: 0;
+    .num-base, .num-r, .num-g {
+      position:absolute; top:0; left:0;
+      font-family:Impact,'Arial Narrow',sans-serif;
+      font-size:232px; font-weight:900;
+      letter-spacing:-16px; line-height:1;
+    }
+    .num-base {
+      color:#C6FF00;
+      opacity:0;
+      animation: numIn 0.7s 0.25s cubic-bezier(.34,1.2,.64,1) forwards,
+                 glitch-main 5s 1.5s infinite;
+    }
+    .num-base .plus { color:#FF5C1A; font-size:188px; margin-top:12px; display:inline-block; letter-spacing:0; }
+    .num-r {
+      color:#FF5C1A; opacity:0.7;
+      animation: numIn 0.7s 0.25s cubic-bezier(.34,1.2,.64,1) forwards,
+                 glitch-r 5s 1.5s infinite;
+    }
+    .num-r .plus { color:#C6FF00; font-size:188px; margin-top:12px; display:inline-block; letter-spacing:0; }
+    .num-g {
+      color:#00ffee; opacity:0.5;
+      animation: numIn 0.7s 0.25s cubic-bezier(.34,1.2,.64,1) forwards,
+                 glitch-g 5s 1.5s infinite;
+    }
+    .num-g .plus { color:#fff; font-size:188px; margin-top:12px; display:inline-block; letter-spacing:0; }
+
+    /* ── ORANGE DASH ── */
+    .orange-dash {
+      position:absolute; top:268px; left:24px;
+      width:64px; height:4px; background:#FF5C1A; z-index:8;
+      transform:scaleX(0); transform-origin:left; opacity:0;
+      animation: growDash 0.4s 0.62s cubic-bezier(.4,0,.2,1) forwards;
     }
 
-    /* ── ROW 3 — sub-label  top:268  h:20 ── */
+    /* ── SUB-LABEL ── */
     .sub-label {
-      position: absolute;
-      top: 264px; left: 28px; right: 28px;
-      height: 20px;
-      display: flex; align-items: center;
-      font-family: 'Courier New', monospace;
-      font-size: 10px; font-weight: 700;
-      color: rgba(198,255,0,0.36);
-      letter-spacing: 3.5px;
-      z-index: 6;
-      opacity: 0;
-      animation: slideUp 0.35s 0.6s forwards;
+      position:absolute; top:278px; left:24px; right:24px; height:22px;
+      display:flex; align-items:center;
+      font-family:'Courier New',monospace; font-size:10px; font-weight:700;
+      color:rgba(198,255,0,0.38); letter-spacing:3.5px; z-index:6;
+      opacity:0; animation: subIn 0.5s 0.62s forwards;
     }
 
-    /* ── ROW 4 — rolling stripe  top:292  h:52 ── */
+    /* ── ROLLING STRIPE ── */
     .stripe {
-      position: absolute;
-      top: 292px; left: 0; right: 0;
-      height: 52px;
-      background: #C6FF00;
-      overflow: hidden;
-      display: flex; align-items: center;
-      z-index: 6;
-      opacity: 0;
-      transform: translateX(-100%);
-      animation: slideRight 0.55s 0.64s cubic-bezier(.4,0,.2,1) forwards;
+      position:absolute; top:308px; left:0; right:0; height:56px;
+      background:#C6FF00; overflow:hidden;
+      display:flex; align-items:center; z-index:6;
+      opacity:0; transform:translateX(-100%) skewX(-3deg);
+      animation: stripeIn 0.5s 0.66s cubic-bezier(.4,0,.2,1) forwards,
+                 stripe-glitch 5s 1.5s infinite;
     }
-    /* orange tick marks inside stripe */
     .stripe::before {
-      content: '';
-      position: absolute;
-      top: 0; bottom: 0; left: 0; right: 0;
-      background: repeating-linear-gradient(
-        90deg,
-        transparent 0px,
-        transparent 120px,
-        rgba(255,92,26,0.25) 120px,
-        rgba(255,92,26,0.25) 122px
+      content:''; position:absolute; inset:0;
+      background: repeating-linear-gradient(90deg,
+        transparent 0px, transparent 90px,
+        rgba(255,92,26,0.3) 90px, rgba(255,92,26,0.3) 92px
       );
-      pointer-events: none;
-      z-index: 1;
+      z-index:1;
     }
     .stripe-inner {
-      white-space: nowrap;
-      display: flex;
-      font-family: Impact, 'Arial Narrow', sans-serif;
-      font-size: 22px;
-      color: #060606;
-      letter-spacing: 1.5px;
-      animation: ticker 11s linear infinite;
-      position: relative; z-index: 2;
+      white-space:nowrap; display:flex;
+      font-family:Impact,'Arial Narrow',sans-serif;
+      font-size:24px; color:#050505; letter-spacing:2px;
+      animation:ticker 9s linear infinite;
+      position:relative; z-index:2;
     }
 
-    /* ── ROW 5 — headline  top:354  h:48 ── */
+    /* ── HEADLINE ── */
     .headline {
-      position: absolute;
-      top: 354px; left: 28px; right: 28px;
-      height: 46px;
-      display: flex; align-items: center;
-      font-family: Impact, 'Arial Narrow', sans-serif;
-      font-size: 22px; color: #fff;
-      letter-spacing: 0.5px; text-transform: uppercase; line-height: 1;
-      z-index: 6;
-      opacity: 0;
-      animation: slideUp 0.4s 0.88s forwards;
+      position:absolute; top:372px; left:24px; right:24px; height:44px;
+      display:flex; align-items:center;
+      font-family:Impact,'Arial Narrow',sans-serif;
+      font-size:23px; color:#fff; letter-spacing:0.6px;
+      text-transform:uppercase; line-height:1;
+      z-index:6; opacity:0;
+      animation: hlIn 0.45s 0.9s cubic-bezier(.4,0,.2,1) forwards,
+                 flicker 5s 1.5s infinite;
     }
-    .headline em { color: #FF5C1A; font-style: normal; }
+    .headline em { color:#FF5C1A; font-style:normal; }
 
-    /* ── ROW 6 — code block  top:408  h:38 ── */
+    /* ── CODE BLOCK ── */
     .code-block {
-      position: absolute;
-      top: 408px; left: 28px;
-      height: 36px;
-      display: inline-flex; align-items: center; gap: 10px;
-      background: rgba(255,92,26,0.1);
-      border: 1.5px solid #FF5C1A;
-      border-left: 4px solid #FF5C1A;
-      border-radius: 2px;
-      padding: 0 14px 0 10px;
-      z-index: 6;
-      opacity: 0;
-      animation: popIn 0.45s 1.02s cubic-bezier(.34,1.4,.64,1) forwards;
+      position:absolute; top:420px; left:24px;
+      height:40px; display:inline-flex; align-items:center; gap:12px;
+      background:rgba(255,92,26,0.12);
+      border:2px solid #FF5C1A;
+      border-left:6px solid #FF5C1A;
+      border-radius:2px; padding:0 16px 0 10px;
+      z-index:6; opacity:0;
+      animation: codeIn 0.5s 1.05s cubic-bezier(.34,1.4,.64,1) forwards,
+                 code-pulse 2.5s 2s infinite;
     }
-    .code-pre {
-      font-family: 'Courier New', monospace;
-      font-size: 10px; color: rgba(255,255,255,0.4);
-      letter-spacing: 1px; white-space: nowrap;
-    }
-    .code-val {
-      font-family: 'Courier New', monospace;
-      font-size: 15px; font-weight: 700;
-      color: #FF5C1A;
-      letter-spacing: 2px; white-space: nowrap;
-    }
+    .code-pre { font-family:'Courier New',monospace; font-size:10px; color:rgba(255,255,255,0.35); letter-spacing:1px; white-space:nowrap; }
+    .code-val { font-family:'Courier New',monospace; font-size:16px; font-weight:700; color:#FF5C1A; letter-spacing:2.5px; white-space:nowrap; }
 
-    /* ── ROW 7 — CTA  bottom:20  h:44 ── */
+    /* ── CTA ── */
     .cta {
-      position: absolute;
-      bottom: 20px; left: 28px; right: 28px;
-      height: 44px;
-      border: 2px solid #C6FF00;
-      border-radius: 1px;
-      display: flex; align-items: center; justify-content: center;
-      text-decoration: none;
-      z-index: 6;
-      opacity: 0;
-      animation: slideUp 0.4s 1.14s forwards;
+      position:absolute; bottom:18px; left:24px; right:24px; height:46px;
+      border:2.5px solid #C6FF00; border-radius:1px;
+      display:flex; align-items:center; justify-content:center; gap:10px;
+      text-decoration:none; z-index:6; overflow:hidden;
+      opacity:0; animation: ctaIn 0.45s 1.16s forwards;
       transition: background 0.2s, border-color 0.2s;
     }
-    .cta:hover { background: #FF5C1A; border-color: #FF5C1A; }
-    .cta:hover .cta-text { color: #fff; }
-    .cta-text {
-      font-family: 'Courier New', monospace;
-      font-size: 13px; font-weight: 700;
-      color: #C6FF00; letter-spacing: 2.5px;
+    .cta::after {
+      content:'';
+      position:absolute; left:0; right:0; height:40%;
+      background: rgba(198,255,0,0.06);
+      animation: cta-scan 3s 2s linear infinite;
     }
+    .cta:hover { background:#FF5C1A; border-color:#FF5C1A; }
+    .cta:hover .ct { color:#fff; }
+    .ct { font-family:'Courier New',monospace; font-size:13px; font-weight:700; color:#C6FF00; letter-spacing:3px; position:relative; z-index:1; }
+    .ct-arr { font-size:18px; color:#FF5C1A; position:relative; z-index:1; transition:color 0.2s; }
+    .cta:hover .ct-arr { color:#fff; }
 
-    /* ── KEYFRAMES ── */
-    @keyframes fadeIn   { from { opacity:0; } to { opacity:1; } }
-    @keyframes growBar  { from { transform:scaleY(0); } to { transform:scaleY(1); } }
-    @keyframes growDash { from { transform:scaleX(0); } to { transform:scaleX(1); } }
-    @keyframes slideUp  { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-    @keyframes slideRight { from { opacity:0; transform:translateX(-100%); } to { opacity:1; transform:translateX(0); } }
-    @keyframes glitch {
-      0%   { opacity:0; transform:scale(0.78) translateX(-8px); }
-      55%  { opacity:1; transform:scale(1.03) translateX(3px); }
-      75%  { transform:scale(0.99) translateX(-1px); }
-      100% { opacity:1; transform:scale(1) translateX(0); }
-    }
-    @keyframes popIn  { from { opacity:0; transform:scale(0.82); } to { opacity:1; transform:scale(1); } }
-    @keyframes ticker { 0% { transform:translateX(0); } 100% { transform:translateX(-50%); } }
   </style>
 </head>
 <body>
@@ -277,10 +294,13 @@
 
     <div class="eyebrow">// NOVA FUNCIONALIDADE · RACEFINDER.PT</div>
 
-    <div class="big-num">100<span class="plus">+</span></div>
+    <div class="num-wrap">
+      <div class="num-g">100<span class="plus">+</span></div>
+      <div class="num-r">100<span class="plus">+</span></div>
+      <div class="num-base">100<span class="plus">+</span></div>
+    </div>
 
     <div class="orange-dash"></div>
-
     <div class="sub-label">PROVAS · INSCRIÇÃO DIRETA</div>
 
     <div class="stripe">
@@ -297,12 +317,13 @@
     </div>
 
     <a class="cta" href="https://racefinder.pt/all-races/?bookable_on_racefinder=1">
-      <span class="cta-text">[ INSCREVE-TE AGORA ]</span>
+      <span class="ct">[ INSCREVE-TE AGORA ]</span>
+      <span class="ct-arr">→</span>
     </a>
 
   </div>
 
-  <p class="meta" style="font-size:10px; color:rgba(255,255,255,0.16);">540×540px · exportar a 2× para 1080×1080</p>
+  <p class="meta" style="font-size:10px;color:rgba(255,255,255,0.14);">540×540px · exportar a 2× para 1080×1080</p>
 
 </body>
 </html>
