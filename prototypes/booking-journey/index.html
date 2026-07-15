@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RaceFinder - Combined Demo</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  background: #eaeaea;
+  color: #1a1a1a;
+}
+.icon { flex-shrink: 0; }
+
+/* ---------- App shell ---------- */
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: #fff; border-bottom: 1px solid #e2e2e2;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 24px; flex-wrap: wrap; gap: 12px;
+}
+.topbar-left { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.brand { font-size: 14px; font-weight: 800; letter-spacing: 0.5px; color: #111; }
+.navtabs { display: flex; gap: 4px; flex-wrap: wrap; }
+.navtab {
+  background: none; border: none; cursor: pointer;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.3px; color: #777;
+  padding: 8px 12px; border-radius: 6px;
+}
+.navtab:hover { background: #f2f2f2; color: #333; }
+.navtab.active { background: #111; color: #fff; }
+
+.lang-toggle { display: flex; align-items: center; gap: 6px; background: #f2f2f2; border-radius: 20px; padding: 3px; }
+.lang-btn { border: none; background: none; cursor: pointer; font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 16px; color: #777; }
+.lang-btn.active { background: #E8541E; color: #fff; }
+
+.canvas { padding: 40px 20px 80px; }
+.canvas-inner { max-width: 1180px; margin: 0 auto; }
+
+.page { display: none; }
+.page.active { display: block; }
+
+body[data-lang="en"] .lang-pt { display: none !important; }
+body[data-lang="pt"] .lang-en { display: none !important; }
+
+/* ================================================================
+   PAGE 1: HERO
+   ================================================================ */
+.hero {
+  background: linear-gradient(135deg, #E8541E 0%, #D8480F 100%);
+  border-radius: 10px; padding: 56px 48px; position: relative; overflow: hidden;
+  min-height: 380px; display: flex; align-items: center;
+}
+.hero::after {
+  content: ""; position: absolute; top: 0; right: 0; width: 45%; height: 100%;
+  background: radial-gradient(circle at 70% 30%, rgba(255,255,255,0.10), transparent 60%);
+}
+.hero-nav-mock {
+  position: absolute; top: 24px; left: 48px; right: 48px;
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.5px; color: rgba(255,255,255,0.55);
+}
+.hero-nav-links { display: flex; gap: 22px; }
+.hero-content { position: relative; z-index: 2; max-width: 660px; }
+.hero .eyebrow { font-size: 13px; font-weight: 600; letter-spacing: 0.5px; color: #FFD9C2; margin-bottom: 12px; }
+.hero .headline { font-size: 46px; font-weight: 800; line-height: 1.05; color: #fff; letter-spacing: -0.5px; margin-bottom: 16px; }
+.hero .sub { font-size: 15px; color: #FFEFE7; line-height: 1.55; margin-bottom: 26px; max-width: 500px; }
+.hero .search { display: flex; background: #fff; border-radius: 6px; overflow: hidden; box-shadow: 0 10px 24px rgba(0,0,0,0.18); max-width: 660px; }
+.hero .field { flex: 1; padding: 12px 16px; border-right: 1px solid #eee; min-width: 0; }
+.hero .field-label { font-size: 10px; font-weight: 700; color: #E8541E; letter-spacing: 0.5px; }
+.hero .field-val { font-size: 13px; color: #333; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hero-search-cta {
+  flex: 1.2; background: #111; color: #fff; padding: 12px 16px;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.5px; white-space: nowrap;
+}
+.hero-search-cta .icon { color: #fff; }
+.hero .badges { display: flex; gap: 24px; margin-top: 20px; font-size: 12px; color: #FFEFE7; font-weight: 600; flex-wrap: wrap; }
+.hero .badge-item { display: flex; align-items: center; gap: 7px; }
+
+/* ================================================================
+   PAGE 2: RACE HEADER
+   ================================================================ */
+.rh-header {
+  display: grid; grid-template-columns: 380px 1fr; gap: 40px;
+  background: linear-gradient(135deg, #2b2b2b 0%, #111 100%);
+  border-radius: 10px; padding: 28px;
+}
+.rh-image {
+  position: relative; border-radius: 8px;
+  background: linear-gradient(160deg, #555 0%, #222 100%);
+  display: flex; align-items: flex-end; justify-content: flex-start; padding: 14px;
+}
+.photo-chip { display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.55); color: #fff; font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 20px; }
+.rh-content { color: #fff; display: flex; flex-direction: column; }
+.rh-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; }
+.rh-header .breadcrumb { font-size: 12px; font-weight: 700; letter-spacing: 1px; color: rgba(255,255,255,0.55); display: flex; gap: 8px; align-items: center; }
+.rh-header .breadcrumb .current { color: rgba(255,255,255,0.9); }
+.top-actions { display: flex; gap: 20px; }
+.top-action { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; color: #fff; }
+.top-action .icon { color: #fff; }
+.rh-title { font-size: 40px; font-weight: 800; line-height: 1.08; text-transform: uppercase; margin-bottom: 20px; }
+.rh-badge {
+  display: inline-flex; align-items: center; gap: 8px; width: fit-content;
+  background: #E8541E; color: #fff; font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
+  padding: 9px 16px; border-radius: 20px; margin-bottom: 20px;
+}
+.rh-badge .icon { color: #fff; }
+.rh-meta { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+.rh-header .meta-row { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; color: #fff; }
+.rh-header .meta-row .icon { color: rgba(255,255,255,0.7); flex-shrink: 0; }
+.rh-pills { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
+.rh-pill {
+  display: flex; align-items: center; gap: 8px;
+  border: 1px solid rgba(255,255,255,0.25); border-radius: 20px;
+  padding: 9px 16px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; color: #fff;
+  white-space: nowrap;
+}
+.rh-pill .icon { color: rgba(255,255,255,0.8); flex-shrink: 0; }
+.rh-cta-row { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.rh-cta {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  background: #E8541E; color: #fff; border: none; border-radius: 6px;
+  padding: 16px 22px; font-size: 14px; font-weight: 700; letter-spacing: 0.5px;
+  min-width: 220px; cursor: pointer;
+}
+.rh-cta .icon { color: #fff; }
+.rh-cta-note { display: flex; align-items: center; gap: 8px; font-size: 13px; color: rgba(255,255,255,0.75); }
+.rh-cta-note .icon { color: #6fcf7a; flex-shrink: 0; }
+.rh-summary { margin-top: 28px; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 24px; }
+.rh-summary-label { font-size: 12px; font-weight: 700; letter-spacing: 1px; color: rgba(255,255,255,0.5); margin-bottom: 14px; }
+.rh-summary p { font-size: 15px; line-height: 1.65; color: rgba(255,255,255,0.85); margin-bottom: 14px; }
+.rh-summary p:last-child { margin-bottom: 0; }
+
+/* ================================================================
+   PAGE 3: BOOKING SIDEBAR
+   ================================================================ */
+#page-sidebar .canvas-inner-wrap { display: flex; justify-content: center; }
+.sb-card { width: 380px; margin: 0 auto; background: #fff; border-radius: 10px; box-shadow: 0 4px 18px rgba(0,0,0,0.08); overflow: hidden; }
+.sb-social-proof { display: flex; align-items: center; gap: 8px; padding: 14px 20px; font-size: 13px; color: #333; border-bottom: 1px solid #eee; }
+.sb-social-proof .icon { color: #E8541E; }
+.sb-social-proof b { color: #E8541E; }
+.sb-body { padding: 20px; }
+.sb-event-title { font-size: 21px; font-weight: 800; line-height: 1.2; margin-bottom: 14px; text-transform: uppercase; }
+.sb-date-row { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 18px; }
+.sb-date-row .icon { color: #555; }
+.sb-field-label { font-size: 11px; font-weight: 700; letter-spacing: 0.5px; color: #888; margin-bottom: 6px; }
+.sb-select { display: flex; align-items: center; justify-content: space-between; border: 1px solid #ddd; border-radius: 6px; padding: 12px 14px; font-size: 14px; font-weight: 600; margin-bottom: 16px; }
+.sb-select .icon { color: #999; }
+.sb-promo { background: #111; color: #fff; border-radius: 6px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.sb-promo-left .t1 { font-size: 13px; font-weight: 700; }
+.sb-promo-left .t2 { font-size: 11px; color: #aaa; margin-top: 2px; }
+.sb-promo-right { font-size: 20px; font-weight: 800; color: #FF8A50; }
+.sb-price-save-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+.sb-price-group { display: flex; align-items: baseline; gap: 10px; }
+.sb-price-old { font-size: 15px; color: #999; text-decoration: line-through; }
+.sb-price-new { font-size: 27px; font-weight: 800; color: #E8541E; }
+.sb-save-row { display: flex; align-items: center; gap: 5px; font-size: 13px; color: #1a8f4c; font-weight: 600; }
+.sb-save-row .icon { color: #1a8f4c; }
+.sb-save-row b { color: #1a8f4c; }
+.sb-cta {
+  display: flex; align-items: center; justify-content: space-between;
+  background: #E8541E; color: #fff; border-radius: 6px;
+  padding: 15px 18px; font-size: 14px; font-weight: 700; letter-spacing: 0.5px;
+  margin-bottom: 14px; cursor: pointer;
+}
+.sb-cta .icon { color: #fff; }
+.sb-info-note { display: flex; gap: 8px; font-size: 12px; color: #777; line-height: 1.5; }
+.sb-info-note .icon { color: #E8541E; margin-top: 1px; }
+.sb-divider { border-top: 1px solid #eee; margin: 18px -20px; }
+.sb-section-title { font-size: 15px; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; }
+.sb-section-sub { font-size: 13px; color: #777; line-height: 1.5; margin-bottom: 14px; }
+.sb-plan-btn { display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid #ccc; border-radius: 6px; padding: 13px; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; }
+.sb-plan-btn .icon { color: #333; }
+.sb-trust-list { list-style: none; }
+.sb-trust-list li { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #444; padding: 7px 0; }
+.sb-trust-list .icon { color: #888; }
+.sb-secure-row { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; color: #1a8f4c; font-weight: 600; margin: 0 0 14px; }
+.sb-secure-row .icon { color: #1a8f4c; }
+.sb-pay-chips { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.sb-pay-chip { border: 1px solid #ddd; border-radius: 4px; padding: 5px 9px; font-size: 10px; font-weight: 800; letter-spacing: 0.3px; color: #333; }
+.sb-pay-footer { text-align: center; font-size: 10px; color: #999; letter-spacing: 0.5px; }
+
+/* ================================================================
+   SHARED CHECKOUT (Cart, Details & Payment, Confirmation)
+   ================================================================ */
+.checkout-page, .confirm-page { background: #fff; border-radius: 10px; padding: 32px; }
+.page-h1 { font-size: 40px; font-weight: 800; text-transform: uppercase; line-height: 1.05; margin-bottom: 10px; }
+.page-sub2 { font-size: 15px; color: #666; margin-bottom: 28px; }
+
+.stepper { display: flex; align-items: center; margin-bottom: 32px; }
+.step { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.dot { width: 28px; height: 28px; border-radius: 50%; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #999; }
+.step.active .dot { background: #E8541E; border-color: #E8541E; color: #fff; }
+.step-label { font-size: 12px; font-weight: 700; letter-spacing: 0.5px; color: #999; }
+.step-label.active { color: #1a1a1a; }
+.step-line { flex: 1; height: 1px; background: #ddd; margin: 0 16px; }
+
+/* Cart specific */
+.cart-grid { display: grid; grid-template-columns: 1fr 360px; gap: 32px; align-items: start; }
+.cart-item { display: flex; gap: 20px; border: 1px solid #eee; border-radius: 8px; padding: 20px; }
+.item-img { width: 140px; height: 120px; border-radius: 6px; flex-shrink: 0; background: linear-gradient(160deg, #888 0%, #333 100%); }
+.item-body { flex: 1; }
+.item-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.item-title { font-size: 17px; font-weight: 700; color: #E8541E; }
+.item-price { font-size: 17px; font-weight: 700; }
+.item-price-sub { font-size: 15px; font-weight: 700; margin-top: 2px; margin-bottom: 14px; }
+.item-meta { display: flex; gap: 32px; margin-bottom: 18px; }
+.meta-label { display: block; font-size: 12px; color: #999; margin-bottom: 3px; }
+.meta-val { display: block; font-size: 13px; font-weight: 600; color: #333; }
+.item-controls { display: flex; align-items: center; gap: 16px; }
+.qty-stepper { display: flex; align-items: center; gap: 14px; border: 1px solid #ddd; border-radius: 6px; padding: 8px 14px; }
+.qty-btn { background: none; border: none; color: #555; display: flex; cursor: pointer; }
+.qty-val { font-size: 14px; font-weight: 700; min-width: 12px; text-align: center; }
+.delete-btn { background: none; border: none; color: #999; cursor: pointer; display: flex; }
+
+.summary-card { background: #f7f7f7; border-radius: 10px; padding: 22px; }
+.social-proof2 { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #333; padding-bottom: 18px; border-bottom: 1px solid #e5e5e5; }
+.social-proof2 .icon { color: #E8541E; flex-shrink: 0; }
+.social-proof2 b { color: #E8541E; }
+.coupon-row { display: flex; justify-content: space-between; align-items: center; font-size: 15px; font-weight: 700; padding: 18px 0 12px; }
+.coupon-row .icon { color: #666; }
+.coupon-form { display: flex; gap: 10px; margin-bottom: 18px; }
+.coupon-input { flex: 1; border: 1px solid #ddd; border-radius: 6px; padding: 11px 14px; font-size: 13px; background: #fff; }
+.coupon-btn { background: #111; color: #fff; border: none; border-radius: 6px; padding: 0 20px; font-size: 13px; font-weight: 700; cursor: pointer; }
+.coupon-row2 { display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 700; }
+.coupon-row2 .icon { color: #666; }
+
+.divider2 { border-top: 1px solid #e5e5e5; margin: 18px 0; }
+.totals-row { display: flex; justify-content: space-between; font-size: 14px; color: #444; }
+.totals-row.total { font-size: 19px; font-weight: 800; color: #1a1a1a; }
+.info-note2 { display: flex; gap: 8px; font-size: 12px; color: #777; line-height: 1.5; margin: 18px 0; }
+.info-note2 .icon { color: #E8541E; margin-top: 1px; flex-shrink: 0; }
+.cta2 { width: 100%; display: flex; align-items: center; justify-content: space-between; background: #E8541E; color: #fff; border: none; border-radius: 6px; padding: 15px 18px; font-size: 14px; font-weight: 700; letter-spacing: 0.5px; cursor: pointer; }
+.cta2 .icon { color: #fff; }
+.section-title2 { font-size: 14px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px; }
+.next-list { list-style: none; }
+.next-list li { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #444; padding: 6px 0; }
+.next-list .icon { color: #888; flex-shrink: 0; }
+.secure-row2 { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; color: #1a8f4c; font-weight: 600; margin-bottom: 14px; }
+.secure-row2 .icon { color: #1a8f4c; }
+.pay-chips2 { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+.pay-chip2 { border: 1px solid #ddd; border-radius: 4px; padding: 5px 9px; font-size: 10px; font-weight: 800; letter-spacing: 0.3px; color: #333; background: #fff; }
+.pay-footer2 { text-align: center; font-size: 10px; color: #999; letter-spacing: 0.5px; }
+.keep-browsing { width: 100%; display: flex; align-items: center; justify-content: space-between; background: #fff; border: 1px solid #ccc; border-radius: 6px; padding: 14px 18px; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; cursor: pointer; }
+.keep-browsing .icon { color: #333; }
+.disclaimer { text-align: center; font-size: 12px; color: #999; margin-top: 16px; }
+
+/* Details specific */
+.details-grid { display: grid; grid-template-columns: 1fr 360px; gap: 32px; align-items: start; }
+.section-h { font-size: 22px; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; }
+.section-h.billing-h { margin-top: 28px; }
+.section-sub { font-size: 14px; color: #666; margin-bottom: 20px; }
+.accordion { border: 1px solid #eee; border-radius: 8px; margin-bottom: 14px; overflow: hidden; }
+.accordion-header { display: flex; align-items: center; gap: 12px; padding: 16px 18px; background: #fafafa; cursor: pointer; }
+.accordion.open .accordion-header { background: #fff; border-bottom: 1px solid #eee; }
+.check-circle { width: 22px; height: 22px; border-radius: 50%; background: #1a8f4c; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.check-circle .check-icon { color: #fff; }
+.accordion-title { flex: 1; font-size: 14px; font-weight: 700; letter-spacing: 0.5px; }
+.accordion-header .icon:last-child { color: #999; }
+.accordion-body { padding: 20px 18px; }
+.form-field { margin-bottom: 16px; }
+.form-field label { display: block; font-size: 12px; color: #888; margin-bottom: 6px; }
+.form-field .req { color: #E8541E; }
+.form-field input { width: 100%; border: 1px solid #ddd; border-radius: 6px; padding: 11px 14px; font-size: 14px; color: #1a1a1a; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.select-display { display: flex; justify-content: space-between; align-items: center; border: 1px solid #ddd; border-radius: 6px; padding: 11px 14px; font-size: 14px; }
+.select-display .icon { color: #999; }
+.summary-h { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+.summary-item { display: flex; gap: 14px; margin-bottom: 4px; }
+.item-thumb-wrap { position: relative; flex-shrink: 0; }
+.item-thumb { width: 64px; height: 64px; border-radius: 6px; background: linear-gradient(160deg, #888 0%, #333 100%); }
+.item-num { position: absolute; top: -6px; left: -6px; width: 20px; height: 20px; border-radius: 50%; background: #fff; border: 1px solid #ccc; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.item-info { flex: 1; }
+.item-top2 { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.item-title2 { font-size: 13px; font-weight: 700; }
+.item-price2 { font-size: 13px; font-weight: 700; white-space: nowrap; }
+.item-meta2 { display: flex; gap: 24px; margin-bottom: 8px; }
+.meta-label2 { display: block; font-size: 11px; color: #999; }
+.meta-val2 { display: block; font-size: 12px; font-weight: 700; color: #333; }
+
+/* Confirmation specific */
+.breadcrumb2 { font-size: 12px; font-weight: 700; letter-spacing: 1px; color: #999; margin-bottom: 14px; }
+.confirm-h1 { font-size: 40px; font-weight: 800; text-transform: uppercase; line-height: 1.08; margin-bottom: 24px; }
+.confirm-page .stepper { margin-bottom: 28px; }
+.content-col { max-width: 620px; }
+.banner { display: flex; gap: 14px; background: #E8541E; color: #fff; border-radius: 8px; padding: 20px 22px; margin-bottom: 20px; }
+.banner-icon { color: #fff; flex-shrink: 0; margin-top: 2px; }
+.banner p { font-size: 14px; line-height: 1.6; font-weight: 500; }
+.info-box { background: #f2f2f2; border-radius: 8px; padding: 20px 22px; margin-bottom: 20px; }
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.info-l { font-size: 11px; color: #888; letter-spacing: 0.5px; margin-bottom: 3px; }
+.info-v { font-size: 14px; font-weight: 600; }
+.details-box { background: #f2f2f2; border-radius: 8px; padding: 24px 22px; margin-bottom: 24px; }
+.details-h { font-size: 20px; font-weight: 800; text-transform: uppercase; margin-bottom: 16px; }
+.table-head { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; }
+.divider3 { border-top: 1px solid #ddd; margin: 14px 0; }
+.product-row { display: flex; justify-content: space-between; margin-bottom: 10px; }
+.product-name { font-size: 14px; font-weight: 700; color: #E8541E; }
+.qty { color: #999; font-weight: 500; }
+.product-total { font-size: 14px; font-weight: 700; }
+.product-meta { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #555; }
+.pm-label { color: #888; }
+.participants-h { font-size: 14px; font-weight: 700; margin-bottom: 12px; }
+.participant-card { background: #fff; border-radius: 6px; padding: 16px 18px; }
+.participant-top { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+.participant-row { display: flex; justify-content: space-between; font-size: 13px; color: #444; margin-bottom: 12px; }
+.reg-link { display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; color: #E8541E; }
+.reg-link .icon { color: #E8541E; }
+.totals-row2 { display: flex; justify-content: space-between; font-size: 13px; color: #444; }
+.totals-row2.bold { font-weight: 700; color: #1a1a1a; }
+.totals-row2.big { font-size: 17px; }
+.btn-row { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.btn-dark, .btn-orange {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  border: none; border-radius: 6px; padding: 15px 20px;
+  font-size: 13px; font-weight: 700; letter-spacing: 0.5px; cursor: pointer;
+  min-width: 220px;
+}
+.btn-dark { background: #111; color: #fff; }
+.btn-orange { background: #E8541E; color: #fff; }
+.btn-dark .icon, .btn-orange .icon { color: #fff; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 800px) {
+  .rh-header { grid-template-columns: 1fr; }
+  .cart-grid, .details-grid { grid-template-columns: 1fr; }
+  .cart-item { flex-direction: column; }
+  .item-img { width: 100%; height: 160px; }
+  .form-row { grid-template-columns: 1fr; }
+  .info-grid { grid-template-columns: 1fr; }
+  .btn-row { flex-direction: column; }
+  .btn-dark, .btn-orange { width: 100%; }
+}
+
+</style>
+</head>
+<body data-lang="en">
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="brand">RACEFINDER · DEMO</div>
+    <div class="navtabs">
+<button class="navtab active" id="tab-hero" onclick="setPage('hero')">Hero</button>
+<button class="navtab" id="tab-header" onclick="setPage('header')">Race Header</button>
+<button class="navtab" id="tab-sidebar" onclick="setPage('sidebar')">Booking Sidebar</button>
+<button class="navtab" id="tab-cart" onclick="setPage('cart')">Cart</button>
+<button class="navtab" id="tab-details" onclick="setPage('details')">Details &amp; Payment</button>
+<button class="navtab" id="tab-confirm" onclick="setPage('confirm')">Confirmation</button>
+    </div>
+  </div>
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="lang-en" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" id="lang-pt" onclick="setLang('pt')">PT</button>
+  </div>
+</div>
+
+<div class="canvas">
+  <div class="canvas-inner">
+
+    <section id="page-hero" class="page">
+      <div class="lang-en">
+    <div class="hero">
+      <div class="hero-nav-mock">
+        <div class="hero-nav-links"><span>RUNNING</span><span>CYCLING</span><span>SWIMMING</span><span>TRIATHLON</span><span>DUATHLON</span></div>
+        <div>RACEFINDER</div>
+      </div>
+      <div class="hero-content">
+        <div class="eyebrow">DISCOVER &amp; BOOK RACES ACROSS PORTUGAL</div>
+        <div class="headline">YOUR NEXT RACE<br>STARTS HERE.</div>
+        <div class="sub">700+ races across running, cycling, swimming, triathlon, duathlon and hybrid. Discover, compare and register for races all over Portugal.</div>
+        <div class="search">
+          <div class="field"><div class="field-label">SPORT</div><div class="field-val">Any sport</div></div>
+          <div class="field"><div class="field-label">LOCATION</div><div class="field-val">Anywhere in Portugal</div></div>
+          <div class="field"><div class="field-label">DATE</div><div class="field-val">Any date</div></div>
+          <div class="hero-search-cta">FIND MY RACE <svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </div>
+        <div class="badges">
+          <span class="badge-item"><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>700+ verified races</span>
+          <span class="badge-item"><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Secure checkout</span>
+          <span class="badge-item"><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.78 4.78 4 4 0 0 1-6.74 0 4 4 0 0 1-4.78-4.78 4 4 0 0 1 0-6.75Z"></path><path d="m9 12 2 2 4-4"></path></svg>Official race bookings</span>
+        </div>
+      </div>
+    </div>
+</div>
+      <div class="lang-pt">
+    <div class="hero">
+      <div class="hero-nav-mock">
+        <div class="hero-nav-links"><span>CORRIDA</span><span>CICLISMO</span><span>NATAÇÃO</span><span>TRIATLO</span><span>DUATLO</span></div>
+        <div>RACEFINDER</div>
+      </div>
+      <div class="hero-content">
+        <div class="eyebrow">DESCOBRE E RESERVA PROVAS EM PORTUGAL</div>
+        <div class="headline">A TUA PRÓXIMA PROVA<br>COMEÇA AQUI.</div>
+        <div class="sub">Mais de 700 provas de corrida, ciclismo, natação, triatlo, duatlo e híbrido. Descobre, compara e inscreve-te em provas por todo o país.</div>
+        <div class="search">
+          <div class="field"><div class="field-label">MODALIDADE</div><div class="field-val">Qualquer modalidade</div></div>
+          <div class="field"><div class="field-label">LOCAL</div><div class="field-val">Todo o país</div></div>
+          <div class="field"><div class="field-label">DATA</div><div class="field-val">Qualquer data</div></div>
+          <div class="hero-search-cta">ENCONTRAR A MINHA PROVA <svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </div>
+        <div class="badges">
+          <span class="badge-item"><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>+700 provas verificadas</span>
+          <span class="badge-item"><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Pagamento seguro</span>
+          <span class="badge-item"><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.78 4.78 4 4 0 0 1-6.74 0 4 4 0 0 1-4.78-4.78 4 4 0 0 1 0-6.75Z"></path><path d="m9 12 2 2 4-4"></path></svg>Inscrições oficiais</span>
+        </div>
+      </div>
+    </div>
+</div>
+    </section>
+
+
+    <section id="page-header" class="page">
+      <div class="lang-en">
+    <div class="rh-header">
+      <div class="rh-image">
+        <div class="photo-chip"><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> 1 / 1</div>
+      </div>
+      <div class="rh-content">
+        <div class="rh-top-row">
+          <div class="breadcrumb"><span>HOME</span> / <span>RUNNING</span> / <span class="current">WALKING</span></div>
+          <div class="top-actions">
+            <div class="top-action"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>SAVE</div>
+            <div class="top-action"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>SHARE</div>
+          </div>
+        </div>
+        <div class="rh-title">Cidade Berço<br>Half Marathon</div>
+        <div class="rh-badge"><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>OFFICIAL REGISTRATION ON RACEFINDER</div>
+        <div class="rh-meta">
+          <div class="meta-row"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>SAT, OCTOBER 3, 2026</div>
+          <div class="meta-row"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r="1" fill="currentColor" stroke="none"/></svg>2 € - 125 €</div>
+          <div class="meta-row"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4-6 3 0 3.5 3.6 4 5s.5 2.5 2 5v3.5"/><path d="M20 20v-2.38C20 15.5 21.03 14.5 21 12c-.03-2.72-1.49-6-4-6-3 0-3.5 3.6-4 5"/></svg>5 RACES</div>
+        </div>
+        <div class="rh-pills"><div class="rh-pill"><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>OFFICIAL PARTNER</div><div class="rh-pill"><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>LOWEST PRICE</div><div class="rh-pill"><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>SECURE PAYMENT</div><div class="rh-pill"><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>DIRECT REGISTRATION</div></div>
+        <div class="rh-cta-row">
+          <button class="rh-cta">BOOK NOW<svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+          <div class="rh-cta-note"><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Registered directly with the organizer</div>
+        </div>
+        <div class="rh-summary">
+          <div class="rh-summary-label">EVENT SUMMARY</div>
+          <p>The Half Marathon Cidade do Berço is a running event scheduled for October 15, 2023, in Guimarães, Portugal. This race offers a half marathon distance of 21.097 km, open to all runners, whether licensed or not, welcoming both amateurs and experienced runners alike.</p>
+          <p>Part of the national running calendar, the event stands out for its scenic urban course that showcases the historic city of Guimarães, blending cultural heritage with sport. The atmosphere is festive and inclusive, attracting a wide community of runners and supporters for a memorable race day.</p>
+        </div>
+      </div>
+    </div>
+</div>
+      <div class="lang-pt">
+    <div class="rh-header">
+      <div class="rh-image">
+        <div class="photo-chip"><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> 1 / 1</div>
+      </div>
+      <div class="rh-content">
+        <div class="rh-top-row">
+          <div class="breadcrumb"><span>INÍCIO</span> / <span>CORRIDA</span> / <span class="current">CAMINHADA</span></div>
+          <div class="top-actions">
+            <div class="top-action"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>GUARDAR</div>
+            <div class="top-action"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>PARTILHAR</div>
+          </div>
+        </div>
+        <div class="rh-title">Cidade Berço<br>Meia Maratona</div>
+        <div class="rh-badge"><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>INSCRIÇÃO OFICIAL NO RACEFINDER</div>
+        <div class="rh-meta">
+          <div class="meta-row"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>SÁB, 3 DE OUTUBRO DE 2026</div>
+          <div class="meta-row"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r="1" fill="currentColor" stroke="none"/></svg>2 € - 125 €</div>
+          <div class="meta-row"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4-6 3 0 3.5 3.6 4 5s.5 2.5 2 5v3.5"/><path d="M20 20v-2.38C20 15.5 21.03 14.5 21 12c-.03-2.72-1.49-6-4-6-3 0-3.5 3.6-4 5"/></svg>5 PROVAS</div>
+        </div>
+        <div class="rh-pills"><div class="rh-pill"><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>PARCEIRO OFICIAL</div><div class="rh-pill"><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>MELHOR PREÇO</div><div class="rh-pill"><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>PAGAMENTO SEGURO</div><div class="rh-pill"><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>INSCRIÇÃO DIRETA</div></div>
+        <div class="rh-cta-row">
+          <button class="rh-cta">RESERVAR AGORA<svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+          <div class="rh-cta-note"><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Inscrição direta com o organizador</div>
+        </div>
+        <div class="rh-summary">
+          <div class="rh-summary-label">RESUMO DO EVENTO</div>
+          <p>A Meia Maratona Cidade do Berço é uma prova de corrida agendada para 15 de outubro de 2023, em Guimarães, Portugal. Esta prova tem uma distância de meia maratona de 21,097 km, aberta a todos os corredores, licenciados ou não, recebendo tanto amadores como corredores experientes.</p>
+          <p>Integrada no calendário nacional de corridas, a prova destaca-se pelo seu percurso urbano cénico que revela a cidade histórica de Guimarães, aliando património cultural e desporto. O ambiente é festivo e inclusivo, atraindo uma vasta comunidade de corredores e apoiantes para um dia de prova memorável.</p>
+        </div>
+      </div>
+    </div>
+</div>
+    </section>
+
+
+    <section id="page-sidebar" class="page">
+      <div class="lang-en">
+    <div class="sb-card">
+      <div class="sb-social-proof"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span><b>39</b> athletes chose RaceFinder to book a race</span></div>
+      <div class="sb-body">
+        <div class="sb-event-title">Cidade Berço<br>Half Marathon</div>
+        <div class="sb-date-row"><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>SAT, OCTOBER 3, 2026</div>
+        <div class="sb-field-label">CHOOSE YOUR DISTANCE</div>
+        <div class="sb-select"><span>Half Marathon 21 km · 125 €</span><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+        <div class="sb-promo">
+          <div class="sb-promo-left"><div class="t1">Promo code applied</div><div class="t2">CODE RF2026</div></div>
+          <div class="sb-promo-right">−20%</div>
+        </div>
+        <div class="sb-price-save-row">
+          <span class="sb-price-group"><span class="sb-price-old">125 €</span><span class="sb-price-new">100 €</span></span>
+          <span class="sb-save-row"><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>You save <b>€25</b></span>
+        </div>
+        <div class="sb-cta">BOOK NOW<svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+        <div class="sb-info-note"><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span>Price includes official registration, timing and secure booking with the organiser.</span></div>
+        <div class="sb-divider"></div>
+        <div class="sb-section-title">Why book with us?</div>
+        <ul class="sb-trust-list"><li><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Official booking partner</li><li><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Lowest price guaranteed</li><li><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Secure payments</li><li><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Registered directly with the organizer</li></ul>
+        <div class="sb-divider"></div>
+        <div class="sb-section-title">Add to your events</div>
+        <div class="sb-section-sub">Add to your plan and stay organized for upcoming events.</div>
+        <div class="sb-plan-btn"><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>PLAN IT</div>
+        <div class="sb-divider"></div>
+        <div class="sb-secure-row"><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Secure payment · 256-bit encryption</div>
+        <div class="sb-pay-chips">
+          <span class="sb-pay-chip">VISA</span><span class="sb-pay-chip">Mastercard</span><span class="sb-pay-chip">AMEX</span><span class="sb-pay-chip">MB WAY</span><span class="sb-pay-chip">MB</span>
+        </div>
+        <div class="sb-pay-footer">PAYMENTS POWERED BY SIBS</div>
+      </div>
+    </div>
+</div>
+      <div class="lang-pt">
+    <div class="sb-card">
+      <div class="sb-social-proof"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span><b>39</b> atletas escolheram o RaceFinder para reservar uma prova</span></div>
+      <div class="sb-body">
+        <div class="sb-event-title">Cidade Berço<br>Meia Maratona</div>
+        <div class="sb-date-row"><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>SÁB, 3 DE OUTUBRO DE 2026</div>
+        <div class="sb-field-label">ESCOLHE A TUA DISTÂNCIA</div>
+        <div class="sb-select"><span>Meia Maratona 21 km · 125 €</span><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+        <div class="sb-promo">
+          <div class="sb-promo-left"><div class="t1">Código promocional aplicado</div><div class="t2">CÓDIGO RF2026</div></div>
+          <div class="sb-promo-right">−20%</div>
+        </div>
+        <div class="sb-price-save-row">
+          <span class="sb-price-group"><span class="sb-price-old">125 €</span><span class="sb-price-new">100 €</span></span>
+          <span class="sb-save-row"><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>Poupas <b>25 €</b></span>
+        </div>
+        <div class="sb-cta">RESERVAR AGORA<svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+        <div class="sb-info-note"><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span>O preço inclui inscrição oficial, cronometragem e reserva segura com o organizador.</span></div>
+        <div class="sb-divider"></div>
+        <div class="sb-section-title">Porquê reservar connosco?</div>
+        <ul class="sb-trust-list"><li><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Parceiro de reserva oficial</li><li><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Preço mais baixo garantido</li><li><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Pagamentos seguros</li><li><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Inscrição direta com o organizador</li></ul>
+        <div class="sb-divider"></div>
+        <div class="sb-section-title">Adiciona aos teus eventos</div>
+        <div class="sb-section-sub">Adiciona ao teu plano e mantém-te organizado para os próximos eventos.</div>
+        <div class="sb-plan-btn"><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>PLANEAR</div>
+        <div class="sb-divider"></div>
+        <div class="sb-secure-row"><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Pagamento seguro · encriptação de 256 bits</div>
+        <div class="sb-pay-chips">
+          <span class="sb-pay-chip">VISA</span><span class="sb-pay-chip">Mastercard</span><span class="sb-pay-chip">AMEX</span><span class="sb-pay-chip">MB WAY</span><span class="sb-pay-chip">MB</span>
+        </div>
+        <div class="sb-pay-footer">PAGAMENTOS PROCESSADOS PELA SIBS</div>
+      </div>
+    </div>
+</div>
+    </section>
+
+
+    <section id="page-cart" class="page">
+      <div class="lang-en">
+    <div class="checkout-page">
+      <h1 class="page-h1">YOUR RACE BOOKING</h1>
+      <div class="page-sub2">You're one step away from the start line.</div>
+      <div class="stepper"><div class="step active"><span class="dot">1</span><span class="step-label active">CART</span></div><div class="step-line"></div><div class="step"><span class="dot">2</span><span class="step-label">DETAILS & PAYMENT</span></div><div class="step-line"></div><div class="step"><span class="dot">3</span><span class="step-label">CONFIRMATION</span></div></div>
+      <div class="cart-grid">
+        <div class="cart-left">
+          <div class="cart-item">
+            <div class="item-img"></div>
+            <div class="item-body">
+              <div class="item-top"><div class="item-title">Cidade Berço Half Marathon</div><div class="item-price">125 €</div></div>
+              <div class="item-price-sub">125 €</div>
+              <div class="item-meta">
+                <div><span class="meta-label">Distance:</span><span class="meta-val">21 km</span></div>
+                <div><span class="meta-label">Race Start Date:</span><span class="meta-val">03/10/2026</span></div>
+                <div><span class="meta-label">Race Start Time:</span><span class="meta-val">10:00</span></div>
+              </div>
+              <div class="item-controls">
+                <div class="qty-stepper"><button class="qty-btn"><svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button><span class="qty-val">1</span><button class="qty-btn"><svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button></div>
+                <button class="delete-btn"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg></button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cart-right">
+          <div class="summary-card">
+            <div class="social-proof2"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span><b>39</b> athletes chose RaceFinder to book a race</span></div>
+            <div class="coupon-row"><span>Add a coupon</span><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+            <div class="coupon-form">
+              <input class="coupon-input" type="text" placeholder="Enter code" disabled>
+              <button class="coupon-btn">Apply</button>
+            </div>
+            <div class="divider2"></div>
+            <div class="totals-row"><span>Subtotal</span><span>125 €</span></div>
+            <div class="divider2"></div>
+            <div class="totals-row total"><span>Total</span><span>125 €</span></div>
+            <div class="info-note2"><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span>Price includes official registration, timing and secure booking with the organiser.</span></div>
+            <button class="cta2">PROCEED TO CHECKOUT<svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+            <div class="divider2"></div>
+            <div class="section-title2">WHAT HAPPENS NEXT</div>
+            <ul class="next-list"><li><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Your bib number, reserved</li><li><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Your registration, handled directly with the organizer</li><li><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Your e-ticket &amp; receipt, sent by email</li></ul>
+            <div class="divider2"></div>
+            <div class="secure-row2"><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Secure payment · 256-bit encryption</div>
+            <div class="pay-chips2">
+              <span class="pay-chip2">VISA</span><span class="pay-chip2">Mastercard</span><span class="pay-chip2">AMEX</span><span class="pay-chip2">MB WAY</span><span class="pay-chip2">MB</span>
+            </div>
+            <div class="pay-footer2">PAYMENTS POWERED BY SIBS</div>
+            <div class="divider2"></div>
+            <button class="keep-browsing">KEEP BROWSING RACES<svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+          </div>
+          <div class="disclaimer">Your spot is only secured after payment is completed.</div>
+        </div>
+      </div>
+    </div>
+</div>
+      <div class="lang-pt">
+    <div class="checkout-page">
+      <h1 class="page-h1">A TUA RESERVA</h1>
+      <div class="page-sub2">Estás a um passo da linha de partida.</div>
+      <div class="stepper"><div class="step active"><span class="dot">1</span><span class="step-label active">CARRINHO</span></div><div class="step-line"></div><div class="step"><span class="dot">2</span><span class="step-label">DETALHES & PAGAMENTO</span></div><div class="step-line"></div><div class="step"><span class="dot">3</span><span class="step-label">CONFIRMAÇÃO</span></div></div>
+      <div class="cart-grid">
+        <div class="cart-left">
+          <div class="cart-item">
+            <div class="item-img"></div>
+            <div class="item-body">
+              <div class="item-top"><div class="item-title">Cidade Berço Meia Maratona</div><div class="item-price">125 €</div></div>
+              <div class="item-price-sub">125 €</div>
+              <div class="item-meta">
+                <div><span class="meta-label">Distância:</span><span class="meta-val">21 km</span></div>
+                <div><span class="meta-label">Data de Início da Prova:</span><span class="meta-val">03/10/2026</span></div>
+                <div><span class="meta-label">Hora de Início da Prova:</span><span class="meta-val">10:00</span></div>
+              </div>
+              <div class="item-controls">
+                <div class="qty-stepper"><button class="qty-btn"><svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button><span class="qty-val">1</span><button class="qty-btn"><svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button></div>
+                <button class="delete-btn"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg></button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cart-right">
+          <div class="summary-card">
+            <div class="social-proof2"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span><b>39</b> atletas escolheram o RaceFinder para reservar uma prova</span></div>
+            <div class="coupon-row"><span>Adicionar código promocional</span><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+            <div class="coupon-form">
+              <input class="coupon-input" type="text" placeholder="Introduz o código" disabled>
+              <button class="coupon-btn">Aplicar</button>
+            </div>
+            <div class="divider2"></div>
+            <div class="totals-row"><span>Subtotal</span><span>125 €</span></div>
+            <div class="divider2"></div>
+            <div class="totals-row total"><span>Total</span><span>125 €</span></div>
+            <div class="info-note2"><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span>O preço inclui inscrição oficial, cronometragem e reserva segura com o organizador.</span></div>
+            <button class="cta2">AVANÇAR PARA O PAGAMENTO<svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+            <div class="divider2"></div>
+            <div class="section-title2">O QUE ACONTECE A SEGUIR</div>
+            <ul class="next-list"><li><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>O teu dorsal, reservado</li><li><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>A tua inscrição, tratada diretamente com o organizador</li><li><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>A tua confirmação e comprovativo, enviados por email</li></ul>
+            <div class="divider2"></div>
+            <div class="secure-row2"><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Pagamento seguro · encriptação de 256 bits</div>
+            <div class="pay-chips2">
+              <span class="pay-chip2">VISA</span><span class="pay-chip2">Mastercard</span><span class="pay-chip2">AMEX</span><span class="pay-chip2">MB WAY</span><span class="pay-chip2">MB</span>
+            </div>
+            <div class="pay-footer2">PAGAMENTOS PROCESSADOS PELA SIBS</div>
+            <div class="divider2"></div>
+            <button class="keep-browsing">CONTINUAR A EXPLORAR PROVAS<svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+          </div>
+          <div class="disclaimer">O teu lugar só fica garantido após a conclusão do pagamento.</div>
+        </div>
+      </div>
+    </div>
+</div>
+    </section>
+
+
+    <section id="page-details" class="page">
+      <div class="lang-en">
+    <div class="checkout-page">
+      <h1 class="page-h1">CONFIRM YOUR DETAILS</h1>
+      <div class="page-sub2">Make sure everything's correct before you pay.</div>
+      <div class="stepper"><div class="step"><span class="dot">1</span><span class="step-label">CART</span></div><div class="step-line"></div><div class="step active"><span class="dot">2</span><span class="step-label active">DETAILS & PAYMENT</span></div><div class="step-line"></div><div class="step"><span class="dot">3</span><span class="step-label">CONFIRMATION</span></div></div>
+      <div class="details-grid">
+        <div class="details-left">
+          <div class="section-h">ATHLETE DETAILS</div>
+          <div class="section-sub">This is the information that will be used for your race registration and results.</div>
+          <div class="accordion open">
+            <div class="accordion-header">
+              <div class="check-circle"><svg class="check-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <span class="accordion-title">CONTACT &amp; IDENTITY</span>
+              <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+            </div>
+            <div class="accordion-body">
+              <div class="form-field"><label>Email address <span class="req">*</span></label><input type="text" value="nuno.grazina@racefinder.pt"></div>
+              <div class="form-row">
+                <div class="form-field"><label>Date of Birth: Day <span class="req">*</span></label><input type="text" value="11"></div>
+                <div class="form-field"><label>Month <span class="req">*</span></label><input type="text" value="11"></div>
+                <div class="form-field"><label>Year <span class="req">*</span></label><input type="text" value="1987"></div>
+              </div>
+              <div class="form-field select-field"><label>Nationality <span class="req">*</span></label><div class="select-display">PORTUGAL<svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div></div>
+              <div class="form-field"><label>Billing phone <span class="req">*</span></label><input type="text" value="+351 917 660 329"></div>
+              <div class="form-field"><label>ID / Passport number <span class="req">*</span></label><input type="text" value="111111111"></div>
+              <div class="form-field"><label>Name on bib <span class="req">*</span></label><input type="text" value="Nuno Grazina"></div>
+            </div>
+          </div>
+          <div class="accordion">
+            <div class="accordion-header"><div class="check-circle"><svg class="check-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="accordion-title">RACE PREFERENCES</span><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+          </div>
+          <div class="accordion">
+            <div class="accordion-header"><div class="check-circle"><svg class="check-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="accordion-title">EMERGENCY &amp; MEDICAL</span><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+          </div>
+          <div class="section-h billing-h">BILLING ADDRESS</div>
+          <div class="section-sub">Enter the billing address that matches your payment method.</div>
+        </div>
+        <div class="details-right">
+          <div class="summary-card">
+            <div class="summary-h">Race summary</div>
+            <div class="summary-item">
+              <div class="item-thumb-wrap"><div class="item-thumb"></div><span class="item-num">1</span></div>
+              <div class="item-info">
+                <div class="item-top2"><span class="item-title2">CIDADE BERÇO HALF MARATHON</span><span class="item-price2">125,00 €</span></div>
+                <div class="item-meta2"><div><span class="meta-label2">Running:</span><span class="meta-val2">HALF MARATHON</span></div><div><span class="meta-label2">Distance:</span><span class="meta-val2">21 KM</span></div></div>
+                <div class="item-meta2"><div><span class="meta-label2">Race Start Date:</span><span class="meta-val2">03/10/2026</span></div><div><span class="meta-label2">Race Start Time:</span><span class="meta-val2">10:00</span></div></div>
+              </div>
+            </div>
+            <div class="divider2"></div>
+            <div class="coupon-row2"><span>Add a coupon</span><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+            <div class="divider2"></div>
+            <div class="totals-row"><span>Subtotal</span><span>125,00 €</span></div>
+            <div class="divider2"></div>
+            <div class="totals-row total"><span>Total</span><span>125,00 €</span></div>
+            <div class="divider2"></div>
+            <div class="section-title2">WHAT HAPPENS NEXT</div>
+            <ul class="next-list"><li><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Your bib number, reserved</li><li><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Your registration, handled directly with the organizer</li><li><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Your e-ticket &amp; receipt, sent by email</li></ul>
+            <div class="divider2"></div>
+            <div class="secure-row2"><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Secure payment · 256-bit encryption</div>
+            <div class="pay-chips2">
+              <span class="pay-chip2">VISA</span><span class="pay-chip2">Mastercard</span><span class="pay-chip2">AMEX</span><span class="pay-chip2">MB WAY</span><span class="pay-chip2">MB</span>
+            </div>
+            <div class="pay-footer2">PAYMENTS POWERED BY SIBS</div>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+      <div class="lang-pt">
+    <div class="checkout-page">
+      <h1 class="page-h1">CONFIRMA OS TEUS DADOS</h1>
+      <div class="page-sub2">Confirma que está tudo certo antes de pagares.</div>
+      <div class="stepper"><div class="step"><span class="dot">1</span><span class="step-label">CARRINHO</span></div><div class="step-line"></div><div class="step active"><span class="dot">2</span><span class="step-label active">DETALHES & PAGAMENTO</span></div><div class="step-line"></div><div class="step"><span class="dot">3</span><span class="step-label">CONFIRMAÇÃO</span></div></div>
+      <div class="details-grid">
+        <div class="details-left">
+          <div class="section-h">DADOS DO ATLETA</div>
+          <div class="section-sub">Esta é a informação que será usada para a tua inscrição e resultados da prova.</div>
+          <div class="accordion open">
+            <div class="accordion-header">
+              <div class="check-circle"><svg class="check-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <span class="accordion-title">CONTACTO E IDENTIDADE</span>
+              <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+            </div>
+            <div class="accordion-body">
+              <div class="form-field"><label>Endereço de email <span class="req">*</span></label><input type="text" value="nuno.grazina@racefinder.pt"></div>
+              <div class="form-row">
+                <div class="form-field"><label>Data de Nascimento: Dia <span class="req">*</span></label><input type="text" value="11"></div>
+                <div class="form-field"><label>Mês <span class="req">*</span></label><input type="text" value="11"></div>
+                <div class="form-field"><label>Ano <span class="req">*</span></label><input type="text" value="1987"></div>
+              </div>
+              <div class="form-field select-field"><label>Nacionalidade <span class="req">*</span></label><div class="select-display">PORTUGAL<svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div></div>
+              <div class="form-field"><label>Telefone de faturação <span class="req">*</span></label><input type="text" value="+351 917 660 329"></div>
+              <div class="form-field"><label>Nº de identificação / Passaporte <span class="req">*</span></label><input type="text" value="111111111"></div>
+              <div class="form-field"><label>Nome no dorsal <span class="req">*</span></label><input type="text" value="Nuno Grazina"></div>
+            </div>
+          </div>
+          <div class="accordion">
+            <div class="accordion-header"><div class="check-circle"><svg class="check-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="accordion-title">PREFERÊNCIAS DA PROVA</span><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+          </div>
+          <div class="accordion">
+            <div class="accordion-header"><div class="check-circle"><svg class="check-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="accordion-title">EMERGÊNCIA E DADOS MÉDICOS</span><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+          </div>
+          <div class="section-h billing-h">MORADA DE FATURAÇÃO</div>
+          <div class="section-sub">Introduz a morada de faturação correspondente ao teu método de pagamento.</div>
+        </div>
+        <div class="details-right">
+          <div class="summary-card">
+            <div class="summary-h">Resumo da prova</div>
+            <div class="summary-item">
+              <div class="item-thumb-wrap"><div class="item-thumb"></div><span class="item-num">1</span></div>
+              <div class="item-info">
+                <div class="item-top2"><span class="item-title2">CIDADE BERÇO MEIA MARATONA</span><span class="item-price2">125,00 €</span></div>
+                <div class="item-meta2"><div><span class="meta-label2">Corrida:</span><span class="meta-val2">MEIA MARATONA</span></div><div><span class="meta-label2">Distância:</span><span class="meta-val2">21 KM</span></div></div>
+                <div class="item-meta2"><div><span class="meta-label2">Data de Início da Prova:</span><span class="meta-val2">03/10/2026</span></div><div><span class="meta-label2">Hora de Início da Prova:</span><span class="meta-val2">10:00</span></div></div>
+              </div>
+            </div>
+            <div class="divider2"></div>
+            <div class="coupon-row2"><span>Adicionar código promocional</span><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+            <div class="divider2"></div>
+            <div class="totals-row"><span>Subtotal</span><span>125,00 €</span></div>
+            <div class="divider2"></div>
+            <div class="totals-row total"><span>Total</span><span>125,00 €</span></div>
+            <div class="divider2"></div>
+            <div class="section-title2">O QUE ACONTECE A SEGUIR</div>
+            <ul class="next-list"><li><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>O teu dorsal, reservado</li><li><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>A tua inscrição, tratada diretamente com o organizador</li><li><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>A tua confirmação e comprovativo, enviados por email</li></ul>
+            <div class="divider2"></div>
+            <div class="secure-row2"><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Pagamento seguro · encriptação de 256 bits</div>
+            <div class="pay-chips2">
+              <span class="pay-chip2">VISA</span><span class="pay-chip2">Mastercard</span><span class="pay-chip2">AMEX</span><span class="pay-chip2">MB WAY</span><span class="pay-chip2">MB</span>
+            </div>
+            <div class="pay-footer2">PAGAMENTOS PROCESSADOS PELA SIBS</div>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+    </section>
+
+
+    <section id="page-confirm" class="page">
+      <div class="lang-en">
+    <div class="confirm-page">
+      <div class="breadcrumb2">HOME / CONFIRM YOUR DETAILS</div>
+      <h1 class="confirm-h1">YOU'RE ALMOST AT<br>THE START LINE</h1>
+      <div class="stepper"><div class="step"><span class="dot">1</span><span class="step-label">CART</span></div><div class="step-line"></div><div class="step"><span class="dot">2</span><span class="step-label">DETAILS & PAYMENT</span></div><div class="step-line"></div><div class="step active"><span class="dot">3</span><span class="step-label active">CONFIRMATION</span></div></div>
+      <div class="content-col">
+        <div class="banner"><svg class="banner-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><p>Your entry is in good hands. We're confirming your spot with the organiser as soon as payment is validated. No action needed from you. You'll receive your official confirmation and race details by email within 48 hours.</p></div>
+        <div class="info-box">
+          <div class="info-grid">
+            <div><div class="info-l">ORDER NUMBER:</div><div class="info-v">15065</div></div>
+            <div><div class="info-l">DATE:</div><div class="info-v">14 July 2026</div></div>
+            <div><div class="info-l">EMAIL:</div><div class="info-v">nuno.grazina@racefinder.pt</div></div>
+            <div><div class="info-l">TOTAL:</div><div class="info-v">125 €</div></div>
+          </div>
+          <div class="info-single"><div class="info-l">PAYMENT METHOD:</div><div class="info-v">Cash on delivery</div></div>
+        </div>
+        <div class="details-box">
+          <div class="details-h">ORDER DETAILS</div>
+          <div class="table-head"><span>Product</span><span>Total</span></div>
+          <div class="divider3"></div>
+          <div class="product-row"><span class="product-name">Cidade Berço Half Marathon <span class="qty">× 1</span></span><span class="product-total">125 €</span></div>
+          <div class="product-meta">
+            <div><span class="pm-label">Distance:</span> 21 km</div>
+            <div><span class="pm-label">Race Start Date:</span> 03/10/2026</div>
+            <div><span class="pm-label">Race Start Time:</span> 10:00</div>
+          </div>
+          <div class="divider3"></div>
+          <div class="participants-h">Participants</div>
+          <div class="participant-card">
+            <div class="participant-top">Participant #1</div>
+            <div class="participant-row"><span>nuno.grazina@racefinder.pt</span><span>Nuno Grazina</span></div>
+            <div class="reg-link"><svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>REGISTRATION DETAILS</div>
+          </div>
+          <div class="divider3"></div>
+          <div class="totals-row2"><span>Subtotal</span><span>125 €</span></div>
+          <div class="divider3"></div>
+          <div class="totals-row2 bold"><span>Payment method:</span><span>Cash on delivery</span></div>
+          <div class="totals-row2 bold big"><span>Total:</span><span>125 €</span></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn-dark">BACK TO ORDERS<svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+          <button class="btn-orange">FIND MY NEXT RACE<svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+        </div>
+      </div>
+    </div>
+</div>
+      <div class="lang-pt">
+    <div class="confirm-page">
+      <div class="breadcrumb2">INÍCIO / CONFIRMA OS TEUS DADOS</div>
+      <h1 class="confirm-h1">ESTÁS QUASE NA<br>LINHA DE PARTIDA</h1>
+      <div class="stepper"><div class="step"><span class="dot">1</span><span class="step-label">CARRINHO</span></div><div class="step-line"></div><div class="step"><span class="dot">2</span><span class="step-label">DETALHES & PAGAMENTO</span></div><div class="step-line"></div><div class="step active"><span class="dot">3</span><span class="step-label active">CONFIRMAÇÃO</span></div></div>
+      <div class="content-col">
+        <div class="banner"><svg class="banner-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><p>A tua inscrição está em boas mãos. Estamos a confirmar o teu lugar junto do organizador assim que o pagamento for validado. Não precisas de fazer mais nada. Vais receber a confirmação oficial e os detalhes da prova por email nas próximas 48 horas.</p></div>
+        <div class="info-box">
+          <div class="info-grid">
+            <div><div class="info-l">Nº DE ENCOMENDA:</div><div class="info-v">15065</div></div>
+            <div><div class="info-l">DATA:</div><div class="info-v">14 de julho de 2026</div></div>
+            <div><div class="info-l">EMAIL:</div><div class="info-v">nuno.grazina@racefinder.pt</div></div>
+            <div><div class="info-l">TOTAL:</div><div class="info-v">125 €</div></div>
+          </div>
+          <div class="info-single"><div class="info-l">MÉTODO DE PAGAMENTO:</div><div class="info-v">Pagamento na entrega</div></div>
+        </div>
+        <div class="details-box">
+          <div class="details-h">DETALHES DA ENCOMENDA</div>
+          <div class="table-head"><span>Produto</span><span>Total</span></div>
+          <div class="divider3"></div>
+          <div class="product-row"><span class="product-name">Cidade Berço Meia Maratona <span class="qty">× 1</span></span><span class="product-total">125 €</span></div>
+          <div class="product-meta">
+            <div><span class="pm-label">Distância:</span> 21 km</div>
+            <div><span class="pm-label">Data de Início da Prova:</span> 03/10/2026</div>
+            <div><span class="pm-label">Hora de Início da Prova:</span> 10:00</div>
+          </div>
+          <div class="divider3"></div>
+          <div class="participants-h">Participantes</div>
+          <div class="participant-card">
+            <div class="participant-top">Participante nº1</div>
+            <div class="participant-row"><span>nuno.grazina@racefinder.pt</span><span>Nuno Grazina</span></div>
+            <div class="reg-link"><svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>DETALHES DA INSCRIÇÃO</div>
+          </div>
+          <div class="divider3"></div>
+          <div class="totals-row2"><span>Subtotal</span><span>125 €</span></div>
+          <div class="divider3"></div>
+          <div class="totals-row2 bold"><span>Método de pagamento:</span><span>Pagamento na entrega</span></div>
+          <div class="totals-row2 bold big"><span>Total:</span><span>125 €</span></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn-dark">VOLTAR ÀS ENCOMENDAS<svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+          <button class="btn-orange">ENCONTRAR A MINHA PRÓXIMA PROVA<svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+        </div>
+      </div>
+    </div>
+</div>
+    </section>
+
+  </div>
+</div>
+
+<script>
+function setPage(id) {
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelectorAll('.navtab').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById('tab-' + id).classList.add('active');
+  window.scrollTo({top: 0, behavior: 'instant'});
+}
+function setLang(lang) {
+  document.body.setAttribute('data-lang', lang);
+  document.querySelectorAll('.lang-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById('lang-' + lang).classList.add('active');
+}
+// init
+document.getElementById('page-hero').classList.add('active');
+</script>
+
+</body>
+</html>
