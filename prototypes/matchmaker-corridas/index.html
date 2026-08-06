@@ -70,8 +70,21 @@ button{ font-family:inherit; }
 .rf-logo svg{ height:100%; width:auto; display:block; }
 .rf-logo.rf-logo-hidden{ opacity:0; visibility:hidden; }
 
+.rf-header-right{ justify-self:end; display:flex; align-items:center; gap:8px; }
+.rf-toggle{
+  pointer-events:auto;
+  display:flex; align-items:center; justify-content:center;
+  min-width:32px; height:32px; padding:0 10px; border-radius:999px;
+  border:1.5px solid var(--rf-black); background:none; cursor:pointer;
+  color:var(--rf-black); font-family:var(--font-sans); font-weight:700; font-size:11px; letter-spacing:.03em;
+  transition:border-color .15s ease, color .15s ease, background .15s ease, transform .1s ease;
+}
+.rf-mode-toggle{ min-width:32px; width:32px; padding:0; }
+.rf-toggle svg{ width:16px; height:16px; display:block; }
+#rf-kiosk.theme-dark .rf-toggle{ color:var(--rf-white); border-color:rgba(255,255,255,.55); }
+.rf-toggle:active{ transform:scale(.9); }
+
 .rf-bib{
-  justify-self:end;
   display:flex; align-items:center; gap:6px;
   font-family:var(--font-sans); font-weight:700; font-size:12px; letter-spacing:.04em;
   color:var(--rf-black); border:1.5px solid var(--rf-black);
@@ -174,6 +187,16 @@ button{ font-family:inherit; }
 .rf-opt-label{ font-weight:700; font-size:16px; line-height:1.3; }
 .rf-opt-help{ font-size:14px; line-height:1.4; color:var(--rf-text-gray); }
 
+/* ---------- dark mode (applies to Q1–Q4 only; start/result keep their fixed photo-hero look) ---------- */
+#rf-kiosk.theme-dark{ background:var(--rf-charcoal); }
+#rf-kiosk.theme-dark .rf-h1{ color:var(--rf-white); }
+#rf-kiosk.theme-dark .rf-sub{ color:rgba(255,255,255,.6); }
+#rf-kiosk.theme-dark .rf-opt{ background:#1e1e1e; border-color:rgba(255,255,255,.14); color:var(--rf-white); box-shadow:none; }
+#rf-kiosk.theme-dark .rf-opt:hover{ border-color:rgba(255,255,255,.3); box-shadow:0 6px 18px rgba(0,0,0,.35); }
+#rf-kiosk.theme-dark .rf-opt:active{ background:rgba(235,77,0,.16); border-color:var(--rf-orange); }
+#rf-kiosk.theme-dark .rf-opt-help{ color:rgba(255,255,255,.5); }
+#rf-kiosk.theme-dark .rf-opt-icon{ background:rgba(235,77,0,.16); }
+
 /* Q1 has an odd number of options (7): let the last one span the full row instead
    of sitting alone and lopsided, laid out like the single-column screens so it
    reads as a deliberate closer, not a leftover. */
@@ -264,6 +287,10 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
 
 @media (max-width:380px){
   .rf-options.rf-grid-2{ grid-template-columns:1fr; }
+  .rf-header-right{ gap:5px; }
+  .rf-toggle{ min-width:28px; height:28px; padding:0 7px; font-size:10px; }
+  .rf-mode-toggle{ min-width:28px; width:28px; }
+  .rf-bib{ padding:5px 9px 5px 8px; }
 }
 </style>
 </head>
@@ -273,26 +300,30 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
   <header class="rf-header">
     <button class="rf-back" id="rfBack" type="button">← Voltar</button>
     <div class="rf-logo" id="rfLogo"></div>
-    <div class="rf-bib" id="rfBib"><span class="num" id="rfBibNum">1</span><span>/4</span></div>
+    <div class="rf-header-right">
+      <button class="rf-toggle rf-lang-toggle" id="rfLangToggle" type="button" aria-label="Change language">EN</button>
+      <button class="rf-toggle rf-mode-toggle" id="rfModeToggle" type="button" aria-label="Toggle dark mode"></button>
+      <div class="rf-bib" id="rfBib"><span class="num" id="rfBibNum">1</span><span>/4</span></div>
+    </div>
   </header>
 
   <!-- START -->
   <section class="rf-screen active" data-screen="start">
     <div class="rf-start-body">
       <div class="rf-start-logo" id="rfStartLogo"></div>
-      <h1 class="rf-start-headline">Qual é a tua<br>próxima prova?</h1>
-      <p class="rf-start-tag">Conta-nos o que procuras. Nós encontramos a tua próxima prova.</p>
+      <h1 class="rf-start-headline" id="rfStartHeadline">Qual é a tua<br>próxima prova?</h1>
+      <p class="rf-start-tag" id="rfStartTag">Conta-nos o que procuras. Nós encontramos a tua próxima prova.</p>
       <button class="rf-cta" id="rfStartBtn" type="button">Começar</button>
-      <p class="rf-start-hint">Toca no ecrã para começar</p>
+      <p class="rf-start-hint" id="rfStartHint">Toca no ecrã para começar</p>
     </div>
   </section>
 
   <!-- Q1 -->
   <section class="rf-screen" data-screen="q1">
     <div class="rf-inner">
-      <p class="rf-eyebrow">Modalidade</p>
-      <h2 class="rf-h1">Como é que te mexes?</h2>
-      <p class="rf-sub">Escolhe a tua modalidade.</p>
+      <p class="rf-eyebrow" id="rfQ1Eyebrow">Modalidade</p>
+      <h2 class="rf-h1" id="rfQ1Headline">Como é que te mexes?</h2>
+      <p class="rf-sub" id="rfQ1Sub">Escolhe a tua modalidade.</p>
       <div class="rf-options rf-grid-2" id="rfQ1Options"></div>
     </div>
   </section>
@@ -300,9 +331,9 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
   <!-- Q2 -->
   <section class="rf-screen" data-screen="q2">
     <div class="rf-inner">
-      <p class="rf-eyebrow">Distância</p>
-      <h2 class="rf-h1">Que distância te faz vibrar?</h2>
-      <p class="rf-sub">Escolhe o desafio certo para ti.</p>
+      <p class="rf-eyebrow" id="rfQ2Eyebrow">Distância</p>
+      <h2 class="rf-h1" id="rfQ2Headline">Que distância te faz vibrar?</h2>
+      <p class="rf-sub" id="rfQ2Sub">Escolhe o desafio certo para ti.</p>
       <div class="rf-options rf-grid-2" id="rfQ2Options"></div>
     </div>
   </section>
@@ -310,9 +341,9 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
   <!-- Q3 -->
   <section class="rf-screen" data-screen="q3">
     <div class="rf-inner">
-      <p class="rf-eyebrow">Região</p>
-      <h2 class="rf-h1">Onde queres correr?</h2>
-      <p class="rf-sub">Escolhe a tua região preferida.</p>
+      <p class="rf-eyebrow" id="rfQ3Eyebrow">Região</p>
+      <h2 class="rf-h1" id="rfQ3Headline">Onde queres correr?</h2>
+      <p class="rf-sub" id="rfQ3Sub">Escolhe a tua região preferida.</p>
       <div class="rf-options" id="rfQ3Options"></div>
     </div>
   </section>
@@ -320,9 +351,9 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
   <!-- Q4 -->
   <section class="rf-screen" data-screen="q4">
     <div class="rf-inner">
-      <p class="rf-eyebrow">Objetivo</p>
-      <h2 class="rf-h1">Qual é o teu objetivo?</h2>
-      <p class="rf-sub">O que procuras nesta prova?</p>
+      <p class="rf-eyebrow" id="rfQ4Eyebrow">Objetivo</p>
+      <h2 class="rf-h1" id="rfQ4Headline">Qual é o teu objetivo?</h2>
+      <p class="rf-sub" id="rfQ4Sub">O que procuras nesta prova?</p>
       <div class="rf-options rf-grid-2" id="rfQ4Options"></div>
     </div>
   </section>
@@ -332,7 +363,7 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
     <div class="rf-result-bg" id="rfResultBg"></div>
     <div class="rf-result-body">
       <div class="rf-tape"></div>
-      <p class="rf-result-eyebrow">A tua próxima prova</p>
+      <p class="rf-result-eyebrow" id="rfResultEyebrow">A tua próxima prova</p>
       <h2 class="rf-result-name" id="rfResultName">—</h2>
       <div class="rf-pills" id="rfResultPills"></div>
       <p class="rf-meta" id="rfResultMeta"></p>
@@ -367,37 +398,93 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
     hibrido:'<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 14h11c5 0 5 8 10 8h9"/><path d="M30 9l6 5-6 5"/><path d="M6 34h11c5 0 5-8 10-8h9"/><path d="M30 29l6 5-6 5"/></svg>'
   };
 
-  var SPORT_LABEL = {estrada:'Corrida de Estrada', trail:'Trail', 'ciclismo-estrada':'Ciclismo de Estrada', mtb:'MTB', triatlo:'Triatlo', duatlo:'Duatlo', hibrido:'Híbrido'};
+  var lang = 'pt';
+  var mode = 'light';
 
-  var Q1 = [
-    {v:'estrada', label:'Corrida de Estrada'},
-    {v:'trail', label:'Trail'},
-    {v:'ciclismo-estrada', label:'Ciclismo de Estrada'},
-    {v:'mtb', label:'MTB'},
-    {v:'triatlo', label:'Triatlo'},
-    {v:'duatlo', label:'Duatlo'},
-    {v:'hibrido', label:'Híbrido'}
-  ];
-  var Q2 = [
-    {v:'curta', label:'Curta', help:'rápida e acessível'},
-    {v:'media', label:'Média', help:'um desafio equilibrado'},
-    {v:'longa', label:'Longa', help:'resistência a sério'},
-    {v:'ultra', label:'Ultra', help:'sem limite à vista'}
-  ];
-  var Q3 = [
-    {v:'norte', label:'Norte'},
-    {v:'centro', label:'Centro'},
-    {v:'lvt', label:'Lisboa e Vale do Tejo'},
-    {v:'alentejo', label:'Alentejo'},
-    {v:'algarve', label:'Algarve'},
-    {v:'ilhas', label:'Ilhas (Açores e Madeira)'}
-  ];
-  var Q4 = [
-    {v:'diversao', label:'Diversão', help:'conviver e celebrar'},
-    {v:'primeiro', label:'Primeiro desafio', help:'estrear-me nesta modalidade'},
-    {v:'recorde', label:'Recorde pessoal', help:'bater o meu melhor tempo'},
-    {v:'endurance', label:'Endurance', help:'testar os meus limites'}
-  ];
+  var I18N = {
+    pt: {
+      back:'← Voltar',
+      startHeadline:'Qual é a tua<br>próxima prova?',
+      startTag:'Conta-nos o que procuras. Nós encontramos a tua próxima prova.',
+      startCta:'Começar',
+      startHint:'Toca no ecrã para começar',
+      q1Eyebrow:'Modalidade', q1Headline:'Como é que te mexes?', q1Sub:'Escolhe a tua modalidade.',
+      q2Eyebrow:'Distância', q2Headline:'Que distância te faz vibrar?', q2Sub:'Escolhe o desafio certo para ti.',
+      q3Eyebrow:'Região', q3Headline:'Onde queres correr?', q3Sub:'Escolhe a tua região preferida.',
+      q4Eyebrow:'Objetivo', q4Headline:'Qual é o teu objetivo?', q4Sub:'O que procuras nesta prova?',
+      resultEyebrow:'A tua próxima prova',
+      retryBtn:'Encontrar outra prova',
+      homeBtn:'Voltar ao início',
+      badgeBook:'Reserva no RaceFinder',
+      badgeView:'Ver no RaceFinder',
+      qrBook:'Aponta a câmara e reserva o teu lugar',
+      qrView:'Aponta a câmara para veres esta prova',
+      langBtn:'EN',
+      free:'Grátis', tbd:'Preço a anunciar',
+      sport:{estrada:'Corrida de Estrada', trail:'Trail', 'ciclismo-estrada':'Ciclismo de Estrada', mtb:'MTB', triatlo:'Triatlo', duatlo:'Duatlo', hibrido:'Híbrido'},
+      dist:{curta:'Curta', media:'Média', longa:'Longa', ultra:'Ultra'},
+      distHelp:{curta:'rápida e acessível', media:'um desafio equilibrado', longa:'resistência a sério', ultra:'sem limite à vista'},
+      region:{norte:'Norte', centro:'Centro', lvt:'Lisboa e Vale do Tejo', alentejo:'Alentejo', algarve:'Algarve', ilhas:'Ilhas (Açores e Madeira)'},
+      goal:{diversao:'Diversão', primeiro:'Primeiro desafio', recorde:'Recorde pessoal', endurance:'Endurance'},
+      goalHelp:{diversao:'conviver e celebrar', primeiro:'estrear-me nesta modalidade', recorde:'bater o meu melhor tempo', endurance:'testar os meus limites'},
+      months:null
+    },
+    en: {
+      back:'← Back',
+      startHeadline:'What\'s your<br>next race?',
+      startTag:'Tell us what you\'re after. We\'ll find your next race.',
+      startCta:'Start',
+      startHint:'Tap the screen to start',
+      q1Eyebrow:'Sport', q1Headline:'How do you move?', q1Sub:'Choose your sport.',
+      q2Eyebrow:'Distance', q2Headline:'What distance gets you going?', q2Sub:'Pick the right challenge for you.',
+      q3Eyebrow:'Region', q3Headline:'Where do you want to race?', q3Sub:'Choose your favourite region.',
+      q4Eyebrow:'Goal', q4Headline:'What\'s your goal?', q4Sub:'What are you looking for in this race?',
+      resultEyebrow:'Your next race',
+      retryBtn:'Find another race',
+      homeBtn:'Back to start',
+      badgeBook:'Book on RaceFinder',
+      badgeView:'View on RaceFinder',
+      qrBook:'Scan to book your spot',
+      qrView:'Scan to view this race',
+      langBtn:'PT',
+      free:'Free', tbd:'Price TBA',
+      sport:{estrada:'Road Running', trail:'Trail', 'ciclismo-estrada':'Road Cycling', mtb:'MTB', triatlo:'Triathlon', duatlo:'Duathlon', hibrido:'Hybrid'},
+      dist:{curta:'Short', media:'Medium', longa:'Long', ultra:'Ultra'},
+      distHelp:{curta:'quick and accessible', media:'a balanced challenge', longa:'serious endurance', ultra:'no limit in sight'},
+      region:{norte:'North', centro:'Centre', lvt:'Lisbon & Tagus Valley', alentejo:'Alentejo', algarve:'Algarve', ilhas:'Islands (Azores & Madeira)'},
+      goal:{diversao:'Fun', primeiro:'First challenge', recorde:'Personal record', endurance:'Endurance'},
+      goalHelp:{diversao:'socialise and celebrate', primeiro:'try this sport for the first time', recorde:'beat my best time', endurance:'test my limits'},
+      months:{'janeiro':'January','fevereiro':'February','março':'March','abril':'April','maio':'May','junho':'June','julho':'July','agosto':'August','setembro':'September','outubro':'October','novembro':'November','dezembro':'December'}
+    }
+  };
+
+  var Q1_VALUES = ['estrada','trail','ciclismo-estrada','mtb','triatlo','duatlo','hibrido'];
+  var Q2_VALUES = ['curta','media','longa','ultra'];
+  var Q3_VALUES = ['norte','centro','lvt','alentejo','algarve','ilhas'];
+  var Q4_VALUES = ['diversao','primeiro','recorde','endurance'];
+
+  function buildQ1(){ return Q1_VALUES.map(function(v){ return {v:v, label:I18N[lang].sport[v]}; }); }
+  function buildQ2(){ return Q2_VALUES.map(function(v){ return {v:v, label:I18N[lang].dist[v], help:I18N[lang].distHelp[v]}; }); }
+  function buildQ3(){ return Q3_VALUES.map(function(v){ return {v:v, label:I18N[lang].region[v]}; }); }
+  function buildQ4(){ return Q4_VALUES.map(function(v){ return {v:v, label:I18N[lang].goal[v], help:I18N[lang].goalHelp[v]}; }); }
+
+  // Translates a "8 de agosto" / "12–13 de setembro" style date into English month order.
+  // Race records stay in Portuguese (193 real listings — see note below); this is a
+  // best-effort format swap, not a data rewrite, and falls back to the PT text untouched
+  // if it doesn't match the expected pattern.
+  function translateDate(str){
+    if(lang === 'pt' || !I18N.en.months) return str;
+    var m = str.match(/^(\d{1,2}(?:[–-]\d{1,2})?)\s+de\s+([a-zçãáéíóõôê]+)$/i);
+    if(!m) return str;
+    var monthEn = I18N.en.months[m[2].toLowerCase()];
+    return monthEn ? (monthEn + ' ' + m[1]) : str;
+  }
+
+  function translatePrice(str){
+    if(lang === 'pt') return str;
+    return str.replace(/Grátis/gi, I18N.en.free).replace(/Preço a anunciar/gi, I18N.en.tbd);
+  }
+
 
   var RACES = [
     {id:'milha-cerveja', name:'1.ª Milha da Cerveja — A.R. Sequeirô', sport:['estrada'], region:'norte', distance:['curta'], goals:['diversao'],
@@ -1399,6 +1486,24 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
     back: document.getElementById('rfBack'),
     bib: document.getElementById('rfBib'),
     bibNum: document.getElementById('rfBibNum'),
+    langToggle: document.getElementById('rfLangToggle'),
+    modeToggle: document.getElementById('rfModeToggle'),
+    startHeadline: document.getElementById('rfStartHeadline'),
+    startTag: document.getElementById('rfStartTag'),
+    startHint: document.getElementById('rfStartHint'),
+    q1Eyebrow: document.getElementById('rfQ1Eyebrow'),
+    q1Headline: document.getElementById('rfQ1Headline'),
+    q1Sub: document.getElementById('rfQ1Sub'),
+    q2Eyebrow: document.getElementById('rfQ2Eyebrow'),
+    q2Headline: document.getElementById('rfQ2Headline'),
+    q2Sub: document.getElementById('rfQ2Sub'),
+    q3Eyebrow: document.getElementById('rfQ3Eyebrow'),
+    q3Headline: document.getElementById('rfQ3Headline'),
+    q3Sub: document.getElementById('rfQ3Sub'),
+    q4Eyebrow: document.getElementById('rfQ4Eyebrow'),
+    q4Headline: document.getElementById('rfQ4Headline'),
+    q4Sub: document.getElementById('rfQ4Sub'),
+    resultEyebrow: document.getElementById('rfResultEyebrow'),
     q1: document.getElementById('rfQ1Options'),
     q2: document.getElementById('rfQ2Options'),
     q3: document.getElementById('rfQ3Options'),
@@ -1422,6 +1527,9 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
   var answers = {sport:null, distance:null, region:null, goal:null};
   var idleTimer = null;
 
+  var ICON_SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8L6 18M18 6l1.8-1.8"/></svg>';
+  var ICON_MOON = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.2 14.9A8.5 8.5 0 019 3.8a.7.7 0 00-.9-.8A9 9 0 1021 15.7a.7.7 0 00-.8-.8Z"/></svg>';
+
   function buildOptions(container, list, onPick, withIcon){
     container.innerHTML = '';
     list.forEach(function(item){
@@ -1441,10 +1549,18 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
     });
   }
 
-  buildOptions(els.q1, Q1, function(v){ answers.sport = v; goTo('q2'); }, true);
-  buildOptions(els.q2, Q2, function(v){ answers.distance = v; goTo('q3'); }, false);
-  buildOptions(els.q3, Q3, function(v){ answers.region = v; goTo('q4'); }, false);
-  buildOptions(els.q4, Q4, function(v){ answers.goal = v; showResult(); }, false);
+  function rebuildOptionLists(){
+    buildOptions(els.q1, buildQ1(), function(v){ answers.sport = v; goTo('q2'); }, true);
+    buildOptions(els.q2, buildQ2(), function(v){ answers.distance = v; goTo('q3'); }, false);
+    buildOptions(els.q3, buildQ3(), function(v){ answers.region = v; goTo('q4'); }, false);
+    buildOptions(els.q4, buildQ4(), function(v){ answers.goal = v; showResult(); }, false);
+  }
+  rebuildOptionLists();
+
+  function computeAppearance(screenName){
+    var qIndex = ['q1','q2','q3','q4'].indexOf(screenName);
+    return qIndex > -1 ? mode : 'dark'; // start/result always keep the dark photo-hero look
+  }
 
   function setTheme(name){
     els.kiosk.classList.toggle('theme-dark', name === 'dark');
@@ -1452,19 +1568,52 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
     els.logo.innerHTML = name === 'dark' ? LOGO_LIGHT_ORANGE : LOGO_DARK_ORANGE;
   }
   els.startLogo.innerHTML = LOGO_LIGHT_ORANGE;
+  els.modeToggle.innerHTML = ICON_MOON;
+
+  function applyLanguage(){
+    var t = I18N[lang];
+    document.documentElement.lang = lang;
+    els.back.textContent = t.back;
+    els.langToggle.textContent = t.langBtn;
+    els.startHeadline.innerHTML = t.startHeadline;
+    els.startTag.textContent = t.startTag;
+    els.startBtn.textContent = t.startCta;
+    els.startHint.textContent = t.startHint;
+    els.q1Eyebrow.textContent = t.q1Eyebrow; els.q1Headline.textContent = t.q1Headline; els.q1Sub.textContent = t.q1Sub;
+    els.q2Eyebrow.textContent = t.q2Eyebrow; els.q2Headline.textContent = t.q2Headline; els.q2Sub.textContent = t.q2Sub;
+    els.q3Eyebrow.textContent = t.q3Eyebrow; els.q3Headline.textContent = t.q3Headline; els.q3Sub.textContent = t.q3Sub;
+    els.q4Eyebrow.textContent = t.q4Eyebrow; els.q4Headline.textContent = t.q4Headline; els.q4Sub.textContent = t.q4Sub;
+    els.resultEyebrow.textContent = t.resultEyebrow;
+    els.retryBtn.textContent = t.retryBtn;
+    els.homeBtn.textContent = t.homeBtn;
+    rebuildOptionLists();
+    if(current === 'result' && currentRace){ renderResultText(currentRace); }
+  }
+
+  els.langToggle.addEventListener('click', function(){
+    lang = lang === 'pt' ? 'en' : 'pt';
+    applyLanguage();
+    resetIdle();
+  });
+
+  els.modeToggle.addEventListener('click', function(){
+    mode = mode === 'light' ? 'dark' : 'light';
+    els.modeToggle.innerHTML = mode === 'light' ? ICON_MOON : ICON_SUN;
+    setTheme(computeAppearance(current));
+    resetIdle();
+  });
 
   function goTo(name){
     current = name;
     screens.forEach(function(s){ s.classList.toggle('active', s.getAttribute('data-screen') === name); });
 
     var qIndex = ['q1','q2','q3','q4'].indexOf(name);
+    setTheme(computeAppearance(name));
     if(qIndex > -1){
-      setTheme('light');
       els.bib.classList.add('show');
       els.bibNum.textContent = String(qIndex + 1);
       els.back.classList.add('show');
     } else {
-      setTheme('dark');
       els.bib.classList.remove('show');
       els.back.classList.toggle('show', false);
     }
@@ -1542,24 +1691,27 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
     );
   }
 
+  function renderResultText(race){
+    var t = I18N[lang];
+    els.resultName.textContent = race.name;
+    els.resultMeta.textContent = race.place + ' · ' + translateDate(race.date) + ' · ' + race.dist + ' · ' + translatePrice(race.price);
+    els.resultBlurb.textContent = race.blurb;
+
+    var sportsLabel = race.sport.map(function(s){ return t.sport[s]; }).join(' / ');
+    var isBookable = race.bookable !== false;
+    els.resultPills.innerHTML =
+      (isBookable
+        ? '<span class="rf-pill rf-pill-book">' + t.badgeBook + '</span>'
+        : '<span class="rf-pill rf-pill-view">' + t.badgeView + '</span>') +
+      '<span class="rf-pill">' + sportsLabel + '</span>';
+    els.qrCopy.innerHTML = '<b>' + (isBookable ? t.qrBook : t.qrView) + '</b>racefinder.pt';
+  }
+
   function showResult(){
     var race = pickRace(answers);
     currentRace = race;
     els.resultBg.style.backgroundImage = 'url("' + race.img + '")';
-    els.resultName.textContent = race.name;
-    els.resultMeta.textContent = race.place + ' · ' + race.date + ' · ' + race.dist + ' · ' + race.price;
-    els.resultBlurb.textContent = race.blurb;
-
-    var sportsLabel = race.sport.map(function(s){ return SPORT_LABEL[s]; }).join(' / ');
-    var isBookable = race.bookable !== false;
-    els.resultPills.innerHTML =
-      (isBookable
-        ? '<span class="rf-pill rf-pill-book">Reserva no RaceFinder</span>'
-        : '<span class="rf-pill rf-pill-view">Ver no RaceFinder</span>') +
-      '<span class="rf-pill">' + sportsLabel + '</span>';
-    els.qrCopy.innerHTML = isBookable
-      ? '<b>Aponta a câmara e reserva o teu lugar</b>racefinder.pt'
-      : '<b>Aponta a câmara para veres esta prova</b>racefinder.pt';
+    renderResultText(race);
 
     els.qrBox.innerHTML = '';
     try {
@@ -1598,6 +1750,7 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
     els.kiosk.addEventListener(evt, resetIdle, {passive:true});
   });
 
+  applyLanguage();
   goTo('start');
 })();
 </script>
