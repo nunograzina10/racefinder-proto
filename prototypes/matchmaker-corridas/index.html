@@ -127,13 +127,60 @@ button{ font-family:inherit; }
 }
 
 /* ---------- start screen ---------- */
-.rf-screen[data-screen="start"]{ background:var(--rf-charcoal); color:var(--rf-white); }
+.rf-screen[data-screen="start"]{ background:var(--rf-charcoal); color:var(--rf-white); position:relative; overflow:hidden; }
+.rf-screen[data-screen="start"]::before,
+.rf-screen[data-screen="start"]::after{
+  content:''; position:absolute; z-index:0; border-radius:50%; pointer-events:none;
+  background:radial-gradient(circle, rgba(235,77,0,.38) 0%, rgba(235,77,0,0) 70%);
+}
+.rf-screen[data-screen="start"]::before{
+  width:min(560px,90vw); height:min(560px,90vw); top:-18%; right:-22%;
+  animation:rf-glow-breathe 7s ease-in-out infinite;
+}
+.rf-screen[data-screen="start"]::after{
+  width:min(460px,80vw); height:min(460px,80vw); bottom:-20%; left:-20%;
+  animation:rf-glow-breathe 9s ease-in-out infinite 1.5s reverse;
+}
+@keyframes rf-glow-breathe{
+  0%,100%{ transform:scale(1); opacity:.55; }
+  50%{ transform:scale(1.18); opacity:.95; }
+}
+.rf-start-decor{ position:absolute; inset:0; z-index:1; overflow:hidden; pointer-events:none; }
+.rf-pulse-scroll{
+  position:absolute; left:0; width:200%; height:56px;
+  fill:none; stroke:var(--rf-orange); stroke-width:2; stroke-linecap:round; stroke-linejoin:round;
+}
+.rf-pulse-scroll.p1{ top:14%; opacity:.3; animation:rf-scroll-left 9s linear infinite; }
+.rf-pulse-scroll.p2{ bottom:12%; opacity:.2; animation:rf-scroll-right 12s linear infinite; }
+@keyframes rf-scroll-left{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+@keyframes rf-scroll-right{ from{ transform:translateX(-50%); } to{ transform:translateX(0); } }
 .rf-start-body{
+  position:relative; z-index:2;
+  max-width:640px; width:100%; margin:0 auto;
   flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
   text-align:center; padding:0 clamp(20px,6vw,40px);
 }
-.rf-start-logo{ width:min(280px,64vw); margin-bottom:clamp(28px,6vh,48px); }
+.rf-start-logo{ width:min(280px,64vw); margin-top:clamp(20px,4vh,36px); margin-bottom:clamp(16px,3vh,22px); }
 .rf-start-logo svg{ width:100%; height:auto; display:block; }
+.rf-start-subtitle{
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  font-weight:800; font-size:clamp(15px,3.2vw,19px); letter-spacing:.18em; text-transform:uppercase;
+  color:var(--rf-orange); margin:0 0 clamp(22px,4.4vh,32px);
+  text-shadow:0 0 16px rgba(235,77,0,.6), 0 0 42px rgba(235,77,0,.3);
+}
+.rf-start-subtitle svg{
+  width:20px; height:20px; flex:none;
+  filter:drop-shadow(0 0 8px rgba(235,77,0,.7));
+  animation:rf-heartbeat 1.8s ease-in-out infinite;
+  transform-origin:center;
+}
+@keyframes rf-heartbeat{
+  0%,100%{ transform:rotate(-16deg) scale(1); }
+  15%{ transform:rotate(-16deg) scale(1.3); }
+  30%{ transform:rotate(-16deg) scale(1); }
+  45%{ transform:rotate(-16deg) scale(1.2); }
+  60%{ transform:rotate(-16deg) scale(1); }
+}
 .rf-start-headline{
   font-family:var(--font-display); font-weight:400; color:var(--rf-white);
   font-size:clamp(30px,7.6vw,50px); line-height:1.02; letter-spacing:.005em;
@@ -157,7 +204,8 @@ button{ font-family:inherit; }
   50%{ box-shadow:0 14px 40px rgba(235,77,0,.5); transform:scale(1.035); }
 }
 .rf-start-hint{
-  margin-top:clamp(18px,3.4vh,26px); font-size:13px; color:rgba(255,255,255,.45);
+  margin-top:clamp(18px,3.4vh,26px); margin-bottom:clamp(20px,4vh,36px);
+  font-size:13px; color:rgba(255,255,255,.45);
   letter-spacing:.03em;
 }
 
@@ -220,7 +268,7 @@ button{ font-family:inherit; }
   background:linear-gradient(180deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,.55) 30%, rgba(21,21,21,.92) 78%, #151515 100%);
 }
 .rf-result-body{
-  position:relative; z-index:2; flex:1; display:flex; flex-direction:column; justify-content:flex-end;
+  position:relative; z-index:2; max-width:640px; width:100%; margin:0 auto; flex:1; display:flex; flex-direction:column; justify-content:flex-end;
   padding:clamp(80px,15vh,120px) clamp(20px,5vw,36px) clamp(22px,4vh,34px);
   overflow-y:auto;
 }
@@ -309,8 +357,17 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
 
   <!-- START -->
   <section class="rf-screen active" data-screen="start">
+    <div class="rf-start-decor" aria-hidden="true">
+      <svg class="rf-pulse-scroll p1" viewBox="0 0 800 60" preserveAspectRatio="none">
+        <path d="M0,30 L280,30 L296,8 L312,52 L328,14 L344,30 L400,30 L680,30 L696,8 L712,52 L728,14 L744,30 L800,30"/>
+      </svg>
+      <svg class="rf-pulse-scroll p2" viewBox="0 0 800 60" preserveAspectRatio="none">
+        <path d="M0,30 L120,30 L134,12 L148,48 L162,30 L400,30 L520,30 L534,12 L548,48 L562,30 L800,30"/>
+      </svg>
+    </div>
     <div class="rf-start-body">
       <div class="rf-start-logo" id="rfStartLogo"></div>
+      <p class="rf-start-subtitle">Matchmaker <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-6.7-4.35-9.3-8.1C1.1 10.4 1.6 7 4.4 5.6c2.1-1.05 4.4-.3 5.6 1.4l2 2.8 2-2.8c1.2-1.7 3.5-2.45 5.6-1.4 2.8 1.4 3.3 4.8 1.7 7.3C18.7 16.65 12 21 12 21Z"/></svg></p>
       <h1 class="rf-start-headline" id="rfStartHeadline">Qual é a tua<br>próxima prova?</h1>
       <p class="rf-start-tag" id="rfStartTag">Conta-nos o que procuras. Nós encontramos a tua próxima prova.</p>
       <button class="rf-cta" id="rfStartBtn" type="button">Começar</button>
