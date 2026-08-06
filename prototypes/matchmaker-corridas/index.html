@@ -150,7 +150,7 @@ button{ font-family:inherit; }
 
 /* ---------- question tiles ---------- */
 .rf-options{
-  display:grid; gap:12px; flex:1; align-content:start;
+  display:grid; gap:12px; flex:1; align-content:start; align-items:stretch;
   overflow-y:auto; padding-bottom:8px;
 }
 .rf-options.rf-grid-2{ grid-template-columns:1fr 1fr; }
@@ -159,17 +159,32 @@ button{ font-family:inherit; }
   background:var(--rf-white); border:1.5px solid var(--rf-line-gray); border-radius:16px;
   padding:16px 18px; text-align:left; cursor:pointer;
   font-family:var(--font-sans); color:var(--rf-black);
-  transition:border-color .15s ease, background .15s ease, transform .1s ease;
+  box-shadow:0 1px 2px rgba(20,15,10,.04);
+  transition:border-color .15s ease, background .15s ease, transform .1s ease, box-shadow .15s ease;
 }
-.rf-opt:active{ transform:scale(.98); background:var(--rf-soft-orange); border-color:var(--rf-orange); }
-.rf-grid-2 .rf-opt{ flex-direction:column; align-items:flex-start; gap:10px; }
+.rf-opt:hover{ border-color:#d8cfc5; box-shadow:0 6px 18px rgba(20,15,10,.07); }
+.rf-opt:active{ transform:scale(.98); background:var(--rf-soft-orange); border-color:var(--rf-orange); box-shadow:none; }
+.rf-grid-2 .rf-opt{ flex-direction:column; align-items:flex-start; justify-content:center; gap:12px; align-self:start; }
 .rf-opt-icon{
-  flex:none; width:40px; height:40px; display:flex; align-items:center; justify-content:center;
-  border-radius:10px; background:var(--rf-soft-orange); color:var(--rf-orange);
+  flex:none; width:46px; height:46px; display:flex; align-items:center; justify-content:center;
+  border-radius:12px; background:var(--rf-soft-orange); color:var(--rf-orange);
 }
-.rf-opt-icon svg{ width:24px; height:24px; }
-.rf-opt-label{ font-weight:700; font-size:16px; line-height:1.2; }
-.rf-opt-help{ font-size:13px; color:var(--rf-text-gray); margin-top:2px; }
+.rf-opt-icon svg{ width:26px; height:26px; }
+.rf-opt-text{ display:flex; flex-direction:column; gap:3px; min-width:0; }
+.rf-opt-label{ font-weight:700; font-size:16px; line-height:1.3; }
+.rf-opt-help{ font-size:14px; line-height:1.4; color:var(--rf-text-gray); }
+
+/* Q1 has an odd number of options (7): let the last one span the full row instead
+   of sitting alone and lopsided, laid out like the single-column screens so it
+   reads as a deliberate closer, not a leftover. */
+#rfQ1Options .rf-opt:last-child{
+  grid-column:1 / -1;
+  flex-direction:row;
+  align-items:center;
+  justify-content:flex-start;
+  gap:16px;
+}
+#rfQ1Options .rf-opt:last-child .rf-opt-label{ font-size:17px; }
 
 /* ---------- result screen ---------- */
 .rf-screen[data-screen="result"]{ background:var(--rf-charcoal); color:var(--rf-white); }
@@ -206,6 +221,7 @@ button{ font-family:inherit; }
   color:rgba(255,255,255,.92);
 }
 .rf-pill.rf-pill-book{ background:var(--rf-white); color:var(--rf-black); border-color:var(--rf-white); }
+.rf-pill.rf-pill-view{ background:transparent; color:var(--rf-white); border-color:rgba(255,255,255,.5); }
 .rf-meta{
   font-size:14px; line-height:1.7; color:rgba(255,255,255,.82); margin:0 0 6px;
 }
@@ -265,7 +281,7 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
     <div class="rf-start-body">
       <div class="rf-start-logo" id="rfStartLogo"></div>
       <h1 class="rf-start-headline">Qual é a tua<br>próxima prova?</h1>
-      <p class="rf-start-tag">Conta-nos como corres. Nós encontramos a tua próxima prova.</p>
+      <p class="rf-start-tag">Conta-nos o que procuras. Nós encontramos a tua próxima prova.</p>
       <button class="rf-cta" id="rfStartBtn" type="button">Começar</button>
       <p class="rf-start-hint">Toca no ecrã para começar</p>
     </div>
@@ -275,7 +291,7 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
   <section class="rf-screen" data-screen="q1">
     <div class="rf-inner">
       <p class="rf-eyebrow">Modalidade</p>
-      <h2 class="rf-h1">Como é que tu corres?</h2>
+      <h2 class="rf-h1">Como é que te mexes?</h2>
       <p class="rf-sub">Escolhe a tua modalidade.</p>
       <div class="rf-options rf-grid-2" id="rfQ1Options"></div>
     </div>
@@ -323,7 +339,7 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
       <p class="rf-blurb" id="rfResultBlurb"></p>
       <div class="rf-qr-row">
         <div class="rf-qr-box" id="rfQrBox"></div>
-        <div class="rf-qr-copy"><b>Aponta a câmara e reserva o teu lugar</b>racefinder.pt</div>
+        <div class="rf-qr-copy" id="rfQrCopy"><b>Aponta a câmara e reserva o teu lugar</b>racefinder.pt</div>
       </div>
       <div class="rf-result-actions">
         <button class="rf-btn-primary" id="rfRetryBtn" type="button">Encontrar outra prova</button>
@@ -1282,6 +1298,98 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
      url:'https://racefinder.pt/event/trail-run-real-priolo-2/',
      img:'https://racefinder.pt/wp-content/uploads/2026/07/pexels-runffwpu-11598803-300x450.jpg',
      blurb:'Trail açoriano no habitat do priolo, integrado no calendário UTMB World Series.'},
+
+    // ---- Non-bookable races (fill out thin categories: Ciclismo de Estrada, Triatlo, Duatlo) ----
+    {id:'grandissima-volta-2026', name:'Grandíssima — 19ª Etapa da Volta 2026', sport:['ciclismo-estrada'], region:'centro', distance:['longa','ultra'], goals:['recorde','endurance'],
+     dist:'88 km, ciclismo de estrada', date:'11 de agosto', place:'Santa Maria da Feira, Aveiro', price:'30€ — 35€',
+     url:'https://racefinder.pt/event/grandissima-19a-etapa-da-volta-2026/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/07/pexels-daigofotos-38346791-300x450.jpg',
+     blurb:'Pedala parte do percurso da Volta a Portugal, com partida e chegada no Europarque.', bookable:false},
+    {id:'cicloturismo-rota-ventos', name:'X Cicloturismo Rota dos Ventos', sport:['ciclismo-estrada'], region:'centro', distance:['longa'], goals:['primeiro','diversao'],
+     dist:'75 km, passeio de estrada', date:'16 de agosto', place:'Sabugal, Guarda', price:'15€',
+     url:'https://racefinder.pt/event/x-cicloturismo-rota-dos-ventos/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/07/pexels-1093389518-27141246-300x450.jpg',
+     blurb:'Passeio ciclístico pela Aldeia de Santo António, com andamento controlado e almoço no fim.', bookable:false},
+    {id:'tavira-granfondo', name:'Tavira Granfondo 2026', sport:['ciclismo-estrada'], region:'algarve', distance:['longa','ultra'], goals:['diversao','recorde'],
+     dist:'80 · 130 km, Granfondo', date:'27 de setembro', place:'Tavira, Faro', price:'43€ — 60€',
+     url:'https://racefinder.pt/event/tavira-granfondo-2026/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/05/pexels-emilio-sanchez-hernandez-285921208-13392576-300x450.jpg',
+     blurb:'Granfondo e mediofondo de caráter recreativo e turístico, pelo concelho de Tavira.', bookable:false},
+    {id:'ourem-fatima-granfondo', name:'Ourém Fátima Granfondo', sport:['ciclismo-estrada'], region:'lvt', distance:['longa','ultra'], goals:['recorde','diversao'],
+     dist:'65 · 100 · 130 km, Granfondo', date:'18 de outubro', place:'Ourém, Santarém', price:'43€ — 47€',
+     url:'https://racefinder.pt/event/ourem-fatima-granfondo/',
+     img:'https://racefinder.pt/wp-content/uploads/2025/12/pexels-ramazan-unver-kaya-2152663397-35100311-300x450.jpg',
+     blurb:'Granfondo, mediofondo ou minifondo com partida e chegada em Ourém.', bookable:false},
+    {id:'moncao-melgaco-gf', name:'Monção e Melgaço GF', sport:['ciclismo-estrada'], region:'norte', distance:['longa','ultra'], goals:['diversao','recorde'],
+     dist:'60 · 100 · 130 km, Granfondo', date:'20 de setembro', place:'Monção, Viana do Castelo', price:'43€ — 47€',
+     url:'https://racefinder.pt/event/moncao-e-melgaco-gf/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/03/bryan-lucas-1Hc963RqDUc-unsplash-300x450.jpg',
+     blurb:'Granfondo, mediofondo ou minifondo entre Monção e Melgaço, no extremo norte.', bookable:false},
+    {id:'raia-triathlon-alfaiates', name:'Raia Triathlon — Alfaiates', sport:['triatlo'], region:'centro', distance:['curta'], goals:['primeiro','recorde'],
+     dist:'Sprint · 750m + 20km + 5km', date:'8 de agosto', place:'Sabugal, Guarda', price:'25€',
+     url:'https://racefinder.pt/event/raia-triathlon-alfaiates/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/03/pexels-runffwpu-5735790-300x450.jpg',
+     blurb:'Triatlo sprint entre a Praia Fluvial de Alfaiates e a Aldeia do Bispo, na Guarda.', bookable:false},
+    {id:'estrela-xtreme-triathlon', name:'Estrela Xtreme Triathlon 2026', sport:['triatlo'], region:'centro', distance:['curta','longa','ultra'], goals:['endurance','recorde'],
+     dist:'Starter · Half · Full', date:'12–13 de setembro', place:'Manteigas', price:'50€ — 250€',
+     url:'https://racefinder.pt/event/estrela-xtreme-triathlon-2026/',
+     img:'https://racefinder.pt/wp-content/uploads/2025/11/76-300x450.webp',
+     blurb:'Triatlo extremo no Parque Natural da Serra da Estrela, com até 190 km de bicicleta.', bookable:false},
+    {id:'costa-nova-triathlon', name:'Costa Nova Triathlon', sport:['triatlo'], region:'centro', distance:['media'], goals:['recorde'],
+     dist:'Olímpico · 1500m + 40km + 10km', date:'12 de setembro', place:'Costa Nova do Prado, Aveiro', price:'25€ — 49,50€',
+     url:'https://racefinder.pt/event/costa-nova-triathlon/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/06/pexels-runffwpu-5687494-2-300x450.jpg',
+     blurb:'Triatlo olímpico junto à ria, com ciclismo entre a Costa Nova e a Vagueira.', bookable:false},
+    {id:'triathlon-ponte-de-sor', name:'2º Triathlon of Ponte de Sor', sport:['triatlo'], region:'alentejo', distance:['curta'], goals:['primeiro','diversao'],
+     dist:'Sprint, individual ou em estafeta', date:'13 de setembro', place:'Ponte de Sor, Portalegre', price:'2,50€ — 30€',
+     url:'https://racefinder.pt/event/2nd-triathlon-of-ponte-de-sor/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/04/pexels-runffwpu-5840720-1-300x450.jpg',
+     blurb:'Triatlo sprint na zona ribeirinha de Ponte de Sor, aberto a não federados e estafetas.', bookable:false},
+    {id:'ironman-70-3-cascais', name:'IRONMAN 70.3 Cascais Portugal', sport:['triatlo'], region:'lvt', distance:['longa'], goals:['recorde','endurance'],
+     dist:'Meia distância · 1,9km + 90km + 21,1km', date:'17 de outubro', place:'Cascais, Lisboa', price:'529,23€',
+     url:'https://racefinder.pt/event/ironman-70-3-cascais-portugal/',
+     img:'https://racefinder.pt/wp-content/uploads/2025/10/576456428-300x450.jpg',
+     blurb:'Meio Ironman na costa de Cascais, com volta ao circuito do Estoril incluída no percurso.', bookable:false},
+    {id:'ironman-portugal-cascais', name:'IRONMAN Portugal-Cascais', sport:['triatlo'], region:'lvt', distance:['ultra'], goals:['endurance'],
+     dist:'Distância completa · 3,8km + 180km + 42,2km', date:'17 de outubro', place:'Cascais, Lisboa', price:'771,89€',
+     url:'https://racefinder.pt/event/ironman-portugal-cascais/',
+     img:'https://racefinder.pt/wp-content/uploads/2025/10/576445370-300x450.jpg',
+     blurb:'Ironman de distância completa em Cascais: 3,8 km de mar, 180 km de bicicleta e maratona.', bookable:false},
+    {id:'ironman-70-3-vilamoura', name:'IRONMAN 70.3 Vilamoura-Algarve', sport:['triatlo'], region:'algarve', distance:['longa'], goals:['recorde','endurance'],
+     dist:'Meia distância · 1,9km + 90km + 21,097km', date:'3 de abril', place:'Loulé, Faro', price:'552,52€ — 897,84€',
+     url:'https://racefinder.pt/event/ironman-70-3-vilamoura-algarve/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/08/pexels-runffwpu-5687545-300x450.jpg',
+     blurb:'Meio Ironman em Vilamoura, com bicicleta ondulada e corrida plana junto à costa algarvia.', bookable:false},
+    {id:'triathlon-verde-paredes', name:'5º Triathlon Verde de Paredes', sport:['triatlo'], region:'norte', distance:['curta'], goals:['primeiro','diversao'],
+     dist:'Jovens e prova aberta', date:'3 de outubro', place:'Paredes, Porto', price:'2,50€ — 15€',
+     url:'https://racefinder.pt/event/v-green-triathlon-of-paredes/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/01/tony-pham-9s5-focFrSE-unsplash-1-300x450.jpg',
+     blurb:'Triatlo no Parque Verde da Cidade de Paredes, com natação em piscina marcada.', bookable:false},
+    {id:'merelim-sao-paio-aquatlo', name:'II Merelim São Paio Aquathlon', sport:['duatlo'], region:'norte', distance:['curta'], goals:['primeiro','diversao'],
+     dist:'Super Sprint · Sprint · Sprint Estafeta', date:'29 de agosto', place:'Merelim, Braga', price:'2,50€ — 40€',
+     url:'https://racefinder.pt/event/ii-merelim-sao-paio-aquathlon/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/01/orca-T4boPYGF-vA-unsplash-2-300x450.jpg',
+     blurb:'Aquatlo junto ao Rio Cávado, com natação na Praia Fluvial de Merelim São Paio.', bookable:false},
+    {id:'duathlon-areias-sao-joao', name:'Duathlon Areias de São João', sport:['duatlo'], region:'algarve', distance:['media'], goals:['diversao','primeiro'],
+     dist:'Preço a anunciar', date:'13 de setembro', place:'Albufeira, Faro', price:'Preço a anunciar',
+     url:'https://racefinder.pt/event/duathlon-areias-de-sao-joao/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/04/pexels-runffwpu-18457210-300x450.jpg',
+     blurb:'Duatlo em Albufeira, corrida e ciclismo junto à costa algarvia.', bookable:false},
+    {id:'cross-duathlon-fonte-boa', name:'Cross Duathlon Fonte Boa', sport:['duatlo'], region:'norte', distance:['curta'], goals:['primeiro','recorde'],
+     dist:'5km corrida + 20km ciclismo + 2,5km corrida', date:'11 de outubro', place:'Esposende, Braga', price:'20€ — 25€',
+     url:'https://racefinder.pt/event/cross-duathlon-fonte-boa/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/07/pexels-ramon-hernandez-243129494-27600451-300x450.jpg',
+     blurb:'Duatlo cross aberto a todas as idades, dos 2 aos 99 anos, em Esposende.', bookable:false},
+    {id:'zezere-swimrun', name:'Zêzere Swimrun', sport:['duatlo'], region:'lvt', distance:['curta','media','longa'], goals:['primeiro','recorde','endurance'],
+     dist:'Experience · Sprint · Standard', date:'18 de outubro', place:'Abrantes, Santarém', price:'35€ — 90€',
+     url:'https://racefinder.pt/event/zezere-swimrun/',
+     img:'https://racefinder.pt/wp-content/uploads/2025/11/54791890776_e999892d60_c-300x450.jpg',
+     blurb:'Swimrun pela Grande Rota do Zêzere, com meta na Praia Fluvial da Aldeia do Mato.', bookable:false},
+    {id:'duathlon-ilhavo', name:'4º Duathlon Ílhavo', sport:['duatlo'], region:'centro', distance:['curta'], goals:['primeiro','diversao'],
+     dist:'Sprint, individual ou em dupla', date:'15 de novembro', place:'Ílhavo, Aveiro', price:'20€ — 25€',
+     url:'https://racefinder.pt/event/4th-duathlon-ilhavo/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/05/pexels-alaritammsalu-8024969-300x450.jpg',
+     blurb:'Duatlo sprint em Ílhavo, com formato individual ou em dupla no Desafio do Norte.', bookable:false},
   ];
 
   var els = {
@@ -1303,12 +1411,14 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
     resultPills: document.getElementById('rfResultPills'),
     resultMeta: document.getElementById('rfResultMeta'),
     resultBlurb: document.getElementById('rfResultBlurb'),
-    qrBox: document.getElementById('rfQrBox')
+    qrBox: document.getElementById('rfQrBox'),
+    qrCopy: document.getElementById('rfQrCopy')
   };
 
   var screens = Array.prototype.slice.call(document.querySelectorAll('.rf-screen'));
   var order = ['start','q1','q2','q3','q4','result'];
   var current = 'start';
+  var currentRace = null;
   var answers = {sport:null, distance:null, region:null, goal:null};
   var idleTimer = null;
 
@@ -1384,25 +1494,72 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
     return s;
   }
 
+  // Races with an entirely free price (no paid tier at all) are excluded from
+  // suggestions — "Grátis — 12€" style races (a free option alongside paid ones)
+  // still count and stay eligible.
+  function hasPaidTier(r){
+    return r.price.trim().toLowerCase() !== 'grátis';
+  }
+  var SUGGESTABLE_RACES = RACES.filter(hasPaidTier);
+
   function pickRace(a){
-    var scored = RACES.map(function(r){ return {r:r, s:scoreRace(r, a)}; });
+    var scored = SUGGESTABLE_RACES.map(function(r){ return {r:r, s:scoreRace(r, a)}; });
     scored.sort(function(x,y){ return y.s - x.s; });
     var top = scored[0].s;
     var pool = scored.filter(function(x){ return x.s === top; }).map(function(x){ return x.r; });
     return pool[Math.floor(Math.random() * pool.length)];
   }
 
+  // --- Live image lookup: visit the race's actual RaceFinder page and grab its first image ---
+  // Browsers block reading cross-origin HTML directly (racefinder.pt sends no CORS headers on
+  // page requests), so this goes through a public read-only CORS proxy. If that's ever
+  // unreachable or slow, the pre-loaded thumbnail (race.img) already on screen just stays put.
+  function extractFirstImageFromHtml(html){
+    var og = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i);
+    if(og && og[1]) return og[1];
+    var img = html.match(/<img[^>]+src=["']([^"']*wp-content\/uploads[^"']+)["']/i);
+    if(img && img[1]) return img[1];
+    return null;
+  }
+
+  function withTimeout(promise, ms){
+    return new Promise(function(resolve){
+      var done = false;
+      var timer = setTimeout(function(){ if(!done){ done = true; resolve(null); } }, ms);
+      promise.then(function(v){ if(!done){ done = true; clearTimeout(timer); resolve(v); } })
+             .catch(function(){ if(!done){ done = true; clearTimeout(timer); resolve(null); } });
+    });
+  }
+
+  function fetchLiveRaceImage(race){
+    var proxied = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(race.url);
+    return withTimeout(
+      fetch(proxied).then(function(res){
+        if(!res.ok) throw new Error('bad status');
+        return res.text();
+      }).then(extractFirstImageFromHtml),
+      6000
+    );
+  }
+
   function showResult(){
     var race = pickRace(answers);
+    currentRace = race;
     els.resultBg.style.backgroundImage = 'url("' + race.img + '")';
     els.resultName.textContent = race.name;
     els.resultMeta.textContent = race.place + ' · ' + race.date + ' · ' + race.dist + ' · ' + race.price;
     els.resultBlurb.textContent = race.blurb;
 
     var sportsLabel = race.sport.map(function(s){ return SPORT_LABEL[s]; }).join(' / ');
+    var isBookable = race.bookable !== false;
     els.resultPills.innerHTML =
-      '<span class="rf-pill rf-pill-book">Reserva no RaceFinder</span>' +
+      (isBookable
+        ? '<span class="rf-pill rf-pill-book">Reserva no RaceFinder</span>'
+        : '<span class="rf-pill rf-pill-view">Ver no RaceFinder</span>') +
       '<span class="rf-pill">' + sportsLabel + '</span>';
+    els.qrCopy.innerHTML = isBookable
+      ? '<b>Aponta a câmara e reserva o teu lugar</b>racefinder.pt'
+      : '<b>Aponta a câmara para veres esta prova</b>racefinder.pt';
 
     els.qrBox.innerHTML = '';
     try {
@@ -1416,6 +1573,18 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
     }
 
     goTo('result');
+
+    // Try to replace the thumbnail with the real first image from the race's own RaceFinder
+    // page. Guarded so a slow/late response can never overwrite a race the athlete has since
+    // moved on from (e.g. hit "Encontrar outra prova" while this was still in flight).
+    fetchLiveRaceImage(race).then(function(liveUrl){
+      if(!liveUrl || currentRace !== race) return;
+      var probe = new Image();
+      probe.onload = function(){
+        if(currentRace === race){ els.resultBg.style.backgroundImage = 'url("' + liveUrl + '")'; }
+      };
+      probe.src = liveUrl;
+    });
   }
 
   function resetIdle(){
