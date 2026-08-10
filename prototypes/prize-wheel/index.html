@@ -214,16 +214,6 @@
 
   .spin-hint{ min-height:18px; margin:18px 0 0; font-size:13px; color:var(--sand); text-align:center; }
 
-  .history{ width:100%; margin-top:18px; border-top:1px solid rgba(243,239,228,.12); padding-top:14px; }
-  .history h2{ font-family:var(--font-mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--sand); margin:0 0 8px; font-weight:600; }
-  .history-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px; }
-  .history-list li{
-    font-size:13px; color:var(--chalk-dim);
-    display:flex; justify-content:space-between; gap:10px;
-    padding:6px 10px; background:rgba(19,42,34,.5); border-radius:8px;
-  }
-  .history-list li time{ font-family:var(--font-mono); font-size:11px; color:var(--sand); }
-  .history-empty{ color:var(--ink-soft) !important; font-style:italic; justify-content:flex-start !important; }
 
   /* ---------- settings drawer ---------- */
   .settings-backdrop{
@@ -469,13 +459,6 @@
           </span>
         </button>
         <p id="spinHint" class="spin-hint"></p>
-
-        <div class="history">
-          <h2 data-i18n="historyHeading">Jogadas recentes</h2>
-          <ul id="historyList" class="history-list">
-            <li class="history-empty" data-i18n="historyEmpty">Ainda sem jogadas — experimenta.</li>
-          </ul>
-        </div>
       </section>
     </main>
   </div>
@@ -523,6 +506,11 @@
 (function(){
   "use strict";
 
+  // Paste the Web App URL from your Apps Script deployment here (ends in /exec).
+  // Every spin result gets POSTed here instead of being kept in an on-page list.
+  // Leave blank to disable logging (spins still work, just nothing gets recorded).
+  var LOG_ENDPOINT = "https://script.google.com/macros/s/AKfycbxaV0n4K9rYDbq7U_9IJSzv_X-7iK1o7i11WmP1hJ223VACb2daf6i3gEFyr8axsExW/exec";
+
   var PALETTE = [
     { bg:"#EB4D00", text:"#FFFFFF" }, // RaceFinder orange
     { bg:"#111111", text:"#FFFFFF" }, // Black
@@ -543,8 +531,6 @@
       hintSpinning: "A rodar…",
       settingsBtnLabel: "Prémios",
       ariaSettings: "Configurar prémios",
-      historyHeading: "Jogadas recentes",
-      historyEmpty: "Ainda sem jogadas — experimenta.",
       configHeading: "Configurar prémios",
       configDesc: "Ativa ou desativa prémios e a roda atualiza-se automaticamente. As odds definem a largura de cada fatia — um prémio com odds 3 é três vezes mais provável do que um com odds 1.",
       newPrizePlaceholder: "Novo prémio, ex.: inscrição grátis",
@@ -571,8 +557,6 @@
       hintSpinning: "Spinning…",
       settingsBtnLabel: "Prizes",
       ariaSettings: "Configure prizes",
-      historyHeading: "Recent spins",
-      historyEmpty: "No spins yet — give it a go.",
       configHeading: "Configure prizes",
       configDesc: "Turn prizes on or off and the wheel updates automatically. Odds set how wide each slice is — a prize with odds of 3 is three times as likely as one with odds of 1.",
       newPrizePlaceholder: "New prize, e.g. Free race entry",
@@ -642,7 +626,6 @@
   var newLabelEl  = document.getElementById("newPrizeLabel");
   var newWeightEl = document.getElementById("newPrizeWeight");
   var resetBtn    = document.getElementById("resetBtn");
-  var historyList = document.getElementById("historyList");
   var overlay     = document.getElementById("resultOverlay");
   var resultTitle = document.getElementById("resultTitle");
   var confettiLayer = document.getElementById("confettiLayer");
@@ -947,7 +930,7 @@
       state.spinning = false;
       updateSpinAvailability();
       showResult(landed);
-      addHistory(landed.label);
+      logSpinToSheet(landed);
     };
     wheelWrap.addEventListener("transitionend", onDone);
 
@@ -1025,22 +1008,24 @@
   closeSettingsBtn.addEventListener("click", closeSettings);
   settingsBackdrop.addEventListener("click", closeSettings);
 
-  // ---------- history ----------
-  var historyCount = 0;
-  function addHistory(label){
-    if (historyCount === 0) historyList.innerHTML = "";
-    var li = document.createElement("li");
-    var time = document.createElement("time");
-    time.textContent = new Date().toLocaleTimeString(I18N[state.lang].locale, { hour:"2-digit", minute:"2-digit" });
-    var span = document.createElement("span");
-    span.textContent = label;
-    li.appendChild(span);
-    li.appendChild(time);
-    historyList.insertBefore(li, historyList.firstChild);
-    historyCount++;
-    while (historyList.children.length > 5){
-      historyList.removeChild(historyList.lastChild);
-    }
+  // ---------- spin logging (Google Sheet) ----------
+  function logSpinToSheet(slice){
+    if (!LOG_ENDPOINT) return;
+    var payload = {
+      prize: slice.label,
+      datetime: new Date().toISOString(),
+      language: state.lang
+    };
+    // Apps Script Web Apps don't return CORS headers we can read from a static
+    // page, so this is fire-and-forget: we send the row and don't wait on or
+    // parse a response. A failed request (offline, endpoint down) is swallowed
+    // so it never interrupts the spin experience.
+    fetch(LOG_ENDPOINT, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    }).catch(function(){});
   }
 
   // ---------- language switch ----------
