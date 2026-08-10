@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RaceFinder — A Volta da Sorte</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@500;600&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night:#111111;
+    --night-2:#1C1C1C;
+    --deep:#333333;
+    --clay:#EB4D00;
+    --clay-dark:#B23A00;
+    --gold:#EB4D00;
+    --plum:#8C2F12;
+    --sand:#D9D2C4;
+    --chalk:#F5F3EF;
+    --chalk-dim:#E7E3DA;
+    --ink:#111111;
+    --ink-soft:rgba(17,17,17,.68);
+    --font-display:'Bebas Neue', 'Arial Narrow', sans-serif;
+    --font-body:'Work Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono:'IBM Plex Mono', monospace;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background:
+      radial-gradient(ellipse at 20% -10%, rgba(235,77,0,.18), transparent 55%),
+      radial-gradient(ellipse at 100% 0%, rgba(255,255,255,.06), transparent 45%),
+      var(--night);
+    color:var(--chalk);
+    font-family:var(--font-body);
+    min-height:100vh;
+  }
+
+  *:focus-visible{ outline:2px solid var(--gold); outline-offset:3px; border-radius:4px; }
+
+  .app{ max-width:760px; margin:0 auto; padding:28px 20px 64px; }
+
+  .lang-switch{
+    display:inline-flex;
+    gap:2px;
+    padding:3px;
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.14);
+    border-radius:20px;
+    margin-bottom:16px;
+  }
+  .lang-btn{
+    border:none;
+    background:transparent;
+    color:var(--sand);
+    font-family:var(--font-mono);
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:.06em;
+    padding:6px 14px;
+    border-radius:16px;
+    cursor:pointer;
+  }
+  .lang-btn:hover{ color:var(--chalk); }
+  .lang-btn[aria-pressed="true"]{ background:var(--clay); color:#FFFFFF; }
+
+  .topbar{ text-align:center; margin-bottom:36px; }
+  .brand-logo{
+    width:min(340px,66vw);
+    margin:0 auto;
+  }
+  .brand-logo svg{ display:block; width:100%; height:auto; }
+  .page-kicker{
+    font-family:var(--font-display);
+    font-size:clamp(34px,6vw,52px);
+    letter-spacing:.02em;
+    color:var(--clay);
+    margin:18px 0 0;
+    line-height:1.05;
+  }
+  .tagline{
+    margin:8px auto 0;
+    max-width:480px;
+    color:var(--sand);
+    font-size:17px;
+    line-height:1.5;
+    letter-spacing:.01em;
+  }
+
+  .layout{
+    display:flex;
+    justify-content:center;
+  }
+
+  /* ---------- wheel stage ---------- */
+  .wheel-stage{
+    position:relative;
+    width:100%;
+    background:var(--night-2);
+    border:1px solid rgba(217,164,65,.18);
+    border-radius:20px;
+    padding:32px 24px 26px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+
+  .settings-btn{
+    position:absolute;
+    top:16px;
+    right:16px;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:8px 14px 8px 10px;
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.16);
+    border-radius:20px;
+    color:var(--sand);
+    font-family:var(--font-mono);
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    cursor:pointer;
+  }
+  .settings-btn:hover{ color:var(--chalk); border-color:rgba(255,255,255,.32); }
+  .settings-btn svg{ width:16px; height:16px; flex:none; }
+
+  .pointer{
+    width:0; height:0;
+    border-left:17px solid transparent;
+    border-right:17px solid transparent;
+    border-top:27px solid var(--gold);
+    filter:drop-shadow(0 3px 3px rgba(0,0,0,.35));
+    margin-bottom:-4px;
+    z-index:3;
+  }
+
+  .wheel-btn{
+    display:block;
+    width:min(580px,92vw);
+    aspect-ratio:1/1;
+    margin:0 auto;
+    padding:0;
+    border:none;
+    background:none;
+    cursor:pointer;
+    border-radius:50%;
+    transition:transform .15s ease;
+  }
+  .wheel-btn:hover:not(:disabled){ transform:scale(1.015); }
+  .wheel-btn:active:not(:disabled){ transform:scale(0.985); }
+  .wheel-btn:disabled{ cursor:not-allowed; }
+  .wheel-btn:disabled .wheel-wrap{ opacity:.55; }
+  .wheel-btn:focus-visible{ outline:2px solid var(--gold); outline-offset:6px; }
+
+  .wheel-wrap{
+    position:relative;
+    display:block;
+    width:100%;
+    height:100%;
+    border-radius:50%;
+    box-shadow:0 0 0 8px var(--night), 0 0 0 11px var(--gold), 0 18px 40px rgba(0,0,0,.45);
+    transform:rotate(0deg);
+  }
+  @media (prefers-reduced-motion: reduce){
+    .wheel-wrap{ transition:none !important; animation:none !important; }
+  }
+  .wheel-wrap canvas{
+    display:block;
+    width:100%;
+    height:100%;
+    border-radius:50%;
+  }
+  @keyframes wheel-invite{
+    0%,100%{ box-shadow:0 0 0 8px var(--night), 0 0 0 11px var(--gold), 0 18px 40px rgba(0,0,0,.45); }
+    50%{ box-shadow:0 0 0 8px var(--night), 0 0 0 14px var(--gold), 0 22px 46px rgba(0,0,0,.5); }
+  }
+  .wheel-wrap.is-idle{ animation:wheel-invite 2.6s ease-in-out infinite; }
+
+  .hub{
+    position:absolute; inset:0;
+    margin:auto;
+    width:19%; height:19%;
+    background:var(--gold);
+    border:3px solid var(--night);
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 2px 8px rgba(0,0,0,.4);
+  }
+  .hub-icon{
+    width:56%;
+    height:56%;
+    display:block;
+  }
+
+  .spin-hint{ min-height:18px; margin:18px 0 0; font-size:13px; color:var(--sand); text-align:center; }
+
+  .history{ width:100%; margin-top:18px; border-top:1px solid rgba(243,239,228,.12); padding-top:14px; }
+  .history h2{ font-family:var(--font-mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--sand); margin:0 0 8px; font-weight:600; }
+  .history-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px; }
+  .history-list li{
+    font-size:13px; color:var(--chalk-dim);
+    display:flex; justify-content:space-between; gap:10px;
+    padding:6px 10px; background:rgba(19,42,34,.5); border-radius:8px;
+  }
+  .history-list li time{ font-family:var(--font-mono); font-size:11px; color:var(--sand); }
+  .history-empty{ color:var(--ink-soft) !important; font-style:italic; justify-content:flex-start !important; }
+
+  /* ---------- settings drawer ---------- */
+  .settings-backdrop{
+    position:fixed;
+    inset:0;
+    background:rgba(10,10,10,.55);
+    z-index:58;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .25s ease;
+  }
+  .settings-backdrop.is-open{ opacity:1; pointer-events:auto; }
+
+  .config-panel{
+    position:fixed;
+    top:0;
+    right:0;
+    height:100vh;
+    height:100dvh;
+    width:min(440px,92vw);
+    overflow-y:auto;
+    background:var(--chalk);
+    color:var(--ink);
+    padding:24px;
+    border-top-left-radius:20px;
+    border-bottom-left-radius:20px;
+    box-shadow:-24px 0 50px rgba(0,0,0,.45);
+    z-index:60;
+    transform:translateX(100%);
+    transition:transform .32s cubic-bezier(.16,.84,.44,1);
+  }
+  .config-panel.is-open{ transform:translateX(0); }
+  @media (prefers-reduced-motion: reduce){
+    .config-panel{ transition:none; }
+  }
+  .config-header-row{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+  }
+  .close-settings-btn{
+    flex:none;
+    width:32px; height:32px;
+    border-radius:50%;
+    border:1px solid rgba(22,36,29,.15);
+    background:transparent;
+    color:var(--ink-soft);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+  }
+  .close-settings-btn:hover{ background:rgba(22,36,29,.06); color:var(--ink); }
+  .close-settings-btn svg{ width:16px; height:16px; }
+  .config-header h2{ font-family:var(--font-display); font-size:24px; letter-spacing:.03em; margin:0; }
+  .config-header p{ margin:10px 0 18px; font-size:13px; color:var(--ink-soft); line-height:1.5; }
+
+  .prize-list{ list-style:none; margin:0 0 14px; padding:0; display:flex; flex-direction:column; gap:8px; max-height:360px; overflow-y:auto; }
+  .prize-row{
+    display:grid;
+    grid-template-columns:auto 1fr 56px auto;
+    align-items:center;
+    gap:8px;
+    background:#fff;
+    border:1px solid rgba(22,36,29,.1);
+    border-radius:10px;
+    padding:8px 10px;
+  }
+  .prize-row.is-disabled{ opacity:.5; }
+  .prize-row .swatch{ width:12px; height:12px; border-radius:3px; flex:none; }
+  .prize-row input[type="checkbox"]{ width:17px; height:17px; accent-color:var(--clay); cursor:pointer; }
+  .prize-row .label-field{
+    display:flex; align-items:center; gap:8px; min-width:0;
+  }
+  .prize-row input[type="text"]{
+    border:none; background:transparent; font:600 14px var(--font-body); color:var(--ink);
+    width:100%; padding:4px 2px;
+  }
+  .prize-row input[type="number"]{
+    width:100%; border:1px solid rgba(22,36,29,.15); border-radius:6px;
+    padding:5px 4px; font:600 12px var(--font-mono); text-align:center; color:var(--ink);
+  }
+  .prize-row .remove-btn{
+    border:none; background:transparent; color:var(--plum); cursor:pointer;
+    font-size:16px; line-height:1; padding:4px 6px; border-radius:6px;
+  }
+  .prize-row .remove-btn:hover{ background:rgba(122,59,74,.1); }
+  .odds-label{ font-family:var(--font-mono); font-size:9px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft); display:block; text-align:center; margin-bottom:2px; }
+
+  .add-prize-form{
+    display:grid;
+    grid-template-columns:1fr 56px auto;
+    gap:8px;
+    margin-bottom:12px;
+  }
+  .add-prize-form input[type="text"]{
+    border:1px solid rgba(22,36,29,.18); border-radius:8px; padding:9px 10px;
+    font:500 13px var(--font-body); color:var(--ink);
+  }
+  .add-prize-form input[type="number"]{
+    border:1px solid rgba(22,36,29,.18); border-radius:8px; padding:9px 4px;
+    font:600 13px var(--font-mono); text-align:center; color:var(--ink);
+  }
+  .add-prize-form button{
+    border:none; border-radius:8px; background:var(--night); color:var(--chalk);
+    font:600 13px var(--font-body); padding:9px 16px; cursor:pointer;
+  }
+  .add-prize-form button:hover{ background:var(--night-2); }
+
+  .reset-btn{
+    width:100%; border:1px solid rgba(22,36,29,.2); background:transparent; color:var(--ink-soft);
+    border-radius:8px; padding:9px; font:600 12px var(--font-body); letter-spacing:.02em; cursor:pointer;
+  }
+  .reset-btn:hover{ background:rgba(22,36,29,.06); color:var(--ink); }
+
+  /* ---------- result overlay ---------- */
+  .result-overlay{
+    position:fixed; inset:0; background:rgba(19,42,34,.82);
+    display:flex; align-items:center; justify-content:center;
+    padding:20px; z-index:50;
+  }
+  .result-overlay[hidden]{ display:none; }
+
+  .confetti-layer{ position:absolute; inset:0; overflow:hidden; pointer-events:none; }
+  .confetti-piece{
+    position:absolute; top:-24px; width:8px; height:14px; opacity:.95;
+    animation:confetti-fall linear forwards;
+  }
+  @keyframes confetti-fall{
+    to{ transform:translateY(115vh) rotate(360deg); opacity:0; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .confetti-piece{ display:none; }
+  }
+
+  .bib-card{
+    position:relative;
+    width:min(340px,92vw);
+    background:var(--chalk);
+    color:var(--ink);
+    border-radius:6px;
+    padding:34px 26px 26px;
+    text-align:center;
+    transform:rotate(-1.2deg);
+    box-shadow:0 24px 60px rgba(0,0,0,.5);
+    background-image:repeating-linear-gradient(to bottom, transparent 0 7px, rgba(22,36,29,.08) 7px 8px);
+    background-size:100% 100%;
+  }
+  .bib-pin{
+    position:absolute; top:14px; width:14px; height:14px; border-radius:50%;
+    background:linear-gradient(135deg,#fff,#b9b9b9);
+    box-shadow:0 2px 4px rgba(0,0,0,.4), inset 0 0 0 2px rgba(0,0,0,.15);
+  }
+  .bib-pin-left{ left:14px; }
+  .bib-pin-right{ right:14px; }
+  .bib-eyebrow{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--clay-dark); margin:0 0 6px;
+  }
+  .bib-prize{
+    font-family:var(--font-display); font-size:clamp(26px,6vw,34px); line-height:1.05;
+    letter-spacing:.02em; margin:0 0 26px; color:var(--ink);
+  }
+  .bib-actions{ display:flex; gap:10px; justify-content:center; }
+  .bib-actions button{
+    border:none; border-radius:24px; padding:10px 18px; font:600 13px var(--font-body); cursor:pointer;
+  }
+  .spin-again-btn{ background:var(--clay); color:var(--chalk); }
+  .spin-again-btn:hover{ background:var(--clay-dark); }
+  .close-result-btn{ background:transparent; color:var(--ink-soft); border:1px solid rgba(22,36,29,.25) !important; }
+  .close-result-btn:hover{ color:var(--ink); background:rgba(22,36,29,.06); }
+</style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="lang-switch" role="group" aria-label="Idioma / Language">
+        <button type="button" id="langPt" class="lang-btn" data-lang="pt" aria-pressed="true">PT</button>
+        <button type="button" id="langEn" class="lang-btn" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+      <div class="brand-logo" role="img" aria-label="RaceFinder">
+        <svg viewBox="0 0 1435 500" xmlns="http://www.w3.org/2000/svg">
+          <path d="M523.808 218.126L526.838 18.8334L652.047 0L651.558 33.4812L563.034 46.7966L562.252 96.1281L644.686 83.7288L644.177 117.12L561.742 129.52L560.994 179.125L650.601 165.646L650.112 199.127L523.808 218.126Z" fill="white"/>
+          <path d="M465.042 98.6695L501.235 93.2254L500.623 88.9868C499.114 78.5207 496.012 69.3185 491.222 61.4809C486.465 53.6513 480.375 47.285 472.96 42.4449C465.622 37.5517 457.303 34.3085 448.065 32.6772C438.821 30.9858 428.989 30.9522 418.601 32.5147C402.098 34.9971 387.273 41.2439 374.197 51.2446C361.163 61.1829 350.863 74.2174 343.267 90.239L343.265 90.2428C335.685 106.273 331.751 124.61 331.353 145.16L331.353 145.176L331.353 145.192C331.102 166.262 334.628 184.193 342.191 198.771L342.195 198.778L342.198 198.785C349.789 213.284 360.376 223.943 373.978 230.525L373.989 230.531L374.001 230.536C387.641 237.036 403.102 238.881 420.202 236.309C430.626 234.741 440.324 231.666 449.266 227.066C458.164 222.49 466.116 216.689 473.104 209.67C480.086 202.658 485.861 194.723 490.422 185.879C494.992 177.02 498.131 167.542 499.845 157.465L500.843 151.596L463.837 157.162L463.232 160.108C462.041 165.901 459.984 171.149 457.078 175.882L457.075 175.887C454.173 180.626 450.65 184.789 446.497 188.391C442.336 191.999 437.67 194.974 432.482 197.314C427.33 199.591 421.923 201.157 416.249 202.011C406.643 203.455 398.306 202.283 391.056 198.703C383.95 195.101 378.213 189.014 373.945 180.081C369.72 171.24 367.581 159.512 367.817 144.651L367.817 144.648C368.048 129.405 370.675 116.317 375.569 105.282C380.504 94.1573 387.087 85.401 395.263 78.8729C403.466 72.323 412.633 68.3054 422.827 66.772C428.104 65.9782 433.055 66.0077 437.703 66.8172C442.32 67.6212 446.4 69.2007 449.996 71.5269L450.028 71.5475L450.06 71.5676C453.66 73.807 456.706 76.8141 459.2 80.6554L459.206 80.6644L459.212 80.6733C461.64 84.3711 463.379 88.9455 464.33 94.5067L465.042 98.6695Z" fill="white"/>
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M188.867 268.506L149.431 274.438L222.439 64.6199L260.939 58.829L327.887 247.595L289.374 253.388L273.193 205.507L206.715 215.506L188.867 268.506ZM241.581 111.965L218.367 180.903L262.628 174.245L241.581 111.965Z" fill="white"/>
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M3.03014 97.6226L0 296.915L36.6906 291.396L37.8262 219.279L71.0558 214.281L107.836 280.694L148.943 274.511L107.953 201.962C108.628 201.548 109.292 201.125 109.947 200.692L109.957 200.685C120.139 193.914 127.911 185.417 133.154 175.19C138.423 165.024 141.145 153.768 141.381 141.499L141.382 141.485L141.382 141.47C141.535 129.122 139.184 118.339 134.093 109.319C128.978 100.095 121.137 93.5146 110.816 89.5901C100.473 85.5678 87.7488 84.8795 72.9182 87.1103L3.03014 97.6226ZM68.9676 181.188L38.3535 185.792L39.3033 125.481L70.9195 120.726C79.7687 119.395 86.4228 119.776 91.1803 121.443L91.1987 121.45L91.2171 121.456C95.953 123.067 99.17 125.788 101.198 129.603L101.202 129.61L101.206 129.617C103.348 133.61 104.517 138.87 104.438 145.627L104.438 145.639L104.438 145.651C104.399 152.216 103.11 157.851 100.689 162.661L100.681 162.677L100.673 162.693C98.3634 167.376 94.7433 171.294 89.6413 174.434C84.5619 177.561 77.7351 179.869 68.9676 181.188Z" fill="white"/>
+          <path d="M843.816 477.1L864.284 353.226L926.645 343.947L927.202 310.544L833.239 324.495L821.541 390.866L764.962 210.436L732.23 215.36L711.892 342.938L650.126 352.402L649.569 385.806L743.34 372.061L754.851 302.234L811.286 481.993L843.816 477.1Z" fill="#EB4D00"/>
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M1289.09 172.717L1286.06 372.009L1322.75 366.49L1323.88 294.373L1357.11 289.375L1393.89 355.789L1435 349.605L1394.01 277.056C1394.68 276.642 1395.35 276.219 1396 275.786L1396.01 275.78C1406.2 269.009 1413.97 260.511 1419.21 250.285C1424.48 240.118 1427.2 228.862 1427.44 216.593L1427.44 216.579L1427.44 216.564C1427.59 204.217 1425.24 193.434 1420.15 184.415C1415.04 175.19 1407.2 168.61 1396.87 164.685C1386.53 160.662 1373.81 159.974 1358.98 162.204L1289.09 172.717ZM1355.02 256.282L1324.41 260.887L1325.36 200.575L1356.98 195.82C1365.83 194.489 1372.48 194.87 1377.24 196.537L1377.26 196.544L1377.27 196.55C1382.01 198.162 1385.23 200.882 1387.26 204.697L1387.26 204.704L1387.26 204.711C1389.4 208.704 1390.57 213.964 1390.5 220.721L1390.5 220.733L1390.5 220.745C1390.46 227.311 1389.17 232.945 1386.75 237.755L1386.74 237.771L1386.73 237.787C1384.42 242.47 1380.8 246.388 1375.7 249.528C1370.62 252.655 1363.79 254.963 1355.02 256.282Z" fill="white"/>
+          <path d="M1135.03 195.89L1132 395.182L1258.31 376.184L1258.8 342.702L1169.19 356.181L1169.94 306.576L1252.37 294.176L1252.88 260.785L1170.45 273.184L1171.23 223.853L1259.75 210.537L1260.24 177.056L1135.03 195.89Z" fill="white"/>
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M950.533 223.643L947.503 422.936L1013.54 413.003C1032.98 410.078 1049.74 403.699 1063.68 393.754C1077.59 383.832 1088.27 371.015 1095.67 355.371C1103.12 339.661 1106.92 321.705 1107.2 301.597C1107.53 281.081 1104.18 263.648 1096.87 249.519C1089.54 235.318 1078.85 225.021 1064.84 218.829C1050.83 212.579 1034.28 211.046 1015.43 213.882L950.533 223.643ZM1043.36 366.796L1043.35 366.803C1034.5 373.367 1023.36 377.747 1009.75 379.794L984.813 383.545L986.698 251.983L1016.22 247.542C1029.29 245.577 1039.65 246.559 1047.61 250.042L1047.62 250.046L1047.63 250.051C1055.51 253.45 1061.4 259.309 1065.33 267.913L1065.33 267.919C1069.3 276.577 1071.29 287.92 1071.02 302.168L1071.02 302.177L1071.02 302.185C1070.8 317.134 1068.32 329.97 1063.68 340.791C1059.07 351.564 1052.3 360.199 1043.36 366.796Z" fill="white"/>
+          <path d="M626.706 471.95L629.737 272.657L593.044 278.177L590.014 477.469L626.706 471.95Z" fill="white"/>
+          <path d="M443.24 300.708L440.209 500L476.903 494.481L478.144 411.394L557.129 399.513L557.637 366.122L478.654 378.003L479.435 328.671L566.688 315.547L567.178 282.066L443.24 300.708Z" fill="white"/>
+        </svg>
+      </div>
+      <p class="page-kicker" data-i18n="kicker">A Volta da Sorte</p>
+      <p class="tagline" data-i18n="tagline">Dá uma volta e leva um prémio para a tua próxima prova.</p>
+    </header>
+
+    <main class="layout">
+      <section class="wheel-stage">
+        <button id="settingsBtn" class="settings-btn" type="button" data-i18n-aria="ariaSettings" aria-label="Configurar prémios">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="4" y1="6" x2="20" y2="6"></line><circle cx="14" cy="6" r="2" fill="currentColor" stroke="none"></circle>
+            <line x1="4" y1="12" x2="20" y2="12"></line><circle cx="8" cy="12" r="2" fill="currentColor" stroke="none"></circle>
+            <line x1="4" y1="18" x2="20" y2="18"></line><circle cx="16" cy="18" r="2" fill="currentColor" stroke="none"></circle>
+          </svg>
+          <span data-i18n="settingsBtnLabel">Prémios</span>
+        </button>
+
+        <div class="pointer" aria-hidden="true"></div>
+        <button id="spinBtn" class="wheel-btn" type="button" data-i18n-aria="ariaSpinWheel" aria-label="Toca na roda para rodar">
+          <span class="wheel-wrap" id="wheelWrap">
+            <canvas id="wheelCanvas" width="680" height="680"></canvas>
+            <span class="hub" aria-hidden="true">
+              <svg class="hub-icon" viewBox="633 194 310 304" xmlns="http://www.w3.org/2000/svg">
+                <path d="M843.816 477.1L864.284 353.226L926.645 343.947L927.202 310.544L833.239 324.495L821.541 390.866L764.962 210.436L732.23 215.36L711.892 342.938L650.126 352.402L649.569 385.806L743.34 372.061L754.851 302.234L811.286 481.993L843.816 477.1Z" fill="#111111"/>
+              </svg>
+            </span>
+          </span>
+        </button>
+        <p id="spinHint" class="spin-hint"></p>
+
+        <div class="history">
+          <h2 data-i18n="historyHeading">Jogadas recentes</h2>
+          <ul id="historyList" class="history-list">
+            <li class="history-empty" data-i18n="historyEmpty">Ainda sem jogadas — experimenta.</li>
+          </ul>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="settings-backdrop" id="settingsBackdrop"></div>
+  <aside class="config-panel" id="settingsPanel" inert>
+      <div class="config-header">
+        <div class="config-header-row">
+          <h2 data-i18n="configHeading">Configurar prémios</h2>
+          <button type="button" id="closeSettingsBtn" class="close-settings-btn" data-i18n-aria="close" aria-label="Fechar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <line x1="6" y1="6" x2="18" y2="18"></line><line x1="18" y1="6" x2="6" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+        <p data-i18n="configDesc">Ativa ou desativa prémios e a roda atualiza-se automaticamente. As odds definem a largura de cada fatia — um prémio com odds 3 é três vezes mais provável do que um com odds 1.</p>
+      </div>
+
+        <ul id="prizeList" class="prize-list"></ul>
+
+        <form id="addPrizeForm" class="add-prize-form">
+          <input id="newPrizeLabel" type="text" data-i18n-placeholder="newPrizePlaceholder" placeholder="Novo prémio, ex.: inscrição grátis" maxlength="40" required data-i18n-aria="ariaNewPrizeName" aria-label="Nome do novo prémio">
+          <input id="newPrizeWeight" type="number" min="1" max="10" value="1" data-i18n-aria="ariaOddsWeight" aria-label="Peso das odds">
+          <button type="submit" data-i18n="addBtn">Adicionar</button>
+        </form>
+
+        <button id="resetBtn" class="reset-btn" type="button" data-i18n="resetBtn">Repor predefinições</button>
+      </aside>
+
+  <div id="resultOverlay" class="result-overlay" hidden>
+    <div class="confetti-layer" id="confettiLayer" aria-hidden="true"></div>
+    <div class="bib-card" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
+      <div class="bib-pin bib-pin-left"></div>
+      <div class="bib-pin bib-pin-right"></div>
+      <p class="bib-eyebrow" data-i18n="resultEyebrow">Ganhaste</p>
+      <h2 id="resultTitle" class="bib-prize"></h2>
+      <div class="bib-actions">
+        <button id="spinAgainBtn" class="spin-again-btn" type="button" data-i18n="spinAgain">Rodar outra vez</button>
+        <button id="closeResultBtn" class="close-result-btn" type="button" data-i18n="close">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+
+  var PALETTE = [
+    { bg:"#EB4D00", text:"#FFFFFF" }, // RaceFinder orange
+    { bg:"#111111", text:"#FFFFFF" }, // Black
+    { bg:"#F5F3EF", text:"#111111" }, // Paper
+    { bg:"#B23A00", text:"#FFFFFF" }, // Deep rust
+    { bg:"#D9D2C4", text:"#111111" }, // Sand
+    { bg:"#333333", text:"#FFFFFF" }  // Charcoal
+  ];
+
+  var I18N = {
+    pt: {
+      docTitle: "RaceFinder — A Volta da Sorte",
+      kicker: "A Volta da Sorte",
+      tagline: "Dá uma volta e leva um prémio para a tua próxima prova.",
+      hintTapWheel: "Toca na roda para rodar",
+      ariaSpinWheel: "Toca na roda para rodar",
+      hintNotEnough: "Adiciona pelo menos dois prémios ativos para rodar.",
+      hintSpinning: "A rodar…",
+      settingsBtnLabel: "Prémios",
+      ariaSettings: "Configurar prémios",
+      historyHeading: "Jogadas recentes",
+      historyEmpty: "Ainda sem jogadas — experimenta.",
+      configHeading: "Configurar prémios",
+      configDesc: "Ativa ou desativa prémios e a roda atualiza-se automaticamente. As odds definem a largura de cada fatia — um prémio com odds 3 é três vezes mais provável do que um com odds 1.",
+      newPrizePlaceholder: "Novo prémio, ex.: inscrição grátis",
+      addBtn: "Adicionar",
+      resetBtn: "Repor predefinições",
+      oddsLabel: "Odds",
+      ariaPrizeActive: "Prémio ativo",
+      ariaPrizeName: "Nome do prémio",
+      ariaOddsWeight: "Peso das odds",
+      ariaRemove: "Remover prémio",
+      ariaNewPrizeName: "Nome do novo prémio",
+      canvasEmpty: "Adiciona um prémio para começar",
+      resultEyebrow: "Ganhaste",
+      spinAgain: "Rodar outra vez",
+      close: "Fechar",
+      locale: "pt-PT"
+    },
+    en: {
+      docTitle: "RaceFinder — The Lucky Lap",
+      kicker: "The Lucky Lap",
+      tagline: "Take a spin and score a prize for your next race.",
+      hintTapWheel: "Tap the wheel to spin",
+      ariaSpinWheel: "Tap the wheel to spin",
+      hintNotEnough: "Add at least two active prizes to spin.",
+      hintSpinning: "Spinning…",
+      settingsBtnLabel: "Prizes",
+      ariaSettings: "Configure prizes",
+      historyHeading: "Recent spins",
+      historyEmpty: "No spins yet — give it a go.",
+      configHeading: "Configure prizes",
+      configDesc: "Turn prizes on or off and the wheel updates automatically. Odds set how wide each slice is — a prize with odds of 3 is three times as likely as one with odds of 1.",
+      newPrizePlaceholder: "New prize, e.g. Free race entry",
+      addBtn: "Add",
+      resetBtn: "Reset to defaults",
+      oddsLabel: "Odds",
+      ariaPrizeActive: "Prize active",
+      ariaPrizeName: "Prize name",
+      ariaOddsWeight: "Odds weight",
+      ariaRemove: "Remove prize",
+      ariaNewPrizeName: "New prize name",
+      canvasEmpty: "Add a prize to start",
+      resultEyebrow: "You won",
+      spinAgain: "Spin again",
+      close: "Close",
+      locale: "en-GB"
+    }
+  };
+
+  var PRIZE_I18N = {
+    booking30:     { pt:"30% de desconto em Reserva Direta",       en:"30% off Direct Booking" },
+    freeEntry:     { pt:"Inscrição grátis",                        en:"Free race entry" },
+    cap:           { pt:"Boné RaceFinder",                         en:"RaceFinder cap" },
+    discount10:    { pt:"10% de desconto na próxima prova",        en:"10% off next race" },
+    medalKeychain: { pt:"Porta-chaves medalha de finisher",        en:"Finisher medal keychain" },
+    tryAgain:      { pt:"Mais sorte para a próxima",                en:"Better luck next time" }
+  };
+
+  var DEFAULT_PRIZES = [
+    { key:"booking30",     weight:3, enabled:true },
+    { key:"freeEntry",     weight:1, enabled:true },
+    { key:"cap",           weight:2, enabled:true },
+    { key:"discount10",    weight:3, enabled:true },
+    { key:"medalKeychain", weight:2, enabled:true },
+    { key:"tryAgain",      weight:3, enabled:true }
+  ];
+
+  var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  var nextId = 1;
+  function makePrizes(list){
+    return list.map(function(p){
+      return { id:"p" + (nextId++), key:p.key, customLabel:null, weight:p.weight, enabled:p.enabled };
+    });
+  }
+
+  var state = {
+    lang: "pt",
+    prizes: makePrizes(DEFAULT_PRIZES),
+    slices: [],
+    rotation: 0,
+    spinning: false
+  };
+
+  function prizeLabel(p){
+    if (p.customLabel != null) return p.customLabel;
+    if (p.key && PRIZE_I18N[p.key]) return PRIZE_I18N[p.key][state.lang];
+    return "";
+  }
+
+  var wheelWrap   = document.getElementById("wheelWrap");
+  var canvas      = document.getElementById("wheelCanvas");
+  var ctx         = canvas.getContext("2d");
+  var spinBtn     = document.getElementById("spinBtn");
+  var spinHint    = document.getElementById("spinHint");
+  var prizeListEl = document.getElementById("prizeList");
+  var addForm     = document.getElementById("addPrizeForm");
+  var newLabelEl  = document.getElementById("newPrizeLabel");
+  var newWeightEl = document.getElementById("newPrizeWeight");
+  var resetBtn    = document.getElementById("resetBtn");
+  var historyList = document.getElementById("historyList");
+  var overlay     = document.getElementById("resultOverlay");
+  var resultTitle = document.getElementById("resultTitle");
+  var confettiLayer = document.getElementById("confettiLayer");
+  var spinAgainBtn  = document.getElementById("spinAgainBtn");
+  var closeResultBtn = document.getElementById("closeResultBtn");
+  var langPtBtn   = document.getElementById("langPt");
+  var langEnBtn   = document.getElementById("langEn");
+  var settingsBtn = document.getElementById("settingsBtn");
+  var closeSettingsBtn = document.getElementById("closeSettingsBtn");
+  var settingsPanel = document.getElementById("settingsPanel");
+  var settingsBackdrop = document.getElementById("settingsBackdrop");
+
+  // ---------- wheel rendering ----------
+  function truncateForCanvas(text, maxWidth, font){
+    ctx.font = font;
+    if (ctx.measureText(text).width <= maxWidth) return text;
+    var t = text;
+    while (t.length > 1 && ctx.measureText(t + "…").width > maxWidth){
+      t = t.slice(0, -1);
+    }
+    return t + "…";
+  }
+
+  function greedyWrapWords(text, maxWidth, font){
+    ctx.font = font;
+    var words = text.split(" ");
+    var lines = [];
+    var current = "";
+    words.forEach(function(word){
+      var candidate = current ? current + " " + word : word;
+      if (!current || ctx.measureText(candidate).width <= maxWidth){
+        current = candidate;
+      } else {
+        lines.push(current);
+        current = word;
+      }
+    });
+    if (current) lines.push(current);
+    return lines;
+  }
+
+  function fitLabelToLines(text, maxWidth, maxLines, baseFontSize, minFontSize, fontFamily){
+    var fs = baseFontSize;
+    var font = "";
+    var lines = [];
+    for (; fs >= minFontSize; fs--){
+      font = "600 " + fs + "px '" + fontFamily + "'";
+      lines = greedyWrapWords(text, maxWidth, font);
+      ctx.font = font;
+      var allFit = lines.length <= maxLines && lines.every(function(l){ return ctx.measureText(l).width <= maxWidth; });
+      if (allFit) return { lines: lines, fontSize: fs };
+    }
+    // floor reached: force-fit at the minimum size, truncating whatever still overflows
+    font = "600 " + minFontSize + "px '" + fontFamily + "'";
+    ctx.font = font;
+    if (lines.length > maxLines){
+      var kept = lines.slice(0, maxLines - 1);
+      kept.push(truncateForCanvas(lines.slice(maxLines - 1).join(" "), maxWidth, font));
+      lines = kept;
+    }
+    lines = lines.map(function(l){
+      return ctx.measureText(l).width <= maxWidth ? l : truncateForCanvas(l, maxWidth, font);
+    });
+    return { lines: lines, fontSize: minFontSize };
+  }
+
+  function renderWheel(){
+    var enabled = state.prizes.filter(function(p){ return p.enabled && p.weight > 0; });
+    var size = canvas.width;
+    var cx = size / 2, cy = size / 2, r = size / 2 - 6;
+
+    ctx.clearRect(0, 0, size, size);
+
+    if (enabled.length === 0){
+      ctx.fillStyle = "#1C1C1C";
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#D9D2C4";
+      ctx.font = "600 20px 'Work Sans', sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(I18N[state.lang].canvasEmpty, cx, cy);
+      state.slices = [];
+      updateSpinAvailability();
+      return;
+    }
+
+    var totalWeight = enabled.reduce(function(sum, p){ return sum + p.weight; }, 0);
+    var cumulative = 0;
+    var slices = [];
+
+    enabled.forEach(function(p, i){
+      var span = 360 * (p.weight / totalWeight);
+      var start = cumulative;
+      var end = cumulative + span;
+      cumulative = end;
+      slices.push({
+        id: p.id,
+        label: prizeLabel(p),
+        start: start,
+        end: end,
+        color: PALETTE[i % PALETTE.length]
+      });
+    });
+    state.slices = slices;
+
+    var baseFontSize = Math.max(13, Math.min(24, 255 / slices.length));
+    var minFontSize = 10;
+    var maxLines = 3;
+    var innerBound = r * 0.26;
+    var outerBound = r - 16;
+    var maxLineWidth = outerBound - innerBound;
+    var labelRadius = (innerBound + outerBound) / 2;
+
+    slices.forEach(function(slice){
+      var startRad = (slice.start - 90) * Math.PI / 180;
+      var endRad   = (slice.end   - 90) * Math.PI / 180;
+
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, r, startRad, endRad);
+      ctx.closePath();
+      ctx.fillStyle = slice.color.bg;
+      ctx.fill();
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "#111111";
+      ctx.stroke();
+
+      var midDeg = (slice.start + slice.end) / 2;
+      var midRad = (midDeg - 90) * Math.PI / 180;
+
+      var fit = fitLabelToLines(slice.label.toUpperCase(), maxLineWidth, maxLines, baseFontSize, minFontSize, "Bebas Neue");
+      var lineHeight = fit.fontSize * 1.08;
+
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(midRad);
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = slice.color.text;
+      ctx.letterSpacing = "0.5px";
+      ctx.font = "600 " + fit.fontSize + "px 'Bebas Neue', sans-serif";
+      var startY = -(fit.lines.length - 1) * lineHeight / 2;
+      fit.lines.forEach(function(line, idx){
+        ctx.fillText(line, labelRadius, startY + idx * lineHeight);
+      });
+      ctx.restore();
+    });
+
+    // decorative rim
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = "#EB4D00";
+    ctx.stroke();
+
+    updateSpinAvailability();
+  }
+
+  function resetRotation(){
+    state.rotation = 0;
+    wheelWrap.style.transition = "none";
+    wheelWrap.style.transform = "rotate(0deg)";
+    // force reflow so the next transition applies cleanly
+    void wheelWrap.offsetHeight;
+  }
+
+  function updateSpinAvailability(){
+    var t = I18N[state.lang];
+    var activeCount = state.prizes.filter(function(p){ return p.enabled && p.weight > 0; }).length;
+    var notEnough = activeCount < 2;
+    spinBtn.disabled = notEnough || state.spinning;
+    spinHint.textContent = notEnough ? t.hintNotEnough : (state.spinning ? t.hintSpinning : t.hintTapWheel);
+    wheelWrap.classList.toggle("is-idle", !notEnough && !state.spinning);
+  }
+
+  // ---------- prize list UI ----------
+  function renderPrizeList(){
+    var t = I18N[state.lang];
+    prizeListEl.innerHTML = "";
+    state.prizes.forEach(function(p, i){
+      var li = document.createElement("li");
+      li.className = "prize-row" + (p.enabled ? "" : " is-disabled");
+      li.dataset.id = p.id;
+
+      var swatchColor = PALETTE[i % PALETTE.length].bg;
+
+      li.innerHTML =
+        '<input type="checkbox" class="enabled-toggle" ' + (p.enabled ? "checked" : "") + ' aria-label="' + escapeHtml(t.ariaPrizeActive) + '">' +
+        '<div class="label-field">' +
+          '<span class="swatch" style="background:' + swatchColor + '" aria-hidden="true"></span>' +
+          '<input type="text" class="label-input" value="' + escapeHtml(prizeLabel(p)) + '" maxlength="40" aria-label="' + escapeHtml(t.ariaPrizeName) + '">' +
+        '</div>' +
+        '<div>' +
+          '<span class="odds-label">' + escapeHtml(t.oddsLabel) + '</span>' +
+          '<input type="number" class="weight-input" min="1" max="10" value="' + p.weight + '" aria-label="' + escapeHtml(t.ariaOddsWeight) + '">' +
+        '</div>' +
+        '<button type="button" class="remove-btn" aria-label="' + escapeHtml(t.ariaRemove) + '">&times;</button>';
+
+      prizeListEl.appendChild(li);
+    });
+  }
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, function(c){
+      return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c];
+    });
+  }
+
+  function findPrize(id){
+    return state.prizes.find(function(p){ return p.id === id; });
+  }
+
+  prizeListEl.addEventListener("change", function(e){
+    var li = e.target.closest(".prize-row");
+    if (!li) return;
+    var prize = findPrize(li.dataset.id);
+    if (!prize) return;
+
+    if (e.target.classList.contains("enabled-toggle")){
+      prize.enabled = e.target.checked;
+      li.classList.toggle("is-disabled", !prize.enabled);
+    } else if (e.target.classList.contains("weight-input")){
+      var w = parseInt(e.target.value, 10);
+      prize.weight = isNaN(w) ? 1 : Math.min(10, Math.max(1, w));
+      e.target.value = prize.weight;
+    } else if (e.target.classList.contains("label-input")){
+      var val = e.target.value.trim();
+      prize.customLabel = val || prizeLabel(prize);
+      e.target.value = prizeLabel(prize);
+    } else {
+      return;
+    }
+    renderWheel();
+    resetRotation();
+  });
+
+  prizeListEl.addEventListener("click", function(e){
+    var btn = e.target.closest(".remove-btn");
+    if (!btn) return;
+    var li = e.target.closest(".prize-row");
+    state.prizes = state.prizes.filter(function(p){ return p.id !== li.dataset.id; });
+    renderPrizeList();
+    renderWheel();
+    resetRotation();
+  });
+
+  addForm.addEventListener("submit", function(e){
+    e.preventDefault();
+    var label = newLabelEl.value.trim();
+    if (!label) return;
+    var weight = parseInt(newWeightEl.value, 10);
+    weight = isNaN(weight) ? 1 : Math.min(10, Math.max(1, weight));
+
+    state.prizes.push({ id:"p" + (nextId++), key:null, customLabel:label, weight:weight, enabled:true });
+    newLabelEl.value = "";
+    newWeightEl.value = "1";
+    renderPrizeList();
+    renderWheel();
+    resetRotation();
+    newLabelEl.focus();
+  });
+
+  resetBtn.addEventListener("click", function(){
+    state.prizes = makePrizes(DEFAULT_PRIZES);
+    renderPrizeList();
+    renderWheel();
+    resetRotation();
+  });
+
+  // ---------- spin logic ----------
+  function spin(){
+    if (state.spinning) return;
+    if (state.slices.length < 2) { updateSpinAvailability(); return; }
+
+    state.spinning = true;
+    spinBtn.disabled = true;
+    spinHint.textContent = I18N[state.lang].hintSpinning;
+    wheelWrap.classList.remove("is-idle");
+
+    var a = Math.random() * 360;
+    var landed = state.slices.find(function(s){ return a >= s.start && a < s.end; }) || state.slices[state.slices.length - 1];
+
+    var r = (360 - a) % 360;
+    var extraTurns = 6 + Math.floor(Math.random() * 3); // 6-8 full turns
+    var currentMod = ((state.rotation % 360) + 360) % 360;
+    var deltaToAdd = ((r - currentMod) + 360) % 360 + extraTurns * 360;
+    var newRotation = state.rotation + deltaToAdd;
+
+    var duration = reduceMotion ? 0.6 : 4.4;
+    wheelWrap.style.transition = "transform " + duration + "s cubic-bezier(0.12,0.72,0.15,1)";
+
+    var settled = false;
+    var fallbackId = null;
+    var onDone = function(ev){
+      if (ev && ev.propertyName !== "transform") return;
+      if (settled) return;
+      settled = true;
+      wheelWrap.removeEventListener("transitionend", onDone);
+      if (fallbackId !== null) clearTimeout(fallbackId);
+      state.spinning = false;
+      updateSpinAvailability();
+      showResult(landed);
+      addHistory(landed.label);
+    };
+    wheelWrap.addEventListener("transitionend", onDone);
+
+    requestAnimationFrame(function(){
+      wheelWrap.style.transform = "rotate(" + newRotation + "deg)";
+    });
+    state.rotation = newRotation;
+
+    // safety fallback in case transitionend doesn't fire
+    fallbackId = setTimeout(onDone, (duration * 1000) + 400);
+  }
+
+  spinBtn.addEventListener("click", spin);
+
+  // ---------- result + confetti ----------
+  function showResult(slice){
+    resultTitle.textContent = slice.label;
+    overlay.hidden = false;
+    burstConfetti();
+    closeResultBtn.focus();
+  }
+
+  function closeResult(){
+    overlay.hidden = true;
+    confettiLayer.innerHTML = "";
+  }
+
+  function burstConfetti(){
+    confettiLayer.innerHTML = "";
+    if (reduceMotion) return;
+    var colors = PALETTE.map(function(p){ return p.bg; });
+    for (var i = 0; i < 34; i++){
+      var el = document.createElement("span");
+      el.className = "confetti-piece";
+      el.style.left = (Math.random() * 100) + "%";
+      el.style.background = colors[i % colors.length];
+      el.style.animationDelay = (Math.random() * 0.35) + "s";
+      el.style.animationDuration = (2.1 + Math.random() * 1.3) + "s";
+      confettiLayer.appendChild(el);
+    }
+  }
+
+  spinAgainBtn.addEventListener("click", function(){
+    closeResult();
+    setTimeout(spin, 150);
+  });
+  closeResultBtn.addEventListener("click", closeResult);
+  overlay.addEventListener("click", function(e){
+    if (e.target === overlay) closeResult();
+  });
+  document.addEventListener("keydown", function(e){
+    if (e.key !== "Escape") return;
+    if (!overlay.hidden) closeResult();
+    if (settingsPanel.classList.contains("is-open")) closeSettings();
+  });
+
+  // ---------- settings drawer ----------
+  function openSettings(){
+    settingsPanel.removeAttribute("inert");
+    settingsPanel.classList.add("is-open");
+    settingsBackdrop.classList.add("is-open");
+    document.body.style.overflow = "hidden";
+    closeSettingsBtn.focus();
+  }
+
+  function closeSettings(){
+    settingsPanel.classList.remove("is-open");
+    settingsBackdrop.classList.remove("is-open");
+    settingsPanel.setAttribute("inert", "");
+    document.body.style.overflow = "";
+    settingsBtn.focus();
+  }
+
+  settingsBtn.addEventListener("click", openSettings);
+  closeSettingsBtn.addEventListener("click", closeSettings);
+  settingsBackdrop.addEventListener("click", closeSettings);
+
+  // ---------- history ----------
+  var historyCount = 0;
+  function addHistory(label){
+    if (historyCount === 0) historyList.innerHTML = "";
+    var li = document.createElement("li");
+    var time = document.createElement("time");
+    time.textContent = new Date().toLocaleTimeString(I18N[state.lang].locale, { hour:"2-digit", minute:"2-digit" });
+    var span = document.createElement("span");
+    span.textContent = label;
+    li.appendChild(span);
+    li.appendChild(time);
+    historyList.insertBefore(li, historyList.firstChild);
+    historyCount++;
+    while (historyList.children.length > 5){
+      historyList.removeChild(historyList.lastChild);
+    }
+  }
+
+  // ---------- language switch ----------
+  function applyTranslations(){
+    var t = I18N[state.lang];
+    document.title = t.docTitle;
+    document.documentElement.lang = state.lang;
+
+    document.querySelectorAll("[data-i18n]").forEach(function(el){
+      var key = el.getAttribute("data-i18n");
+      if (t[key] != null) el.textContent = t[key];
+    });
+    document.querySelectorAll("[data-i18n-placeholder]").forEach(function(el){
+      var key = el.getAttribute("data-i18n-placeholder");
+      if (t[key] != null) el.placeholder = t[key];
+    });
+    document.querySelectorAll("[data-i18n-aria]").forEach(function(el){
+      var key = el.getAttribute("data-i18n-aria");
+      if (t[key] != null) el.setAttribute("aria-label", t[key]);
+    });
+
+    langPtBtn.setAttribute("aria-pressed", String(state.lang === "pt"));
+    langEnBtn.setAttribute("aria-pressed", String(state.lang === "en"));
+  }
+
+  function setLanguage(lang){
+    if (lang === state.lang || !I18N[lang]) return;
+    state.lang = lang;
+    applyTranslations();
+    renderPrizeList();
+    renderWheel();
+    updateSpinAvailability();
+  }
+
+  langPtBtn.addEventListener("click", function(){ setLanguage("pt"); });
+  langEnBtn.addEventListener("click", function(){ setLanguage("en"); });
+
+  // ---------- init ----------
+  applyTranslations();
+  renderPrizeList();
+  renderWheel();
+  updateSpinAvailability();
+})();
+</script>
+</body>
+</html>
