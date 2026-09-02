@@ -97,11 +97,11 @@
   }
   .tagline{
     margin:8px auto 0;
-    max-width:480px;
     color:var(--sand);
-    font-size:17px;
-    line-height:1.5;
+    font-size:clamp(10px,2.6vw,17px);
+    line-height:1.4;
     letter-spacing:.01em;
+    white-space:nowrap;
   }
 
   .layout{
@@ -273,7 +273,7 @@
   .prize-list{ list-style:none; margin:0 0 14px; padding:0; display:flex; flex-direction:column; gap:8px; max-height:360px; overflow-y:auto; }
   .prize-row{
     display:grid;
-    grid-template-columns:auto 1fr 56px auto;
+    grid-template-columns:auto auto 1fr 56px auto;
     align-items:center;
     gap:8px;
     background:#fff;
@@ -300,6 +300,16 @@
     font-size:16px; line-height:1; padding:4px 6px; border-radius:6px;
   }
   .prize-row .remove-btn:hover{ background:rgba(122,59,74,.1); }
+  .star-toggle{
+    border:none; background:transparent; cursor:pointer;
+    width:24px; height:24px; padding:2px; border-radius:6px;
+    color:rgba(22,36,29,.28);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .star-toggle svg{ width:17px; height:17px; }
+  .star-toggle:hover{ background:rgba(22,36,29,.06); color:rgba(22,36,29,.5); }
+  .star-toggle[aria-pressed="true"]{ color:#E0A200; }
+  .star-toggle[aria-pressed="true"] svg{ fill:#FFB800; stroke:#E0A200; }
   .odds-label{ font-family:var(--font-mono); font-size:9px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft); display:block; text-align:center; margin-bottom:2px; }
 
   .add-prize-form{
@@ -520,6 +530,10 @@
     { bg:"#333333", text:"#FFFFFF" }  // Charcoal
   ];
 
+  // Reserved exclusively for highlighted/featured prizes so it's never used
+  // for a regular slice and always reads as "special" at a glance.
+  var HIGHLIGHT_COLOR = { bg:"#FFB800", text:"#111111" };
+
   var I18N = {
     pt: {
       docTitle: "RaceFinder — A Volta da Sorte",
@@ -538,6 +552,7 @@
       resetBtn: "Repor predefinições",
       oddsLabel: "Odds",
       ariaPrizeActive: "Prémio ativo",
+      ariaHighlight: "Destacar prémio",
       ariaPrizeName: "Nome do prémio",
       ariaOddsWeight: "Peso das odds",
       ariaRemove: "Remover prémio",
@@ -564,6 +579,7 @@
       resetBtn: "Reset to defaults",
       oddsLabel: "Odds",
       ariaPrizeActive: "Prize active",
+      ariaHighlight: "Feature prize",
       ariaPrizeName: "Prize name",
       ariaOddsWeight: "Odds weight",
       ariaRemove: "Remove prize",
@@ -576,21 +592,20 @@
   };
 
   var PRIZE_I18N = {
-    booking30:     { pt:"30% de desconto em Reserva Direta",       en:"30% off Direct Booking" },
-    freeEntry:     { pt:"Inscrição grátis",                        en:"Free race entry" },
-    cap:           { pt:"Boné RaceFinder",                         en:"RaceFinder cap" },
-    discount10:    { pt:"10% de desconto na próxima prova",        en:"10% off next race" },
-    medalKeychain: { pt:"Porta-chaves medalha de finisher",        en:"Finisher medal keychain" },
-    tryAgain:      { pt:"Mais sorte para a próxima",                en:"Better luck next time" }
+    freeEntry: { pt:"Inscrição grátis",         en:"Free race entry" },
+    buff:      { pt:"Buff RaceFinder",          en:"RaceFinder buff" },
+    cap:       { pt:"Boné RaceFinder",          en:"RaceFinder cap" },
+    bottle:    { pt:"Garrafa RaceFinder",       en:"RaceFinder bottle" },
+    tshirt:    { pt:"T-shirt RaceFinder",       en:"RaceFinder t-shirt" }
   };
 
+  // Odds reflect the requested rarity: easy > medium > medium-hard > hard > very hard
   var DEFAULT_PRIZES = [
-    { key:"booking30",     weight:3, enabled:true },
-    { key:"freeEntry",     weight:1, enabled:true },
-    { key:"cap",           weight:2, enabled:true },
-    { key:"discount10",    weight:3, enabled:true },
-    { key:"medalKeychain", weight:2, enabled:true },
-    { key:"tryAgain",      weight:3, enabled:true }
+    { key:"freeEntry", weight:1, enabled:true, highlighted:true }, // Very hard to get
+    { key:"buff",      weight:5, enabled:true },                   // Medium
+    { key:"cap",       weight:8, enabled:true },                   // Easy to get
+    { key:"bottle",    weight:3, enabled:true },                   // Medium-hard
+    { key:"tshirt",    weight:2, enabled:true }                    // Hard to get
   ];
 
   var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -598,7 +613,7 @@
   var nextId = 1;
   function makePrizes(list){
     return list.map(function(p){
-      return { id:"p" + (nextId++), key:p.key, customLabel:null, weight:p.weight, enabled:p.enabled };
+      return { id:"p" + (nextId++), key:p.key, customLabel:null, weight:p.weight, enabled:p.enabled, highlighted:!!p.highlighted };
     });
   }
 
@@ -606,6 +621,8 @@
     lang: "pt",
     prizes: makePrizes(DEFAULT_PRIZES),
     slices: [],
+    sliceOrder: [],
+    sliceOrderSignature: null,
     rotation: 0,
     spinning: false
   };
@@ -614,6 +631,55 @@
     if (p.customLabel != null) return p.customLabel;
     if (p.key && PRIZE_I18N[p.key]) return PRIZE_I18N[p.key][state.lang];
     return "";
+  }
+
+  // Arranges repeated prize-id units around the wheel so identical prizes land
+  // as far apart as possible, minimizing (and, whenever mathematically
+  // possible, eliminating) two same-prize slices sitting next to each other.
+  function buildMixedSliceOrder(items){
+    var total = items.reduce(function(sum, it){ return sum + it.count; }, 0);
+    var slots = new Array(total).fill(null);
+    var byCountDesc = items.slice().sort(function(a, b){ return b.count - a.count; });
+
+    byCountDesc.forEach(function(item){
+      var step = total / item.count;
+      var phase = Math.random() * step; // random rotation so repeated configs don't always look identical
+      for (var i = 0; i < item.count; i++){
+        var pos = Math.round(phase + i * step) % total;
+        if (pos < 0) pos += total;
+        if (slots[pos] === null){
+          slots[pos] = item.id;
+          continue;
+        }
+        for (var offset = 1; offset <= total; offset++){
+          var posPlus = (pos + offset) % total;
+          var posMinus = ((pos - offset) % total + total) % total;
+          if (slots[posPlus] === null){ slots[posPlus] = item.id; break; }
+          if (slots[posMinus] === null){ slots[posMinus] = item.id; break; }
+        }
+      }
+    });
+
+    var n = slots.length;
+    function violatesAt(i){ return slots[i] === slots[(i + 1) % n]; }
+    for (var pass = 0; pass < 3; pass++){
+      var fixedAny = false;
+      for (var i = 0; i < n; i++){
+        if (!violatesAt(i)) continue;
+        var badPos = (i + 1) % n;
+        for (var j = 0; j < n; j++){
+          if (j === badPos || j === i) continue;
+          var tmp = slots[badPos]; slots[badPos] = slots[j]; slots[j] = tmp;
+          var stillBad = violatesAt(i) ||
+            violatesAt((badPos - 1 + n) % n) || violatesAt(badPos) ||
+            violatesAt((j - 1 + n) % n) || violatesAt(j);
+          if (!stillBad){ fixedAny = true; break; }
+          tmp = slots[badPos]; slots[badPos] = slots[j]; slots[j] = tmp; // revert
+        }
+      }
+      if (!fixedAny) break;
+    }
+    return slots;
   }
 
   var wheelWrap   = document.getElementById("wheelWrap");
@@ -639,6 +705,23 @@
   var appEl = document.getElementById("app");
 
   // ---------- wheel rendering ----------
+  function drawStar(cx, cy, outerR, innerR, fill){
+    var spikes = 5;
+    var rot = (Math.PI / 2) * 3;
+    var step = Math.PI / spikes;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - outerR);
+    for (var i = 0; i < spikes; i++){
+      ctx.lineTo(cx + Math.cos(rot) * outerR, cy + Math.sin(rot) * outerR);
+      rot += step;
+      ctx.lineTo(cx + Math.cos(rot) * innerR, cy + Math.sin(rot) * innerR);
+      rot += step;
+    }
+    ctx.closePath();
+    ctx.fillStyle = fill;
+    ctx.fill();
+  }
+
   function truncateForCanvas(text, maxWidth, font){
     ctx.font = font;
     if (ctx.measureText(text).width <= maxWidth) return text;
@@ -714,30 +797,50 @@
       return;
     }
 
-    var totalWeight = enabled.reduce(function(sum, p){ return sum + p.weight; }, 0);
+    var colorMap = {};
+    enabled.forEach(function(p, i){ colorMap[p.id] = p.highlighted ? HIGHLIGHT_COLOR : PALETTE[i % PALETTE.length]; });
+
+    var signature = enabled.map(function(p){
+      return p.id + ":" + Math.max(1, Math.round(p.weight));
+    }).join("|");
+
+    if (signature !== state.sliceOrderSignature){
+      var items = enabled.map(function(p){
+        return { id: p.id, count: Math.max(1, Math.round(p.weight)) };
+      });
+      state.sliceOrder = buildMixedSliceOrder(items);
+      state.sliceOrderSignature = signature;
+    }
+
+    var prizeById = {};
+    enabled.forEach(function(p){ prizeById[p.id] = p; });
+
+    var totalUnits = state.sliceOrder.length;
+    var unitSpan = 360 / totalUnits;
     var cumulative = 0;
     var slices = [];
 
-    enabled.forEach(function(p, i){
-      var span = 360 * (p.weight / totalWeight);
+    state.sliceOrder.forEach(function(id){
+      var p = prizeById[id];
       var start = cumulative;
-      var end = cumulative + span;
+      var end = cumulative + unitSpan;
       cumulative = end;
       slices.push({
-        id: p.id,
+        id: id,
         label: prizeLabel(p),
         start: start,
         end: end,
-        color: PALETTE[i % PALETTE.length]
+        color: colorMap[id],
+        highlighted: !!(p && p.highlighted)
       });
     });
     state.slices = slices;
 
-    var baseFontSize = Math.max(13, Math.min(24, 255 / slices.length));
-    var minFontSize = 10;
+    var baseFontSize = Math.max(14, Math.min(28, 340 / slices.length));
+    var minFontSize = 11;
     var maxLines = 3;
     var innerBound = r * 0.26;
-    var outerBound = r - 16;
+    var outerBound = r - 12;
     var maxLineWidth = outerBound - innerBound;
     var labelRadius = (innerBound + outerBound) / 2;
 
@@ -764,6 +867,14 @@
       ctx.save();
       ctx.translate(cx, cy);
       ctx.rotate(midRad);
+
+      if (slice.highlighted){
+        var starRadius = r * 0.225;
+        var chordWidth = 2 * starRadius * Math.sin((unitSpan / 2) * Math.PI / 180);
+        var starOuterR = Math.max(4, Math.min(14, chordWidth * 0.34));
+        drawStar(starRadius, 0, starOuterR, starOuterR * 0.45, "#FFDD66");
+      }
+
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillStyle = slice.color.text;
@@ -782,6 +893,19 @@
     ctx.lineWidth = 4;
     ctx.strokeStyle = "#EB4D00";
     ctx.stroke();
+
+    // extra gold rim accent over highlighted slices, so the featured prize
+    // reads as special even from the wheel's outer silhouette while spinning
+    slices.forEach(function(slice){
+      if (!slice.highlighted) return;
+      var startRad = (slice.start - 90) * Math.PI / 180;
+      var endRad   = (slice.end   - 90) * Math.PI / 180;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, startRad, endRad);
+      ctx.lineWidth = 7;
+      ctx.strokeStyle = "#FFB800";
+      ctx.stroke();
+    });
 
     updateSpinAvailability();
   }
@@ -812,10 +936,13 @@
       li.className = "prize-row" + (p.enabled ? "" : " is-disabled");
       li.dataset.id = p.id;
 
-      var swatchColor = PALETTE[i % PALETTE.length].bg;
+      var swatchColor = p.highlighted ? HIGHLIGHT_COLOR.bg : PALETTE[i % PALETTE.length].bg;
 
       li.innerHTML =
         '<input type="checkbox" class="enabled-toggle" ' + (p.enabled ? "checked" : "") + ' aria-label="' + escapeHtml(t.ariaPrizeActive) + '">' +
+        '<button type="button" class="star-toggle" aria-pressed="' + (p.highlighted ? "true" : "false") + '" aria-label="' + escapeHtml(t.ariaHighlight) + '">' +
+          '<svg viewBox="0 0 24 24" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.8l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.2-5.9 3.2 1.2-6.5-4.8-4.6 6.6-.9z"/></svg>' +
+        '</button>' +
         '<div class="label-field">' +
           '<span class="swatch" style="background:' + swatchColor + '" aria-hidden="true"></span>' +
           '<input type="text" class="label-input" value="' + escapeHtml(prizeLabel(p)) + '" maxlength="40" aria-label="' + escapeHtml(t.ariaPrizeName) + '">' +
@@ -865,6 +992,17 @@
   });
 
   prizeListEl.addEventListener("click", function(e){
+    var starBtn = e.target.closest(".star-toggle");
+    if (starBtn){
+      var starLi = e.target.closest(".prize-row");
+      var starPrize = findPrize(starLi.dataset.id);
+      if (starPrize){
+        starPrize.highlighted = !starPrize.highlighted;
+        renderPrizeList();
+        renderWheel();
+      }
+      return;
+    }
     var btn = e.target.closest(".remove-btn");
     if (!btn) return;
     var li = e.target.closest(".prize-row");
@@ -881,7 +1019,7 @@
     var weight = parseInt(newWeightEl.value, 10);
     weight = isNaN(weight) ? 1 : Math.min(10, Math.max(1, weight));
 
-    state.prizes.push({ id:"p" + (nextId++), key:null, customLabel:label, weight:weight, enabled:true });
+    state.prizes.push({ id:"p" + (nextId++), key:null, customLabel:label, weight:weight, enabled:true, highlighted:false });
     newLabelEl.value = "";
     newWeightEl.value = "1";
     renderPrizeList();
