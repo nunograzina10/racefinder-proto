@@ -251,18 +251,6 @@ button{ font-family:inherit; }
 #rf-kiosk.theme-dark .rf-opt-help{ color:rgba(255,255,255,.5); }
 #rf-kiosk.theme-dark .rf-opt-icon{ background:rgba(235,77,0,.16); }
 
-/* Q1 has an odd number of options (7): let the last one span the full row instead
-   of sitting alone and lopsided, laid out like the single-column screens so it
-   reads as a deliberate closer, not a leftover. */
-#rfQ1Options .rf-opt:last-child{
-  grid-column:1 / -1;
-  flex-direction:row;
-  align-items:center;
-  justify-content:flex-start;
-  gap:16px;
-}
-#rfQ1Options .rf-opt:last-child .rf-opt-label{ font-size:17px; }
-
 /* ---------- result screen ---------- */
 .rf-screen[data-screen="result"]{ background:var(--rf-charcoal); color:var(--rf-white); }
 .rf-result-bg{
@@ -278,7 +266,6 @@ button{ font-family:inherit; }
   padding:clamp(80px,15vh,120px) clamp(20px,5vw,36px) clamp(22px,4vh,34px);
   overflow-y:auto;
 }
-.rf-screen[data-screen="result"] .rf-pulse-scroll.p1{ top:44%; opacity:.2; }
 .rf-tape{
   width:0%; height:3px; background:var(--rf-orange); margin-bottom:14px;
   transition:width .7s cubic-bezier(.2,.8,.2,1);
@@ -376,7 +363,7 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
       <div class="rf-start-logo" id="rfStartLogo"></div>
       <p class="rf-start-subtitle">Matchmaker <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-6.7-4.35-9.3-8.1C1.1 10.4 1.6 7 4.4 5.6c2.1-1.05 4.4-.3 5.6 1.4l2 2.8 2-2.8c1.2-1.7 3.5-2.45 5.6-1.4 2.8 1.4 3.3 4.8 1.7 7.3C18.7 16.65 12 21 12 21Z"/></svg></p>
       <h1 class="rf-start-headline" id="rfStartHeadline">Qual é a tua<br>próxima prova?</h1>
-      <p class="rf-start-tag" id="rfStartTag">Conta-nos o que procuras. Nós encontramos a tua próxima prova.</p>
+      <p class="rf-start-tag" id="rfStartTag">Diz-nos o que procuras. Nós encontramos a tua próxima prova.</p>
       <button class="rf-cta" id="rfStartBtn" type="button">Começar</button>
       <p class="rf-start-hint" id="rfStartHint">Toca no ecrã para começar</p>
     </div>
@@ -384,32 +371,16 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
 
   <!-- Q1 -->
   <section class="rf-screen rf-glow-bg" data-screen="q1">
-    <div class="rf-decor" aria-hidden="true">
-      <svg class="rf-pulse-scroll p1" viewBox="0 0 800 60" preserveAspectRatio="none">
-        <path d="M0,30 L280,30 L296,8 L312,52 L328,14 L344,30 L400,30 L680,30 L696,8 L712,52 L728,14 L744,30 L800,30"/>
-      </svg>
-      <svg class="rf-pulse-scroll p2" viewBox="0 0 800 60" preserveAspectRatio="none">
-        <path d="M0,30 L120,30 L134,12 L148,48 L162,30 L400,30 L520,30 L534,12 L548,48 L562,30 L800,30"/>
-      </svg>
-    </div>
     <div class="rf-inner">
       <p class="rf-eyebrow" id="rfQ1Eyebrow">Modalidade</p>
-      <h2 class="rf-h1" id="rfQ1Headline">Como é que te mexes?</h2>
+      <h2 class="rf-h1" id="rfQ1Headline">Que desporto te move?</h2>
       <p class="rf-sub" id="rfQ1Sub">Escolhe a tua modalidade.</p>
-      <div class="rf-options rf-grid-2" id="rfQ1Options"></div>
+      <div class="rf-options" id="rfQ1Options"></div>
     </div>
   </section>
 
   <!-- Q2 -->
   <section class="rf-screen rf-glow-bg" data-screen="q2">
-    <div class="rf-decor" aria-hidden="true">
-      <svg class="rf-pulse-scroll p1" viewBox="0 0 800 60" preserveAspectRatio="none">
-        <path d="M0,30 L280,30 L296,8 L312,52 L328,14 L344,30 L400,30 L680,30 L696,8 L712,52 L728,14 L744,30 L800,30"/>
-      </svg>
-      <svg class="rf-pulse-scroll p2" viewBox="0 0 800 60" preserveAspectRatio="none">
-        <path d="M0,30 L120,30 L134,12 L148,48 L162,30 L400,30 L520,30 L534,12 L548,48 L562,30 L800,30"/>
-      </svg>
-    </div>
     <div class="rf-inner">
       <p class="rf-eyebrow" id="rfQ2Eyebrow">Distância</p>
       <h2 class="rf-h1" id="rfQ2Headline">Que distância te faz vibrar?</h2>
@@ -420,14 +391,6 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
 
   <!-- Q3 -->
   <section class="rf-screen rf-glow-bg" data-screen="q3">
-    <div class="rf-decor" aria-hidden="true">
-      <svg class="rf-pulse-scroll p1" viewBox="0 0 800 60" preserveAspectRatio="none">
-        <path d="M0,30 L280,30 L296,8 L312,52 L328,14 L344,30 L400,30 L680,30 L696,8 L712,52 L728,14 L744,30 L800,30"/>
-      </svg>
-      <svg class="rf-pulse-scroll p2" viewBox="0 0 800 60" preserveAspectRatio="none">
-        <path d="M0,30 L120,30 L134,12 L148,48 L162,30 L400,30 L520,30 L534,12 L548,48 L562,30 L800,30"/>
-      </svg>
-    </div>
     <div class="rf-inner">
       <p class="rf-eyebrow" id="rfQ3Eyebrow">Região</p>
       <h2 class="rf-h1" id="rfQ3Headline">Onde queres correr?</h2>
@@ -438,14 +401,6 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
 
   <!-- Q4 -->
   <section class="rf-screen rf-glow-bg" data-screen="q4">
-    <div class="rf-decor" aria-hidden="true">
-      <svg class="rf-pulse-scroll p1" viewBox="0 0 800 60" preserveAspectRatio="none">
-        <path d="M0,30 L280,30 L296,8 L312,52 L328,14 L344,30 L400,30 L680,30 L696,8 L712,52 L728,14 L744,30 L800,30"/>
-      </svg>
-      <svg class="rf-pulse-scroll p2" viewBox="0 0 800 60" preserveAspectRatio="none">
-        <path d="M0,30 L120,30 L134,12 L148,48 L162,30 L400,30 L520,30 L534,12 L548,48 L562,30 L800,30"/>
-      </svg>
-    </div>
     <div class="rf-inner">
       <p class="rf-eyebrow" id="rfQ4Eyebrow">Objetivo</p>
       <h2 class="rf-h1" id="rfQ4Headline">Qual é o teu objetivo?</h2>
@@ -457,11 +412,6 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
   <!-- RESULT -->
   <section class="rf-screen" data-screen="result">
     <div class="rf-result-bg" id="rfResultBg"></div>
-    <div class="rf-decor" aria-hidden="true">
-      <svg class="rf-pulse-scroll p1" viewBox="0 0 800 60" preserveAspectRatio="none">
-        <path d="M0,30 L280,30 L296,8 L312,52 L328,14 L344,30 L400,30 L680,30 L696,8 L712,52 L728,14 L744,30 L800,30"/>
-      </svg>
-    </div>
     <div class="rf-result-body">
       <div class="rf-tape"></div>
       <p class="rf-result-eyebrow" id="rfResultEyebrow">A tua próxima prova</p>
@@ -506,10 +456,10 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
     pt: {
       back:'← Voltar',
       startHeadline:'Qual é a tua<br>próxima prova?',
-      startTag:'Conta-nos o que procuras. Nós encontramos a tua próxima prova.',
+      startTag:'Diz-nos o que procuras. Nós encontramos a tua próxima prova.',
       startCta:'Começar',
       startHint:'Toca no ecrã para começar',
-      q1Eyebrow:'Modalidade', q1Headline:'Como é que te mexes?', q1Sub:'Escolhe a tua modalidade.',
+      q1Eyebrow:'Modalidade', q1Headline:'Que desporto te move?', q1Sub:'Escolhe a tua modalidade.',
       q2Eyebrow:'Distância', q2Headline:'Que distância te faz vibrar?', q2Sub:'Escolhe o desafio certo para ti.',
       q3Eyebrow:'Região', q3Headline:'Onde queres correr?', q3Sub:'Escolhe a tua região preferida.',
       q4Eyebrow:'Objetivo', q4Headline:'Qual é o teu objetivo?', q4Sub:'O que procuras nesta prova?',
@@ -536,7 +486,7 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
       startTag:'Tell us what you\'re after. We\'ll find your next race.',
       startCta:'Start',
       startHint:'Tap the screen to start',
-      q1Eyebrow:'Sport', q1Headline:'How do you move?', q1Sub:'Choose your sport.',
+      q1Eyebrow:'Sport', q1Headline:'What sport moves you?', q1Sub:'Choose your sport.',
       q2Eyebrow:'Distance', q2Headline:'What distance gets you going?', q2Sub:'Pick the right challenge for you.',
       q3Eyebrow:'Region', q3Headline:'Where do you want to race?', q3Sub:'Choose your favourite region.',
       q4Eyebrow:'Goal', q4Headline:'What\'s your goal?', q4Sub:'What are you looking for in this race?',
@@ -1582,7 +1532,7 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
   }
 
   function rebuildOptionLists(){
-    buildOptions(els.q1, buildQ1(), function(v){ answers.sport = v; goTo('q2'); }, true);
+    buildOptions(els.q1, buildQ1(), function(v){ answers.sport = v; goTo('q2'); }, false);
     buildOptions(els.q2, buildQ2(), function(v){ answers.distance = v; goTo('q3'); }, false);
     buildOptions(els.q3, buildQ3(), function(v){ answers.region = v; goTo('q4'); }, false);
     buildOptions(els.q4, buildQ4(), function(v){ answers.goal = v; showResult(); }, false);
