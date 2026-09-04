@@ -106,6 +106,7 @@ button{ font-family:inherit; }
 .rf-screen.active{ opacity:1; pointer-events:auto; visibility:visible; transform:translateY(0); }
 
 .rf-inner{
+  position:relative; z-index:2;
   flex:1; display:flex; flex-direction:column;
   max-width:640px; width:100%; margin:0 auto;
   padding:clamp(72px,13vh,104px) clamp(20px,5vw,36px) clamp(24px,4vh,40px);
@@ -127,25 +128,30 @@ button{ font-family:inherit; }
 }
 
 /* ---------- start screen ---------- */
-.rf-screen[data-screen="start"]{ background:var(--rf-charcoal); color:var(--rf-white); position:relative; overflow:hidden; }
-.rf-screen[data-screen="start"]::before,
-.rf-screen[data-screen="start"]::after{
+.rf-screen[data-screen="start"]{ background:var(--rf-charcoal); color:var(--rf-white); overflow:hidden; }
+.rf-glow-bg{ overflow:hidden; }
+.rf-glow-bg::before,
+.rf-glow-bg::after{
   content:''; position:absolute; z-index:0; border-radius:50%; pointer-events:none;
   background:radial-gradient(circle, rgba(235,77,0,.38) 0%, rgba(235,77,0,0) 70%);
 }
-.rf-screen[data-screen="start"]::before{
+.rf-glow-bg::before{
   width:min(560px,90vw); height:min(560px,90vw); top:-18%; right:-22%;
   animation:rf-glow-breathe 7s ease-in-out infinite;
 }
-.rf-screen[data-screen="start"]::after{
+.rf-glow-bg::after{
   width:min(460px,80vw); height:min(460px,80vw); bottom:-20%; left:-20%;
   animation:rf-glow-breathe 9s ease-in-out infinite 1.5s reverse;
+}
+#rf-kiosk.theme-light .rf-glow-bg::before,
+#rf-kiosk.theme-light .rf-glow-bg::after{
+  background:radial-gradient(circle, rgba(235,77,0,.2) 0%, rgba(235,77,0,0) 70%);
 }
 @keyframes rf-glow-breathe{
   0%,100%{ transform:scale(1); opacity:.55; }
   50%{ transform:scale(1.18); opacity:.95; }
 }
-.rf-start-decor{ position:absolute; inset:0; z-index:1; overflow:hidden; pointer-events:none; }
+.rf-decor{ position:absolute; inset:0; z-index:1; overflow:hidden; pointer-events:none; }
 .rf-pulse-scroll{
   position:absolute; left:0; width:200%; height:56px;
   fill:none; stroke:var(--rf-orange); stroke-width:2; stroke-linecap:round; stroke-linejoin:round;
@@ -272,6 +278,7 @@ button{ font-family:inherit; }
   padding:clamp(80px,15vh,120px) clamp(20px,5vw,36px) clamp(22px,4vh,34px);
   overflow-y:auto;
 }
+.rf-screen[data-screen="result"] .rf-pulse-scroll.p1{ top:44%; opacity:.2; }
 .rf-tape{
   width:0%; height:3px; background:var(--rf-orange); margin-bottom:14px;
   transition:width .7s cubic-bezier(.2,.8,.2,1);
@@ -356,8 +363,8 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
   </header>
 
   <!-- START -->
-  <section class="rf-screen active" data-screen="start">
-    <div class="rf-start-decor" aria-hidden="true">
+  <section class="rf-screen rf-glow-bg active" data-screen="start">
+    <div class="rf-decor" aria-hidden="true">
       <svg class="rf-pulse-scroll p1" viewBox="0 0 800 60" preserveAspectRatio="none">
         <path d="M0,30 L280,30 L296,8 L312,52 L328,14 L344,30 L400,30 L680,30 L696,8 L712,52 L728,14 L744,30 L800,30"/>
       </svg>
@@ -376,7 +383,15 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
   </section>
 
   <!-- Q1 -->
-  <section class="rf-screen" data-screen="q1">
+  <section class="rf-screen rf-glow-bg" data-screen="q1">
+    <div class="rf-decor" aria-hidden="true">
+      <svg class="rf-pulse-scroll p1" viewBox="0 0 800 60" preserveAspectRatio="none">
+        <path d="M0,30 L280,30 L296,8 L312,52 L328,14 L344,30 L400,30 L680,30 L696,8 L712,52 L728,14 L744,30 L800,30"/>
+      </svg>
+      <svg class="rf-pulse-scroll p2" viewBox="0 0 800 60" preserveAspectRatio="none">
+        <path d="M0,30 L120,30 L134,12 L148,48 L162,30 L400,30 L520,30 L534,12 L548,48 L562,30 L800,30"/>
+      </svg>
+    </div>
     <div class="rf-inner">
       <p class="rf-eyebrow" id="rfQ1Eyebrow">Modalidade</p>
       <h2 class="rf-h1" id="rfQ1Headline">Como é que te mexes?</h2>
@@ -386,7 +401,15 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
   </section>
 
   <!-- Q2 -->
-  <section class="rf-screen" data-screen="q2">
+  <section class="rf-screen rf-glow-bg" data-screen="q2">
+    <div class="rf-decor" aria-hidden="true">
+      <svg class="rf-pulse-scroll p1" viewBox="0 0 800 60" preserveAspectRatio="none">
+        <path d="M0,30 L280,30 L296,8 L312,52 L328,14 L344,30 L400,30 L680,30 L696,8 L712,52 L728,14 L744,30 L800,30"/>
+      </svg>
+      <svg class="rf-pulse-scroll p2" viewBox="0 0 800 60" preserveAspectRatio="none">
+        <path d="M0,30 L120,30 L134,12 L148,48 L162,30 L400,30 L520,30 L534,12 L548,48 L562,30 L800,30"/>
+      </svg>
+    </div>
     <div class="rf-inner">
       <p class="rf-eyebrow" id="rfQ2Eyebrow">Distância</p>
       <h2 class="rf-h1" id="rfQ2Headline">Que distância te faz vibrar?</h2>
@@ -396,7 +419,15 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
   </section>
 
   <!-- Q3 -->
-  <section class="rf-screen" data-screen="q3">
+  <section class="rf-screen rf-glow-bg" data-screen="q3">
+    <div class="rf-decor" aria-hidden="true">
+      <svg class="rf-pulse-scroll p1" viewBox="0 0 800 60" preserveAspectRatio="none">
+        <path d="M0,30 L280,30 L296,8 L312,52 L328,14 L344,30 L400,30 L680,30 L696,8 L712,52 L728,14 L744,30 L800,30"/>
+      </svg>
+      <svg class="rf-pulse-scroll p2" viewBox="0 0 800 60" preserveAspectRatio="none">
+        <path d="M0,30 L120,30 L134,12 L148,48 L162,30 L400,30 L520,30 L534,12 L548,48 L562,30 L800,30"/>
+      </svg>
+    </div>
     <div class="rf-inner">
       <p class="rf-eyebrow" id="rfQ3Eyebrow">Região</p>
       <h2 class="rf-h1" id="rfQ3Headline">Onde queres correr?</h2>
@@ -406,7 +437,15 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
   </section>
 
   <!-- Q4 -->
-  <section class="rf-screen" data-screen="q4">
+  <section class="rf-screen rf-glow-bg" data-screen="q4">
+    <div class="rf-decor" aria-hidden="true">
+      <svg class="rf-pulse-scroll p1" viewBox="0 0 800 60" preserveAspectRatio="none">
+        <path d="M0,30 L280,30 L296,8 L312,52 L328,14 L344,30 L400,30 L680,30 L696,8 L712,52 L728,14 L744,30 L800,30"/>
+      </svg>
+      <svg class="rf-pulse-scroll p2" viewBox="0 0 800 60" preserveAspectRatio="none">
+        <path d="M0,30 L120,30 L134,12 L148,48 L162,30 L400,30 L520,30 L534,12 L548,48 L562,30 L800,30"/>
+      </svg>
+    </div>
     <div class="rf-inner">
       <p class="rf-eyebrow" id="rfQ4Eyebrow">Objetivo</p>
       <h2 class="rf-h1" id="rfQ4Headline">Qual é o teu objetivo?</h2>
@@ -418,6 +457,11 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
   <!-- RESULT -->
   <section class="rf-screen" data-screen="result">
     <div class="rf-result-bg" id="rfResultBg"></div>
+    <div class="rf-decor" aria-hidden="true">
+      <svg class="rf-pulse-scroll p1" viewBox="0 0 800 60" preserveAspectRatio="none">
+        <path d="M0,30 L280,30 L296,8 L312,52 L328,14 L344,30 L400,30 L680,30 L696,8 L712,52 L728,14 L744,30 L800,30"/>
+      </svg>
+    </div>
     <div class="rf-result-body">
       <div class="rf-tape"></div>
       <p class="rf-result-eyebrow" id="rfResultEyebrow">A tua próxima prova</p>
@@ -544,137 +588,11 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
 
 
   var RACES = [
-    {id:'milha-cerveja', name:'1.ª Milha da Cerveja — A.R. Sequeirô', sport:['estrada'], region:'norte', distance:['curta'], goals:['diversao'],
-     dist:'1,6 km · estafeta em equipa', date:'8 de agosto', place:'Santo Tirso, Porto', price:'7,50€ — 15€',
-     url:'https://racefinder.pt/event/1-a-milha-da-cerveja-a-r-sequeiro-os-destemidos/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/06/pexels-toni-5051379-300x450.jpg',
-     blurb:'Uma milha, quatro voltas, uma cerveja em cada uma. Convívio puro em Santo Tirso.'},
-
-    {id:'trail-raia', name:'Trail da Raia', sport:['trail'], region:'centro', distance:['curta','media','longa','ultra'], goals:['primeiro','recorde','endurance'],
-     dist:'11 · 16 · 31 · 45 km', date:'8 de agosto', place:'Sabugal, Guarda', price:'5€ — 30€',
-     url:'https://racefinder.pt/event/trail-da-raia-3/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/06/pexels-runffwpu-18408949-3-300x450.jpg',
-     blurb:'Do mini ao ultra de 45 km, em trilhos de contrabandistas entre Portugal e Espanha.'},
-
-    {id:'gois-challenge', name:'Góis Challenge', sport:['hibrido'], region:'centro', distance:['media'], goals:['diversao','recorde'],
-     dist:'Prova por equipas de 4, cronometrada', date:'8 de agosto', place:'Góis, Coimbra', price:'90€ — 100€',
-     url:'https://racefinder.pt/event/gois-challenge/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/05/unnamed-300x450.jpg',
-     blurb:'Corrida e workouts funcionais em equipa, no coração da Serra da Lousã.'},
-
-    {id:'corrida-borba', name:'11ª Corrida de Atletismo Noturna de Borba', sport:['estrada'], region:'alentejo', distance:['curta'], goals:['primeiro','diversao'],
-     dist:'até 6,5 km', date:'13 de agosto', place:'Borba, Évora', price:'Grátis',
-     url:'https://racefinder.pt/event/11a-corrida-de-atletismo-noturna-de-borba/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/06/pexels-runffwpu-18409435-1-300x450.jpg',
-     blurb:'Corrida urbana noturna pelas ruas de Borba, aberta a todas as idades a partir dos 5 anos.'},
-
-    {id:'backyard-ultra', name:'Feirense Backyard Ultra', sport:['estrada'], region:'centro', distance:['ultra'], goals:['endurance'],
-     dist:'voltas de 6,706 km, a cada hora', date:'15 de agosto', place:'Santa Maria da Feira, Aveiro', price:'13€ — 60€',
-     url:'https://racefinder.pt/event/feirense-backyard-ultra-2/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/03/pexels-runffwpu-11598825-1-300x450.jpg',
-     blurb:'Último a ficar de pé ganha. Sem meta definida à partida — só resistência.'},
-
-    {id:'algares-btt', name:'6º Passeio Noturno Algares BTT', sport:['mtb'], region:'alentejo', distance:['media'], goals:['primeiro','diversao'],
-     dist:'25 km, BTT noturno', date:'15 de agosto', place:'Odemira, Beja', price:'Grátis',
-     url:'https://racefinder.pt/event/6o-passeio-noturno-algares-btt/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/07/pexels-cotelo-19131127-300x450.jpg',
-     blurb:'Passeio de BTT noturno pelos trilhos junto a São Teotónio, Odemira.'},
-
-    {id:'trail-gondarense', name:'III Trail Noturno Gondarense', sport:['trail'], region:'norte', distance:['curta','media'], goals:['primeiro','diversao'],
-     dist:'11 · 20 km', date:'15 de agosto', place:'Caminha, Viana do Castelo', price:'21€ — 22€',
-     url:'https://racefinder.pt/event/iii-trail-noturno-gondarense/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/06/pexels-arina-dmitrieva-66352626-13894047-300x450.jpg',
-     blurb:'Trail e caminhada noturna pelas serras de Gondar, Orbacém e Serra D\'Arga.'},
-
-    {id:'volta-tramagal', name:'4.ª Volta a Tramagal', sport:['ciclismo-estrada'], region:'lvt', distance:['media','longa'], goals:['diversao','primeiro'],
-     dist:'11,5 · 40 km, ciclismo de estrada', date:'15 de agosto', place:'Abrantes, Santarém', price:'3€ — 7€',
-     url:'https://racefinder.pt/event/4-a-volta-a-tramagal/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/07/pexels-daigofotos-38346808-300x450.jpg',
-     blurb:'Ciclismo popular em Tramagal, com provas para toda a família, dos 10 aos 100.'},
-
-    {id:'mestre-avis', name:'Prova de Atletismo "Mestre de Avis" 2026', sport:['estrada'], region:'centro', distance:['curta'], goals:['primeiro','diversao'],
-     dist:'10 km · caminhada 6 km', date:'15 de agosto', place:'Batalha, Leiria', price:'Grátis — 5€',
-     url:'https://racefinder.pt/event/prova-de-atletismo-mestre-de-avis-2026/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/07/pexels-runffwpu-19151372-2-300x450.jpg',
-     blurb:'Corrida e caminhada solidárias na Batalha, a reverter para os Bombeiros Voluntários.'},
-
-    {id:'running-satao', name:'9° Running Sátão | Festas de S. Bernardo', sport:['estrada'], region:'centro', distance:['curta'], goals:['primeiro'],
-     dist:'10 km · caminhada 6 km', date:'16 de agosto', place:'Sátão, Viseu', price:'6€',
-     url:'https://racefinder.pt/event/9-running-satao-festas-de-s-bernardo/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/06/pexels-runffwpu-18409405-1-300x450.jpg',
-     blurb:'10 km ou uma caminhada de 6 km pelas ruas de Sátão, ao ritmo de quem começa.'},
-
     {id:'trail-vicentino', name:'V Trail Vicentino Noturno by Oliveira Pneus', sport:['trail'], region:'ilhas', distance:['media','longa'], goals:['recorde','endurance'],
      dist:'21 · 32 km', date:'17 de agosto', place:'Ponta Delgada, Açores', price:'11€ — 18€',
      url:'https://racefinder.pt/event/v-trail-vicentino-noturno-by-oliveira-pneus/',
      img:'https://racefinder.pt/wp-content/uploads/2026/06/pexels-runffwpu-18408949-4-300x450.jpg',
      blurb:'Trail nos Açores, por trilhos entre as freguesias de Ponta Delgada e Ribeira Grande.'},
-
-    {id:'veredas-pechao', name:'Veredas de Pechão', sport:['mtb'], region:'algarve', distance:['media'], goals:['diversao'],
-     dist:'BTT · resistência de 2 horas', date:'22 de agosto', place:'Olhão, Faro', price:'15€',
-     url:'https://racefinder.pt/event/veredas-de-pechao-edicao-2026/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/08/pexels-alpin-visuals-2156936906-34447999-300x450.jpg',
-     blurb:'BTT lúdico nas Festas de Pechão, com prémio para a equipa mais numerosa.'},
-
-    {id:'meat-run', name:'The Meat Run', sport:['estrada'], region:'centro', distance:['curta'], goals:['diversao'],
-     dist:'10 km · caminhada 6 km', date:'22 de agosto', place:'Viseu', price:'10€',
-     url:'https://racefinder.pt/event/the-meat-run/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/08/pexels-pexels-latam-478514802-17979547-300x450.jpg',
-     blurb:'Corrida, caminhada e churrasco sem limites em Viseu. Desporto com sabor.'},
-
-    {id:'flores-vertical', name:'Flores Vertical Challenge', sport:['trail'], region:'ilhas', distance:['curta'], goals:['recorde'],
-     dist:'1,2 km · 222 m de desnível', date:'22 de agosto', place:'Santa Cruz das Flores, Açores', price:'Grátis',
-     url:'https://racefinder.pt/event/flores-vertical-challenge/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/07/pexels-runffwpu-37882677-300x450.jpg',
-     blurb:'1,2 km a pique, contrarrelógio individual. Só tu contra o cronómetro, nas Flores.'},
-
-    {id:'sao-joao-degola', name:'8º Edição São João da Degola', sport:['estrada'], region:'algarve', distance:['curta'], goals:['primeiro','diversao'],
-     dist:'10 km · marcha 7 km', date:'23 de agosto', place:'Vila Real de Santo António, Faro', price:'Grátis — 14€',
-     url:'https://racefinder.pt/event/8o-edicao-sao-joao-da-degola/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/07/pexels-stewphotography-14346273-300x450.jpg',
-     blurb:'Corrida e marcha pela Manta Rota, integradas nas festas locais de São João.'},
-
-    {id:'baleeiros-hybrid', name:'Baleeiros Hybrid Games', sport:['hibrido'], region:'ilhas', distance:['media'], goals:['diversao'],
-     dist:'Fitness híbrido, em dupla', date:'27 de agosto', place:'Lajes do Pico, Açores', price:'10€',
-     url:'https://racefinder.pt/event/baleeiros-hybrid-games/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/07/pexels-cristian-camilo-estrada-2152272341-37955627-1-300x450.jpg',
-     blurb:'Corrida e estações funcionais em dupla, homenageando a tradição baleeira do Pico.'},
-
-    {id:'resistencia-terrantez', name:'2ª Prova de Resistência 3H — Terrantez Trail Team', sport:['trail'], region:'lvt', distance:['longa','ultra'], goals:['diversao','endurance'],
-     dist:'voltas de 3,5 km, durante 3 horas', date:'29 de agosto', place:'Minde, Santarém', price:'12€ — 44€',
-     url:'https://racefinder.pt/event/2a-prova-de-resistencia-3h-terrantez-trail-team/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/06/pexels-runffwpu-13158584-3-300x450.jpg',
-     blurb:'Três horas de voltas ao ritmo que quiseres, com jantar e festa no fim.'},
-
-    {id:'corrida-rosa', name:'Corrida Rosa', sport:['estrada'], region:'centro', distance:['curta'], goals:['diversao'],
-     dist:'5 km · caminhada 5 km', date:'29 de agosto', place:'Santa Maria da Feira, Aveiro', price:'10,50€ — 23,70€',
-     url:'https://racefinder.pt/event/corrida-rosa-2/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/04/703892546_1610503864408885_3635232219130547700_n-1-300x450.jpg',
-     blurb:'5 km só para mulheres, com música, dança e festa de fim de verão em Lourosa.'},
-
-    {id:'monte-gordo', name:'27ª Corrida da Baía de Monte Gordo', sport:['estrada'], region:'algarve', distance:['curta'], goals:['recorde'],
-     dist:'8 km, na praia', date:'30 de agosto', place:'Monte Gordo, Faro', price:'15€',
-     url:'https://racefinder.pt/event/27a-corrida-da-baia-de-monte-gordo/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/05/pexels-runffwpu-10499987-2-300x450.jpg',
-     blurb:'8 km a correr na areia, entre a Praia da Manta Rota e Monte Gordo.'},
-
-    {id:'resistencia-btt-sgens', name:'Resistência BTT — CRC S.GENS', sport:['mtb'], region:'lvt', distance:['media','longa'], goals:['endurance'],
-     dist:'BTT · resistência de 2 ou 3 horas', date:'16 de agosto', place:'Ourém, Santarém', price:'15€',
-     url:'https://racefinder.pt/event/resistencia-btt-crc-s-gens/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/05/Cartaz-Resistencia-S.GENS-2026-300x450.jpeg',
-     blurb:'BTT de resistência, no mesmo circuito, à tua escolha entre 2 ou 3 horas.'},
-
-    {id:'triton-lisboa', name:'Triton Lisboa', sport:['triatlo'], region:'lvt', distance:['curta','media','longa'], goals:['diversao','primeiro','recorde','endurance'],
-     dist:'Curta · Média · Longa', date:'5–6 de setembro', place:'Lisboa', price:'Grátis — 240€',
-     url:'https://racefinder.pt/event/triton-lisboa/',
-     img:'https://racefinder.pt/wp-content/uploads/2025/12/458614717_1027040502759890_9094595781599259447_n-300x450.jpg',
-     blurb:'Curta, média ou longa — o TRITON celebra 20 anos de triatlo em Lisboa.'},
-
-    {id:'madeira-swimrun', name:'Madeira Swimrun', sport:['duatlo'], region:'ilhas', distance:['media','longa'], goals:['recorde','endurance'],
-     dist:'Sprint 11,4 km · Standard 25,5 km', date:'6 de setembro', place:'Ponta de São Lourenço, Madeira', price:'15€ — 60€',
-     url:'https://racefinder.pt/event/madeira-swimrun-2/',
-     img:'https://racefinder.pt/wp-content/uploads/2025/11/52411910332_a7a74c433e_c-300x450.jpg',
-     blurb:'Nada e corre entre o mar e a montanha, na Madeira. Sprint ou standard.'},
 
     {id:'cobblestone-montemuro', name:'Cobblestone Montemuro II', sport:['ciclismo-estrada'], region:'centro', distance:['curta','media'], goals:['diversao','recorde'],
      dist:'Rampa cronometrada 6 km · volta social 40 km', date:'13 de setembro', place:'Castro Daire, Viseu', price:'25€',
@@ -682,76 +600,16 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
      img:'https://racefinder.pt/wp-content/uploads/2026/07/pexels-daigofotos-38346801-300x450.jpg',
      blurb:'Uma rampa cronometrada e uma volta social pela Serra de Montemuro, com direito a feira de gado.'},
 
-    {id:'museu-ciclismo-agostinho', name:'Museu do Ciclismo Joaquim Agostinho', sport:['mtb'], region:'lvt', distance:['media','longa'], goals:['recorde','endurance'],
-     dist:'Maratona 60 km · meia-maratona 40 km, BTT', date:'20 de setembro', place:'Torres Vedras, Lisboa', price:'15€',
-     url:'https://racefinder.pt/event/museu-do-ciclismo-joaquim-agostinho/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/06/pexels-samuel-vogl-3806403-5644629-300x450.jpg',
-     blurb:'Maratona e meia-maratona de BTT por caminhos rurais e trilhos, em etapas pontuáveis.'},
-    {id:'skymarathon-porto-moniz', name:'Ecotur Skymarathon Porto Moniz', sport:['trail'], region:'ilhas', distance:['curta','media','longa'], goals:['recorde','endurance'],
-     dist:'10 · 22 · 43 km, skyrunning', date:'30 de agosto', place:'Porto Moniz, Madeira', price:'10€ — 30€',
-     url:'https://racefinder.pt/event/ecotur-skymarathon-porto-moniz/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/05/pexels-runffwpu-18408910-18-300x450.jpg',
-     blurb:'Skyrunning na Madeira, entre levadas e desníveis vulcânicos, em três distâncias.'},
-    {id:'btt-solidario-sao-mateus', name:'3° Passeio BTT Solidário — Feira de São Mateus', sport:['mtb'], region:'centro', distance:['media'], goals:['diversao'],
-     dist:'35 km, BTT', date:'30 de agosto', place:'Viseu', price:'3€',
-     url:'https://racefinder.pt/event/3-passeio-btt-solidario-feira-de-sao-mateus/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/01/pexels-jeferson-gonzalez-162809777-18972189-4-300x450.jpg',
-     blurb:'Passeio de BTT solidário integrado na Feira de São Mateus, em Viseu.'},
-    {id:'neon-juncal', name:'NEON JUNCAL 2026', sport:['estrada'], region:'centro', distance:['curta'], goals:['diversao'],
-     dist:'5 km, caminhada noturna', date:'4 de setembro', place:'Porto de Mós, Leiria', price:'6€',
-     url:'https://racefinder.pt/event/neon-juncal-2026/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/07/pexels-runffwpu-35599351-300x450.jpg',
-     blurb:'Caminhada noturna com música e animação, nas Festas do Freguês do Juncal.'},
-    {id:'codeas-trail', name:'4º Côdeas Trail 2026', sport:['trail'], region:'centro', distance:['curta','media'], goals:['primeiro','recorde'],
-     dist:'10 · 19 km', date:'5 de setembro', place:'Leiria', price:'Grátis — 12€',
-     url:'https://racefinder.pt/event/4o-codeas-trail-2026/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/06/pexels-runffwpu-11598827-2-300x450.jpg',
-     blurb:'Trail e mini trail entre Leiria e Coucinheira, com opções para todos os níveis.'},
-    {id:'resistencia-btt-alcanena', name:'Resistência BTT Alcanena 2026', sport:['mtb'], region:'lvt', distance:['media','longa'], goals:['recorde','endurance'],
-     dist:'BTT · resistência de 2 ou 3 horas', date:'5 de setembro', place:'Alcanena, Santarém', price:'20€',
-     url:'https://racefinder.pt/event/resistencia-btt-alcanena-2026/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/03/tim-foster-qrIy8dBzCVU-unsplash-300x450.jpg',
-     blurb:'BTT de resistência pelo centro histórico e trilhos de terra de Alcanena.'},
-    {id:'tor-em-movimento', name:'Tôr em Movimento — 2ª edição', sport:['trail'], region:'algarve', distance:['curta','media'], goals:['diversao','recorde'],
-     dist:'10 · 20 km', date:'5 de setembro', place:'Loulé, Faro', price:'8€ — 13€',
-     url:'https://racefinder.pt/event/tor-em-movimento-2a-edicao/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/07/pexels-runffwpu-11598829-300x450.jpg',
-     blurb:'Trail sprint e caminhada na feira anual de Tôr, no Circuito Regional do Algarve.'},
-    {id:'resistencia-augusto-carneiro', name:'II Resistência Augusto Manuel Carneiro Pereira', sport:['mtb'], region:'lvt', distance:['media'], goals:['diversao','endurance'],
-     dist:'BTT · resistência de 2 horas', date:'5 de setembro', place:'Alenquer, Lisboa', price:'15€',
-     url:'https://racefinder.pt/event/ii-resistencia-augusto-manuel-carneiro-pereir/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/03/greg-rosenke-8F47XWiUPrQ-unsplash-300x450.jpg',
-     blurb:'Etapa do Troféu de Resistência BTT de Alenquer, em Abrigada.'},
-    {id:'hyrox-simulation-set', name:'Thryv HYROX Simulation — Set', sport:['hibrido'], region:'lvt', distance:['curta'], goals:['recorde'],
-     dist:'8x1 km + 8 estações funcionais', date:'5 de setembro', place:'Almada, Setúbal', price:'35€ — 70€',
-     url:'https://racefinder.pt/event/thryv-hyrox-simulation-set/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/07/pexels-cristian-camilo-estrada-2152272341-36451465-300x450.jpg',
-     blurb:'Simulação HYROX em Almada: corrida e oito estações funcionais, ao minuto.'},
     {id:'rfm-manz-games', name:'RFM Performance MANZ Games', sport:['hibrido'], region:'lvt', distance:['media'], goals:['diversao','primeiro'],
      dist:'Corrida + treino funcional', date:'5–6 de setembro', place:'Lisboa', price:'75€ — 200€',
      url:'https://racefinder.pt/event/rfm-performance-manz-games-2/',
      img:'https://racefinder.pt/wp-content/uploads/2026/03/logo-e-datas-300x450.png',
      blurb:'Corrida e treino funcional em Lisboa, a solo, em dupla ou em estafeta.'},
-    {id:'acureto-backyard-ultra', name:'Acureto Backyard Ultra 2026', sport:['trail'], region:'lvt', distance:['curta','media','longa','ultra'], goals:['endurance'],
-     dist:'voltas de 6,706 km · 9 km caminhada', date:'5 de setembro', place:'Alburitel, Santarém', price:'12,50€ — 50€',
-     url:'https://racefinder.pt/event/acureto-backyard-ultra-2026/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/05/pexels-runffwpu-1571938-2-1-300x450.jpg',
-     blurb:'Backyard ultra no Parque do Acureto: uma volta a cada hora, até restar um só.'},
-    {id:'btt-trilhos-mombeja', name:'XX Passeio BTT "Pelos Trilhos de Mombeja"', sport:['mtb'], region:'alentejo', distance:['longa'], goals:['recorde','endurance'],
-     dist:'45 · 65 km, BTT', date:'6 de setembro', place:'Mombeja, Beja', price:'15€',
-     url:'https://racefinder.pt/event/xx-passeio-btt-pelos-trilhos-de-mombeja/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/02/pexels-szafran-32644116-5-300x450.jpg',
-     blurb:'Meia-maratona e maratona de BTT pelos trilhos de Mombeja, no Baixo Alentejo.'},
     {id:'resistencia-arlu-btt', name:'2ª Resistência ARLU BTT', sport:['mtb'], region:'centro', distance:['media','longa'], goals:['recorde','endurance'],
      dist:'BTT · resistência de 2 ou 3 horas', date:'6 de setembro', place:'Azabuxo, Leiria', price:'15€',
      url:'https://racefinder.pt/event/2a-resistencia-arlu-btt/',
      img:'https://racefinder.pt/wp-content/uploads/2026/06/tim-foster-12nAcd2C8b8-unsplash-300x450.jpg',
      blurb:'BTT de resistência em circuito, com troféus para várias categorias etárias.'},
-    {id:'corrida-lusical', name:'4ª Corrida / Caminhada Lusical 2026', sport:['estrada'], region:'lvt', distance:['curta','media'], goals:['primeiro','diversao'],
-     dist:'8 km caminhada · 12 km corrida', date:'6 de setembro', place:'Alcanede, Santarém', price:'10€ — 12€',
-     url:'https://racefinder.pt/event/4a-corrida-caminhada-lusical-2026/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/06/chad-stembridge-ynym_ftLYdE-unsplash-4-300x450.jpg',
-     blurb:'Corrida e caminhada entre a Lusical e o Castelo de Alcanede, com prova jovem.'},
     {id:'trail-chapeleiro', name:'Trail do Chapeleiro', sport:['trail'], region:'centro', distance:['curta'], goals:['primeiro','diversao'],
      dist:'13 km · caminhada 7 km', date:'6 de setembro', place:'São João da Madeira, Aveiro', price:'2€ — 11€',
      url:'https://racefinder.pt/event/trail-do-chapeleiro-2/',
@@ -762,16 +620,6 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
      url:'https://racefinder.pt/event/cebola-run-2/',
      img:'https://racefinder.pt/wp-content/uploads/2026/06/pexels-szafran-18359426-300x450.jpg',
      blurb:'Corrida de 10 km em Rio Maior, com corrida infantil e ambiente festivo.'},
-    {id:'btt-sacanas', name:'2º BTT dos SaCanas', sport:['mtb'], region:'centro', distance:['media','longa'], goals:['diversao'],
-     dist:'20 · 50 km, BTT recreativo', date:'6 de setembro', place:'Canas de Senhorim, Viseu', price:'10€ — 13€',
-     url:'https://racefinder.pt/event/2o-btt-dos-sacanas/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/03/chris-henry-tmTVxOjdV8I-unsplash-300x450.jpg',
-     blurb:'Passeio de BTT sem caráter competitivo, entre Nelas e Carregal do Sal.'},
-    {id:'sunset-trail-afife', name:'Sunset Trail de Afife', sport:['trail'], region:'norte', distance:['curta','media'], goals:['diversao'],
-     dist:'8 km caminhada · 16 km trail', date:'12 de setembro', place:'Viana do Castelo', price:'10€ — 15€',
-     url:'https://racefinder.pt/event/sunset-trail-de-afife/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/05/pexels-runffwpu-13260367-2-300x450.jpg',
-     blurb:'Trail ao entardecer pela costa de Viana do Castelo, com jantar e música no fim.'},
     {id:'barquinha-night-run', name:'Barquinha Night Run', sport:['estrada'], region:'lvt', distance:['curta'], goals:['diversao','primeiro'],
      dist:'5 km caminhada · 10 km corrida', date:'12 de setembro', place:'Vila Nova da Barquinha, Santarém', price:'9€ — 11€',
      url:'https://racefinder.pt/event/barquinha-night-run/',
@@ -782,11 +630,6 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
      url:'https://racefinder.pt/event/taca-intermunicipal-3h-resistencia-btt-2026-mafra/',
      img:'https://racefinder.pt/wp-content/uploads/2026/03/bundok-biker-zMA1m6vREKw-unsplash-300x450.jpg',
      blurb:'Etapa de Mafra da Taça Intermunicipal de Resistência BTT, com provas jovens também.'},
-    {id:'hygoes', name:'HYGOES 2026', sport:['hibrido'], region:'centro', distance:['curta'], goals:['recorde'],
-     dist:'8x1 km + 8 estações, em duplas', date:'12 de setembro', place:'Góis, Coimbra', price:'70€',
-     url:'https://racefinder.pt/event/hygoes-2026/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/03/grace-anne-bobadilla-Or1ua96nntU-unsplash-1-300x450.jpg',
-     blurb:'Fitness em duplas ao estilo Hyrox, em Góis: corrida e oito estações funcionais.'},
     {id:'meia-maratona-castro-marim', name:'17ª Meia Maratona do Concelho de Castro Marim "Flor de Sal"', sport:['estrada'], region:'algarve', distance:['curta','media'], goals:['recorde'],
      dist:'10,5 · 21 km, noturna', date:'12 de setembro', place:'Castro Marim, Faro', price:'10€',
      url:'https://racefinder.pt/event/17a-meia-maratona-do-concelho-de-castro-marim-flor-de-sal/',
@@ -857,11 +700,6 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
      url:'https://racefinder.pt/event/nexe-107-1-2-trail-ultra-endurance/',
      img:'https://racefinder.pt/wp-content/uploads/2026/04/pexels-runffwpu-13158582-2-300x450.jpg',
      blurb:'Ultra trail de 107 km pelo barrocal algarvio, integrado nos circuitos UTMB.'},
-    {id:'tua-festival-carrazeda', name:'Tua Festival de Percursos Pedestres — Carrazeda de Ansiães', sport:['trail'], region:'norte', distance:['media'], goals:['diversao'],
-     dist:'Percursos pedestres, Vale do Tua', date:'19–20 de setembro', place:'Carrazeda de Ansiães, Bragança', price:'17,50€ — 25€',
-     url:'https://racefinder.pt/event/tua-festival-de-percursos-pedestres-carrazeda-de-ansiaes/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/01/pexels-runffwpu-2567037-3-300x450.jpg',
-     blurb:'Percursos pedestres pelo Vale do Tua, num fim de semana do Parque Natural Regional.'},
     {id:'taca-btt-jamor', name:'Taça Intermunicipal 3H Resistência BTT — Jamor', sport:['mtb'], region:'lvt', distance:['media','longa'], goals:['recorde','endurance'],
      dist:'BTT · resistência de 1, 2 ou 3 horas', date:'19 de setembro', place:'Oeiras, Lisboa', price:'6€ — 15€',
      url:'https://racefinder.pt/event/taca-intermunicipal-3h-resistencia-btt-2026-jamor/',
@@ -887,11 +725,6 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
      url:'https://racefinder.pt/event/rc6-warriores-challenge-2/',
      img:'https://racefinder.pt/wp-content/uploads/2026/07/pexels-fernando-lucas-95845401-37926830-300x450.jpg',
      blurb:'Corrida de obstáculos num quartel em Braga, com festa e DJ ao pôr do sol.'},
-    {id:'50-milhas-reino-pedra', name:'50 Milhas — No Reino da Pedra', sport:['trail'], region:'centro', distance:['curta','media','ultra'], goals:['primeiro','endurance'],
-     dist:'8 km caminhada · 12 km · 80,46 km ultra', date:'19 de setembro', place:'Porto de Mós, Leiria', price:'12€ — 60€',
-     url:'https://racefinder.pt/event/50-milhas-no-reino-da-pedra/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/04/pexels-dreamypixel-551857-300x450.jpg',
-     blurb:'Ultra trail de 50 milhas no Parque Natural das Serras de Aire e Candeeiros.'},
     {id:'vortex-september', name:'Vortex September 2026', sport:['hibrido'], region:'algarve', distance:['curta'], goals:['recorde','diversao'],
      dist:'Fitness híbrido, 8 rondas', date:'19 de setembro', place:'Faro', price:'64,98€ — 154,98€',
      url:'https://racefinder.pt/event/vortex-september-2026/',
@@ -902,26 +735,6 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
      url:'https://racefinder.pt/event/trail-da-padeira-solidario-2026/',
      img:'https://racefinder.pt/wp-content/uploads/2026/05/hendrik-morkel-PEuBo_tBHDw-unsplash-5-300x450.jpg',
      blurb:'Trail solidário pela vila medieval de Aljubarrota, com almoço e donativo no fim.'},
-    {id:'rota-da-cegonha', name:'Rota da Cegonha', sport:['mtb'], region:'lvt', distance:['longa'], goals:['recorde','endurance'],
-     dist:'50 · 70 km, maratona BTT', date:'20 de setembro', place:'Benavente, Santarém', price:'13€',
-     url:'https://racefinder.pt/event/rota-da-cegonha/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/06/pexels-lumierestudiomx-3642537-3-300x450.jpg',
-     blurb:'Maratona e meia-maratona de BTT pelos caminhos rurais de Benavente.'},
-    {id:'trail-camara-de-lobos', name:'Trail Câmara de Lobos', sport:['trail'], region:'ilhas', distance:['media','longa','ultra'], goals:['recorde','endurance'],
-     dist:'15 · 27 · 40 km', date:'20 de setembro', place:'Câmara de Lobos, Madeira', price:'17€ — 40,70€',
-     url:'https://racefinder.pt/event/trail-camara-de-lobos/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/07/pexels-vanngo-ng-105653827-33874842-300x450.jpg',
-     blurb:'Trail por cinco freguesias da Madeira, do Estreito até à Ribeira Brava.'},
-    {id:'trail-airorun', name:'VI Trail AiróRun', sport:['trail'], region:'norte', distance:['curta','media','longa'], goals:['primeiro','recorde'],
-     dist:'10 km caminhada · 14 · 22 km', date:'20 de setembro', place:'Barcelos, Braga', price:'10€ — 15€',
-     url:'https://racefinder.pt/event/vi-trail-airorun/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/04/pexels-alin-serban-1867310-32798757-300x450.jpg',
-     blurb:'Trail longo e curto pelo monte de Airó, com partida no campo dos Leões da Serra.'},
-    {id:'corrida-centenario', name:'Corrida do Centenário', sport:['estrada'], region:'lvt', distance:['curta'], goals:['diversao','primeiro'],
-     dist:'10 km, caminhada e corrida', date:'20 de setembro', place:'Torres Vedras, Lisboa', price:'5€',
-     url:'https://racefinder.pt/event/corrida-do-centenario/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/03/pexels-runffwpu-10380037-300x450.jpg',
-     blurb:'Corrida e caminhada comemorativas dos 100 anos da Freguesia da Silveira.'},
     {id:'gp-caldas-sao-jorge', name:'Grande Prémio Caldas de São Jorge', sport:['estrada'], region:'centro', distance:['curta'], goals:['diversao','primeiro'],
      dist:'4,5 km caminhada · 8,3 km corrida', date:'20 de setembro', place:'Santa Maria da Feira, Aveiro', price:'Grátis — 11€',
      url:'https://racefinder.pt/event/grande-premio-caldas-de-sao-jorge-2/',
@@ -942,11 +755,6 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
      url:'https://racefinder.pt/event/4o-raid-btt-pedro-loureiro/',
      img:'https://racefinder.pt/wp-content/uploads/2026/07/pexels-lumierestudiomx-3642537-300x450.jpg',
      blurb:'Raid de BTT em homenagem a Pedro Loureiro, por trilhos e estradas florestais.'},
-    {id:'corrida-filarmonia', name:'VII Corrida da Filarmonia', sport:['estrada'], region:'lvt', distance:['curta'], goals:['diversao','recorde'],
-     dist:'10 km', date:'20 de setembro', place:'Montelavar, Sintra, Lisboa', price:'15€',
-     url:'https://racefinder.pt/event/vii-corrida-da-filarmonia/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/07/pexels-runffwpu-10499939-300x450.jpg',
-     blurb:'Corrida em Montelavar com bandas filarmónicas a animar todo o percurso.'},
     {id:'nature-race-alamos', name:'4ª Nature Race — Farmácia do Álamos', sport:['trail'], region:'alentejo', distance:['curta','media'], goals:['primeiro','diversao'],
      dist:'8 km caminhada · 12 · 18 km', date:'20 de setembro', place:'Évora', price:'5€ — 14€',
      url:'https://racefinder.pt/event/4a-nature-race-farmacia-do-alamos/',
@@ -957,16 +765,6 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
      url:'https://racefinder.pt/event/meia-maratona-loures-odivelas-loures/',
      img:'https://racefinder.pt/wp-content/uploads/2026/04/CARTAZ-1-300x450.png',
      blurb:'Meia maratona certificada pela World Athletics, entre Loures e Odivelas.'},
-    {id:'trail-vinho-aveiras', name:'Trail Vinho D\' Aveiras', sport:['trail'], region:'lvt', distance:['curta','media'], goals:['primeiro','recorde'],
-     dist:'10 km caminhada · 13 · 22 km', date:'20 de setembro', place:'Aveiras de Cima, Lisboa', price:'9€ — 15€',
-     url:'https://racefinder.pt/event/trail-vinho-d-aveiras/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/05/707561395_122111556002845806_8967697638595256721_n-300x450.jpg',
-     blurb:'Trail do Circuito do Torricado, pelas vinhas de Aveiras de Cima.'},
-    {id:'gp-museu-ferroviario', name:'XXX Grande Prémio Museu Nacional Ferroviário 2026', sport:['estrada'], region:'lvt', distance:['curta'], goals:['diversao','primeiro'],
-     dist:'7 km caminhada · 10 km', date:'20 de setembro', place:'Entroncamento, Santarém', price:'Grátis — 2€',
-     url:'https://racefinder.pt/event/xxx-grande-premio-museu-nacional-ferroviario-2026/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/06/pexels-runffwpu-10527111-1-300x450.jpg',
-     blurb:'Corrida e caminhada junto ao Museu Nacional Ferroviário, no Entroncamento.'},
     {id:'lusco-fusco-viseu', name:'Lusco Fusco 5.0 Viseu', sport:['mtb'], region:'centro', distance:['media','longa'], goals:['diversao','recorde'],
      dist:'20 · 30 · 40 km, BTT noturno', date:'26 de setembro', place:'Viseu', price:'10€ — 11€',
      url:'https://racefinder.pt/event/lusco-fusco-5-0-viseu/',
@@ -1072,16 +870,6 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
      url:'https://racefinder.pt/event/iron-loop-3070/',
      img:'https://racefinder.pt/wp-content/uploads/2026/08/pexels-ozanyavuzphoto-29280163-300x450.jpg',
      blurb:'Corrida de resistência em estafeta de três, na Praia de Mira, contra o relógio.'},
-    {id:'rota-maca-armamar', name:'VI Trail e Caminhada "Rota da Maçã de Montanha" — Armamar', sport:['trail'], region:'centro', distance:['curta','media'], goals:['diversao','primeiro'],
-     dist:'8 km caminhada · 12 · 20 km', date:'3 de outubro', place:'Armamar, Viseu', price:'8€ — 10€',
-     url:'https://racefinder.pt/event/vi-trail-e-caminhada-rota-da-maca-de-montanha-de-armamar/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/04/pexels-runffwpu-18408950-4-300x450.jpg',
-     blurb:'Trail e caminhada pela produção local da maçã de montanha, em Armamar.'},
-    {id:'tmz-trail-maos-zezere', name:'TMZ — Trail Mãos do Zêzere 2026', sport:['trail'], region:'lvt', distance:['curta','media'], goals:['primeiro','recorde'],
-     dist:'13 km caminhada · 13 · 22 km', date:'4 de outubro', place:'Tomar, Santarém', price:'16€',
-     url:'https://racefinder.pt/event/tmz-trail-maos-do-zezere-2026/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/04/pexels-runffwpu-18408950-4-300x450.jpg',
-     blurb:'Trail entre a Serra d\'Aire e a Serra da Lousã, com vista sobre o Castelo do Bode.'},
     {id:'meia-maratona-ovar', name:'Meia-Maratona de Ovar', sport:['estrada'], region:'centro', distance:['curta','media'], goals:['recorde'],
      dist:'10 · 21 km, certificada World Athletics', date:'4 de outubro', place:'Ovar, Aveiro', price:'Grátis — 20€',
      url:'https://racefinder.pt/event/meia-maratona-de-ovar/',
@@ -1097,11 +885,6 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
      url:'https://racefinder.pt/event/batalha-do-vimeiro-2/',
      img:'https://racefinder.pt/wp-content/uploads/2026/03/tim-foster-o3t40ebLfac-unsplash-300x450.jpg',
      blurb:'Etapa da Taça Oeste XCM BTT, entre estradas rurais e trilhos do Vimeiro.'},
-    {id:'trail-vale-rans', name:'Trail Vale de Rans 2026', sport:['trail'], region:'norte', distance:['curta','media'], goals:['primeiro','recorde'],
-     dist:'10 km caminhada · 10 · 16 km', date:'4 de outubro', place:'Penafiel, Porto', price:'8€ — 14€',
-     url:'https://racefinder.pt/event/trail-vale-de-rans-2026/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/07/pexels-runffwpu-35599350-1-300x450.jpg',
-     blurb:'Trail e mini trail pelos caminhos de Rans, Penafiel.'},
     {id:'btt-rota-do-pao', name:'6º BTT Rota do Pão', sport:['mtb'], region:'centro', distance:['media','longa'], goals:['diversao','recorde'],
      dist:'25 km passeio · 45 · 60 km', date:'4 de outubro', place:'Vila Nova de Paiva, Viseu', price:'18€',
      url:'https://racefinder.pt/event/6o-btt-rota-do-pao/',
@@ -1112,11 +895,6 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
      url:'https://racefinder.pt/event/resistencia-cimrcc/',
      img:'https://racefinder.pt/wp-content/uploads/2026/03/greg-rosenke-8F47XWiUPrQ-unsplash-300x450.jpg',
      blurb:'Última etapa do Troféu de Resistência BTT de Alenquer, em Cabanas do Chão.'},
-    {id:'rota-coracao-ria', name:'Rota Coração da Ria', sport:['mtb'], region:'centro', distance:['longa'], goals:['diversao','endurance'],
-     dist:'50 km, maratona BTT', date:'4 de outubro', place:'Murtosa, Aveiro', price:'12,50€',
-     url:'https://racefinder.pt/event/rota-coracao-da-ria/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/04/pexels-cotelo-19131112-300x450.jpg',
-     blurb:'Maratona de BTT pela paisagem anfíbia da Ria de Aveiro, na Murtosa.'},
     {id:'raid-btt-alqueidao', name:'1º Raid e Mini Raid BTT CCR Alqueidão da Serra', sport:['mtb'], region:'centro', distance:['media','longa'], goals:['recorde','diversao'],
      dist:'30 · 51 km, BTT', date:'4 de outubro', place:'Porto de Mós, Leiria', price:'13€ — 15€',
      url:'https://racefinder.pt/event/1o-raid-e-mini-raid-btt-ccr-alqueidao-da-serra/',
@@ -1132,11 +910,6 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
      url:'https://racefinder.pt/event/10o-grande-premio-do-vale-grande-2026/',
      img:'https://racefinder.pt/wp-content/uploads/2026/06/Cartaz-GPVG-2026-300x450.jpeg',
      blurb:'Corrida e caminhada em Odivelas, com convívio pós-prova e comida tradicional.'},
-    {id:'trail-baronia', name:'IV Trail "por terras da Baronia"', sport:['trail'], region:'alentejo', distance:['curta','media','longa'], goals:['primeiro','recorde'],
-     dist:'14 km caminhada · 17 · 31 km', date:'5 de outubro', place:'Alvito, Beja', price:'8€ — 12€',
-     url:'https://racefinder.pt/event/iv-trail-por-terras-da-baronia/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/07/pexels-runffwpu-18408979-300x450.jpg',
-     blurb:'Trail pelo Baixo Alentejo, a contar para os Circuitos de Trail da região.'},
     {id:'trail-queijo-fajazinha', name:'V Trail do Queijo da Fajãzinha', sport:['trail'], region:'ilhas', distance:['curta','media','longa'], goals:['recorde','endurance'],
      dist:'6 km caminhada · 11 · 21 · 42 km', date:'10 de outubro', place:'Ilha das Flores, Açores', price:'15€ — 35€',
      url:'https://racefinder.pt/event/trail-do-queijo-da-fajazinha/',
@@ -1187,11 +960,6 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
      url:'https://racefinder.pt/event/trail-maca-bravo-de-esmolfe-3a-edicao/',
      img:'https://racefinder.pt/wp-content/uploads/2026/06/pexels-runffwpu-35599356-2-300x450.jpg',
      blurb:'Trail em Esmolfe, com direito a maçãs Bravo de Esmolfe no final.'},
-    {id:'btt-bidopedestres', name:'4º Passeio BTT BidoPedestres', sport:['mtb'], region:'centro', distance:['longa'], goals:['diversao'],
-     dist:'40 km, BTT recreativo', date:'11 de outubro', place:'Leiria', price:'15€',
-     url:'https://racefinder.pt/event/4o-passeio-btt-bidopedestres/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/07/pexels-corneliu-stefan-esanu-464800618-23410487-300x450.jpg',
-     blurb:'Passeio de BTT guiado por GPS, na Bidoeira de Cima, Leiria.'},
     {id:'resistencia-toca-raposa', name:'Resistência na Toca da Raposa', sport:['mtb'], region:'lvt', distance:['media'], goals:['recorde'],
      dist:'BTT · resistência de 2 horas', date:'17 de outubro', place:'Alenquer, Lisboa', price:'15€',
      url:'https://racefinder.pt/event/resistencia-na-toca-da-raposa/',
@@ -1217,21 +985,11 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
      url:'https://racefinder.pt/event/trilhos-da-raposa-4a-edicao/',
      img:'https://racefinder.pt/wp-content/uploads/2026/07/pexels-runffwpu-11598803-300x450.jpg',
      blurb:'Trail no Cercal do Alentejo, com desníveis entre 200 e 1000 metros.'},
-    {id:'trail-bom-despacho', name:'III Trail do Bom Despacho', sport:['trail'], region:'lvt', distance:['curta','media'], goals:['primeiro','diversao'],
-     dist:'8 km caminhada · 14 · 22 km', date:'18 de outubro', place:'Sintra, Lisboa', price:'10€ — 14€',
-     url:'https://racefinder.pt/event/iii-trail-do-bom-despacho/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/07/pexels-runffwpu-18408904-1-300x450.jpg',
-     blurb:'Trail junto ao Estabelecimento Prisional de Sintra, na Quinta do Bom Despacho.'},
     {id:'maratona-btt-laac', name:'18ª Maratona BTT LAAC-LAACAR', sport:['mtb'], region:'centro', distance:['media','longa'], goals:['recorde','diversao'],
      dist:'25 · 40 · 50 · 75 km, BTT', date:'18 de outubro', place:'Águeda, Aveiro', price:'11€ — 14€',
      url:'https://racefinder.pt/event/18a-maratona-btt-laac-laacar/',
      img:'https://racefinder.pt/wp-content/uploads/2026/07/pexels-wsilvasjb-27152231-300x450.jpg',
      blurb:'Maratona de BTT pela Serra do Caramulo, com leitão assado no final.'},
-    {id:'cada-quilometro-conta', name:'Cada Quilómetro Conta', sport:['trail'], region:'norte', distance:['curta','media','longa'], goals:['diversao','endurance'],
-     dist:'10 km caminhada · 10 · 25 · 35 km', date:'18 de outubro', place:'Chaves, Vila Real', price:'10€',
-     url:'https://racefinder.pt/event/cada-quilometro-conta/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/07/urban-vintage-8TJbrQGKFyU-unsplash-300x450.jpg',
-     blurb:'Trail solidário em Vila Verde da Raia, Chaves, a apoiar instituições nacionais.'},
     {id:'trail-rio-moinhos', name:'Trail de Rio de Moinhos', sport:['trail'], region:'centro', distance:['curta','media'], goals:['primeiro','diversao'],
      dist:'11 km caminhada · 13 · 23 km', date:'18 de outubro', place:'Sátão, Viseu', price:'14€ — 16€',
      url:'https://racefinder.pt/event/trail-de-rio-de-moinhos/',
@@ -1252,11 +1010,6 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
      url:'https://racefinder.pt/event/8a-travessia-da-planicie/',
      img:'https://racefinder.pt/wp-content/uploads/2026/07/pexels-runffwpu-18409436-300x450.jpg',
      blurb:'Corrida ponto a ponto entre São Marcos da Ataboeira e Entradas, no Alentejo.'},
-    {id:'night-run-urban-trail', name:'6º Night Run Urban Trail', sport:['trail'], region:'lvt', distance:['curta','media'], goals:['diversao','recorde'],
-     dist:'3 · 8 km caminhada · 13 · 20 km', date:'24 de outubro', place:'Torres Vedras, Lisboa', price:'3€ — 8€',
-     url:'https://racefinder.pt/event/6o-night-run-urban-trail/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/04/Cartaz_UrbanTrail-01-01-1086x1536-2-300x450.png',
-     blurb:'Trail urbano noturno por Torres Vedras, com passagem pelo Forte de São Vicente.'},
     {id:'mangualde-trail-santos', name:'Mangualde Trail — Desafio dos Santos', sport:['trail'], region:'centro', distance:['curta','media'], goals:['primeiro','diversao'],
      dist:'8 km caminhada · 8 · 15 · 25 km', date:'25 de outubro', place:'Mangualde, Viseu', price:'5€ — 15€',
      url:'https://racefinder.pt/event/mangualde-trail-desafio-dos-santos-2/',
@@ -1352,11 +1105,6 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
      url:'https://racefinder.pt/event/atlantic-cliff-adventure/',
      img:'https://racefinder.pt/wp-content/uploads/2025/08/joshua-thomas-xXXaRnPw8Rg-unsplash-300x450.jpg',
      blurb:'Trail junto às falésias atlânticas de Cascais, com partida da União Desportiva da Charneca.'},
-    {id:'trail-pastor-arrimalano', name:'10º Trail Carreiros do Pastor Arrimalano', sport:['trail'], region:'centro', distance:['curta','media'], goals:['diversao','primeiro'],
-     dist:'12 km caminhada · 12 · 20 km', date:'22 de novembro', place:'Arrimal, Porto de Mós', price:'Grátis — 13€',
-     url:'https://racefinder.pt/event/10o-trail-carreiros-do-pastor-arrimalano/',
-     img:'https://racefinder.pt/wp-content/uploads/2026/02/pexels-runffwpu-11598829-300x450.jpg',
-     blurb:'Fim de semana de trail pela Serra de Aire e Candeeiros, em Arrimal.'},
     {id:'bocal-trail-run', name:'BTR II — Bocal Trail Run', sport:['trail'], region:'lvt', distance:['curta','media'], goals:['primeiro','recorde'],
      dist:'13 km caminhada · 18 · 23 km', date:'22 de novembro', place:'Mafra, Lisboa', price:'15€ — 19€',
      url:'https://racefinder.pt/event/btr-ii-bocal-trail-run/',
@@ -1534,6 +1282,233 @@ button:focus-visible, .rf-opt:focus-visible{ outline:2px solid var(--rf-orange);
      url:'https://racefinder.pt/event/4th-duathlon-ilhavo/',
      img:'https://racefinder.pt/wp-content/uploads/2026/05/pexels-alaritammsalu-8024969-300x450.jpg',
      blurb:'Duatlo sprint em Ílhavo, com formato individual ou em dupla no Desafio do Norte.', bookable:false},
+
+    // ---- Refreshed from live bookable_on_racefinder=1 listing (194 races) ----
+    {id:'corrida-mais-pintas', name:'A corrida mais pintas (ao pôr do sol)', sport:['estrada'], region:'centro', distance:['curta'], goals:['diversao'],
+     dist:'5 km, sem caráter competitivo', date:'5 de setembro', place:'Figueira da Foz, Coimbra', price:'Grátis — 18€',
+     url:'https://racefinder.pt/event/a-corrida-mais-pintas-ao-por-do-sol/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/07/pexels-runffwpu-2567039-300x450.jpg',
+     blurb:'Corrida e caminhada coloridas ao pôr do sol, entre a Praia de Quiaios e a Murtinheira.'},
+    {id:'rtrophy-mira-btt', name:'R\'TROPHY MIRA BTT #5 — Os Unidos', sport:['mtb'], region:'centro', distance:['media','longa'], goals:['recorde','endurance'],
+     dist:'BTT · resistência de 1h30 ou 3 horas', date:'5 de setembro', place:'Mira, Coimbra', price:'20€ — 36€',
+     url:'https://racefinder.pt/event/rtrophy-mira-btt-5-os-unidos/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/07/pexels-masoodaslami-33723004-300x450.jpg',
+     blurb:'Etapa do R\'Trophy Mira BTT, seis provas de resistência pelos caminhos rurais do concelho.'},
+    {id:'vieirafit-race', name:'VIEIRAFIT Race', sport:['trail'], region:'norte', distance:['curta'], goals:['recorde','diversao'],
+     dist:'10 km, mais de 30 obstáculos', date:'12 de setembro', place:'Vieira do Minho, Braga', price:'25€ — 30€',
+     url:'https://racefinder.pt/event/vieirafit-race/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/05/518334771_1367420781683092_1193699574908873930_n-300x450.jpg',
+     blurb:'Corrida de obstáculos pela Liga OCR Portugal, entre ambientes naturais e urbanos de Vieira do Minho.'},
+    {id:'festas-nsra-graca-grijo', name:'Festas em Honra de Nossa Sra da Graça', sport:['ciclismo-estrada'], region:'norte', distance:['longa'], goals:['recorde'],
+     dist:'32,8 km (femininos) · 49,2 km (masculinos)', date:'12 de setembro', place:'Vila Nova de Gaia, Porto', price:'5€',
+     url:'https://racefinder.pt/event/festas-em-honra-de-nossa-sra-da-graca-2/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/08/pexels-daigofotos-38346799-1-300x450.jpg',
+     blurb:'Volta a Grijó e Sermonde, em circuito fechado, pelo Grande Prémio Nossa Senhora da Graça.'},
+    {id:'gp-atletismo-livramento', name:'14º Grande Prémio de Atletismo N.ª Sr.ª do Livramento', sport:['estrada'], region:'alentejo', distance:['curta'], goals:['diversao','primeiro'],
+     dist:'5 km caminhada/corrida · 10 km', date:'12 de setembro', place:'Santiago do Cacém, Setúbal', price:'7€ — 8€',
+     url:'https://racefinder.pt/event/14o-grande-premio-de-atletismo-n-a-sr-a-do-livramento/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/08/pexels-aryapandusedjati-2486819-34712226-300x450.jpg',
+     blurb:'Corrida e caminhada em São Francisco da Serra, pela Estrada Municipal 544.'},
+    {id:'corrida-entre-pontes-tavira', name:'Corrida Entre Pontes — Tavira 2026', sport:['estrada'], region:'algarve', distance:['curta'], goals:['diversao','recorde'],
+     dist:'10,3 km + provas jovens', date:'20 de setembro', place:'Tavira, Faro', price:'Grátis — 15€',
+     url:'https://racefinder.pt/event/corrida-entre-pontes-tavira-2026/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/08/pexels-runffwpu-18408962-300x450.jpg',
+     blurb:'Corrida entre pontes de Tavira, do escalão SUB10 a veteranos, com prémios monetários.'},
+    {id:'btt-arco-memoria', name:'23º BTT Arco da Memória', sport:['mtb'], region:'centro', distance:['longa'], goals:['diversao','recorde'],
+     dist:'35 · 55 km, BTT', date:'20 de setembro', place:'Arrimal, Porto de Mós', price:'13€',
+     url:'https://racefinder.pt/event/23o-btt-arco-da-memoria/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/02/sunil-chandra-sharma-SXdsx0hqmOY-unsplash-300x450.jpg',
+     blurb:'Uma das provas de BTT mais tradicionais da região, pelo Parque Natural da Serra de Aire e Candeeiros.'},
+    {id:'trail-jose-costa', name:'Trail José Costa', sport:['trail'], region:'centro', distance:['curta','media'], goals:['diversao','primeiro'],
+     dist:'8 km caminhada · 11 · 22 km', date:'20 de setembro', place:'Mangualde, Viseu', price:'10€ — 15€',
+     url:'https://racefinder.pt/event/trail-jose-costa/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/07/pexels-cristian-camilo-estrada-2152272341-38011345-1-300x450.jpg',
+     blurb:'Trail comunitário em Moimenta de Maceira Dão, com almoço e reforço para todos os inscritos.'},
+    {id:'vertical-costa-norte', name:'Vertical Costa Norte', sport:['trail'], region:'ilhas', distance:['curta'], goals:['recorde'],
+     dist:'3,7 km · Quilómetro Vertical, 840 m D+', date:'25–27 de setembro', place:'São Vicente, Madeira', price:'12€ — 13€',
+     url:'https://racefinder.pt/event/vertical-costa-norte-2/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/08/pexels-runffwpu-37882677-300x450.jpg',
+     blurb:'Quilómetro Vertical de skyrunning na Madeira, a contar para os Campeonatos Nacionais.'},
+    {id:'gp-feira-daires', name:'23º Grande Prémio de Atletismo Feira D\'Aires — Memorial Luís Filipe Branco', sport:['estrada'], region:'alentejo', distance:['curta'], goals:['diversao','primeiro'],
+     dist:'8,5 km caminhada · 10 km', date:'27 de setembro', place:'Viana do Alentejo, Évora', price:'Grátis — 8€',
+     url:'https://racefinder.pt/event/23o-grande-premio-de-atletismo-feira-daires-memorial-luis-filipe-branco/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/08/pexels-runffwpu-35245651-300x450.jpg',
+     blurb:'Corrida em homenagem a Luís Filipe Branco, junto ao Santuário de Nossa Senhora D\'Aires.'},
+    {id:'trail-dos-arrozais', name:'Trail dos Arrozais', sport:['trail'], region:'centro', distance:['curta','media','longa'], goals:['primeiro','recorde'],
+     dist:'8 km caminhada · 10 · 17 · 24 km', date:'27 de setembro', place:'Águeda', price:'10€ — 13€',
+     url:'https://racefinder.pt/event/trail-dos-arrozais-2/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/01/pexels-runffwpu-11598811-11-300x450.jpg',
+     blurb:'Trail entre arrozais e trilhos florestais do vale do Rio Cértima, em Paradela.'},
+    {id:'trail-os-lobos', name:'II Trail Os Lobos', sport:['trail'], region:'alentejo', distance:['curta','media'], goals:['diversao','recorde'],
+     dist:'10 km caminhada · 15 km', date:'27 de setembro', place:'Graça do Divor, Évora', price:'12€ — 16€',
+     url:'https://racefinder.pt/event/ii-trail-os-lobos/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/04/pexels-runffwpu-11598826-1-1-300x450.jpg',
+     blurb:'Trail e caminhada na Graça do Divor, com prémios monetários e classificação por equipas.'},
+    {id:'nac-trail', name:'NAC Trail', sport:['trail'], region:'centro', distance:['curta','media'], goals:['primeiro','recorde'],
+     dist:'10 km caminhada · 10 · 17 km', date:'27 de setembro', place:'Oliveira de Azeméis, Aveiro', price:'12€ — 18€',
+     url:'https://racefinder.pt/event/nac-trail-2/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/06/pexels-runffwpu-35599356-2-300x450.jpg',
+     blurb:'Trail sprint pelo Parque Urbano de Cavaleiros, a contar para o Circuito Distrital de Aveiro.'},
+    {id:'corrida-para-todos', name:'II Corrida para Todos', sport:['estrada'], region:'algarve', distance:['curta'], goals:['diversao'],
+     dist:'2 km caminhada inclusiva · 5 · 10 km', date:'27 de setembro', place:'São Brás de Alportel, Faro', price:'5€',
+     url:'https://racefinder.pt/event/ii-corrida-para-todos/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/07/pexels-runffwpu-18409430-1-300x450.jpg',
+     blurb:'Corrida solidária e inclusiva, sem classificações, para pessoas com e sem incapacidade.'},
+    {id:'campeonato-regional-montanha', name:'Campeonato Regional de Montanha 2026 — Sobe & Desce', sport:['trail'], region:'algarve', distance:['curta'], goals:['recorde'],
+     dist:'9 km, 395 m D+ / 359 m D-', date:'27 de setembro', place:'Querença, Loulé', price:'Grátis — 5€',
+     url:'https://racefinder.pt/event/campeonato-regional-de-montanha-2026-sobe-desce/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/08/pexels-callum-stegmann-2156884088-34423108-1-300x450.jpg',
+     blurb:'Campeonato Regional de Montanha do Algarve, em estradão, entre subidas e descidas.'},
+    {id:'fituptrail', name:'2ª Edição FitupTrail', sport:['trail'], region:'ilhas', distance:['curta','media'], goals:['diversao','primeiro'],
+     dist:'5 km família · 10 km · 18 km', date:'27 de setembro', place:'Madalena, Açores', price:'10€ — 30€',
+     url:'https://racefinder.pt/event/2-edicao-fituptrail/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/08/pexels-runffwpu-37882671-300x450.jpg',
+     blurb:'Trail no Pico, entre caminhos de vinha e paisagens rurais açorianas.'},
+    {id:'night-run-figueiro', name:'Night Run — Figueiró dos Vinhos', sport:['trail'], region:'centro', distance:['curta'], goals:['diversao','recorde'],
+     dist:'6 km caminhada solidária · 10 km', date:'3 de outubro', place:'Figueiró dos Vinhos, Leiria', price:'10€ — 12€',
+     url:'https://racefinder.pt/event/nigth-run/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/08/pexels-stewphotography-11187438-300x450.jpg',
+     blurb:'Trail urbano noturno entre alcatrão, calçada e terra batida, em Figueiró dos Vinhos.'},
+    {id:'backyard-coimbratrail', name:'Backyard Ultra by CoimbraTrail', sport:['trail'], region:'centro', distance:['media','longa','ultra'], goals:['endurance'],
+     dist:'voltas de 6,706 km · 3 voltas 20,1 km · 6 voltas 40,2 km', date:'3 de outubro', place:'Assafarge, Coimbra', price:'15€ — 50€',
+     url:'https://racefinder.pt/event/backyard-ultra-by-coimbratrail/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/08/pexels-alin-serban-1867310-32798744-300x450.jpg',
+     blurb:'Backyard ultra em Vale Cântaro: uma volta a cada hora, até restar um só corredor.'},
+    {id:'gp-3-santos-populares', name:'Grande Prémio de Atletismo 3 Santos Populares', sport:['estrada'], region:'centro', distance:['curta'], goals:['diversao','primeiro'],
+     dist:'4,5 km juvenil · 10,7 km + caminhada', date:'4 de outubro', place:'Carregal do Sal, Viseu', price:'10€ — 13€',
+     url:'https://racefinder.pt/event/grande-premio-de-atletismo-3-santos-populares-2/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/08/pexels-nobleseed-33070102-300x450.jpg',
+     blurb:'Corrida da Esperança Aristides De Sousa Mendes, entre a Casa-Museu e a Póvoa de Santo Amaro.'},
+    {id:'trilhos-do-lobo', name:'3ª Edição — Trilhos do Lobo', sport:['trail'], region:'centro', distance:['curta','media'], goals:['diversao'],
+     dist:'8 km caminhada · 12 km', date:'4 de outubro', place:'Alcobaça, Leiria', price:'6€',
+     url:'https://racefinder.pt/event/3a-edicao-trilhos-do-lobo/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/08/pexels-alin-serban-1867310-37283733-2-300x450.jpg',
+     blurb:'Trail sem classificações pelo Vale Encantado, Vale das Ripas e Fonte Santa, em Carris.'},
+    {id:'trofeu-de-seica', name:'1º Troféu de Seiça', sport:['ciclismo-estrada'], region:'lvt', distance:['longa'], goals:['recorde'],
+     dist:'47 km, 7 voltas em circuito fechado', date:'5 de outubro', place:'Ourém, Santarém', price:'12€',
+     url:'https://racefinder.pt/event/1o-trofeu-de-seica/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/08/pexels-runffwpu-18424625-300x450.jpg',
+     blurb:'Ciclismo de estrada federado em circuito fechado, com classificação de montanha, em Seiça.'},
+    {id:'corrida-outubro-rosa', name:'Corrida Outubro Rosa', sport:['estrada'], region:'centro', distance:['curta'], goals:['diversao'],
+     dist:'10 km', date:'10 de outubro', place:'Coimbra', price:'13€',
+     url:'https://racefinder.pt/event/corrida-outubro-rosa/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/08/pexels-runffwpu-9948004-1-300x450.jpg',
+     blurb:'Corrida de sensibilização para a prevenção do cancro da mama, em Coimbra.'},
+    {id:'acr-fitness-challenge', name:'AÇR Fitness Challenge', sport:['hibrido'], region:'centro', distance:['curta'], goals:['recorde','diversao'],
+     dist:'AÇR Full · AÇR Half, ~5,6 km de corrida', date:'10–11 de outubro', place:'Arganil, Coimbra', price:'38,25€ — 76,50€',
+     url:'https://racefinder.pt/event/acr-fitness-challenge/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/08/@fotografogabri_HYRUN_II_5F8B9483-300x450.jpg',
+     blurb:'Fitness híbrido em Côja: corrida intercalada com trenós, burpees e wall balls.'},
+    {id:'trail-dos-catrinos', name:'4º Trail dos Catrinos', sport:['trail'], region:'alentejo', distance:['curta','media','longa'], goals:['primeiro','recorde'],
+     dist:'11 km caminhada · 16 · 27 km', date:'11 de outubro', place:'Alcácer do Sal, Setúbal', price:'9€ — 13€',
+     url:'https://racefinder.pt/event/4o-trail-dos-catrinos/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/06/pexels-runffwpu-9790254-300x450.jpg',
+     blurb:'Trail em Santa Catarina de Sítimos, com prémios especiais para o segmento de montanha.'},
+    {id:'trilho-das-oliveiras', name:'Trilho das Oliveiras', sport:['trail'], region:'norte', distance:['curta','media'], goals:['diversao','primeiro'],
+     dist:'6 · 12 · 20 km + caminhada', date:'11 de outubro', place:'Morais, Macedo de Cavaleiros, Bragança', price:'10€ — 17€',
+     url:'https://racefinder.pt/event/trilho-das-oliveiras/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/07/pexels-runffwpu-18408949-300x450.jpg',
+     blurb:'Trail entre oliveiras e montes da aldeia de Morais, com almoço-convívio incluído.'},
+    {id:'volta-a-silgueiros', name:'34ª Volta a Silgueiros', sport:['estrada'], region:'centro', distance:['media'], goals:['diversao','primeiro'],
+     dist:'5 km caminhada · 15 km', date:'11 de outubro', place:'Silgueiros, Viseu', price:'Grátis — 12€',
+     url:'https://racefinder.pt/event/34a-volta-a-silgueiros/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/07/pexels-runffwpu-19151378-300x450.jpg',
+     blurb:'Clássica corrida de estrada em Silgueiros, com almoço para atletas, amigos e família.'},
+    {id:'taca-btt-amadora', name:'Taça Intermunicipal 3H Resistência BTT 2026 — Amadora', sport:['mtb'], region:'lvt', distance:['media','longa'], goals:['recorde','endurance'],
+     dist:'BTT · resistência de 1 ou 3 horas', date:'11 de outubro', place:'Amadora, Lisboa', price:'6€ — 15€',
+     url:'https://racefinder.pt/event/taca-intermunicipal-3h-resistencia-btt-2026-amadora/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/03/ulf-meyer-fd3PNWuq6kw-unsplash-300x450.jpg',
+     blurb:'Etapa da Amadora na Taça Intermunicipal de Resistência BTT, com provas jovens também.'},
+    {id:'azores-hybrid-race', name:'Azores Hybrid Race', sport:['hibrido'], region:'ilhas', distance:['curta'], goals:['recorde'],
+     dist:'Standard HYROX · Open · Pro', date:'17–18 de outubro', place:'Ponta Delgada, São Miguel', price:'25€ — 50€',
+     url:'https://racefinder.pt/event/azores-hybrid-race/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/03/alexandre-ricart-v1pRzleDk2M-unsplash-1-300x450.jpg',
+     blurb:'Fitness híbrido nas Portas do Mar, em Ponta Delgada, segundo os standards HYROX.'},
+    {id:'sao-jorge-trail-run', name:'São Jorge Trail Run — Norte Pequeno', sport:['trail'], region:'ilhas', distance:['curta','media'], goals:['primeiro','diversao'],
+     dist:'9 km caminhada · 17 km', date:'17 de outubro', place:'Calheta, Ilha de São Jorge, Açores', price:'Grátis — 15€',
+     url:'https://racefinder.pt/event/sao-jorge-trail-run-norte-pequeno/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/08/pexels-alin-serban-1867310-30932860-300x450.jpg',
+     blurb:'Trail circular na Ilha de São Jorge, pensado também para quem procura a sua primeira experiência.'},
+    {id:'corrida-montinhos-pegos', name:'1ª Corrida e Caminhada dos Montinhos dos Pegos', sport:['estrada'], region:'lvt', distance:['curta'], goals:['diversao','primeiro'],
+     dist:'5 km caminhada · 10 km', date:'18 de outubro', place:'Coruche, Santarém', price:'5€ — 10€',
+     url:'https://racefinder.pt/event/1a-corrida-e-caminhada-dos-montinhos-dos-pegos/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/08/pexels-runffwpu-2526883-300x450.jpg',
+     blurb:'Corrida e caminhada em Coruche, a Capital Mundial da Cortiça, com animação musical na meta.'},
+    {id:'trail-monges-cister', name:'Trail Monges de Cister 2026', sport:['trail'], region:'centro', distance:['curta','media'], goals:['diversao','primeiro'],
+     dist:'10 km caminhada · 15 km', date:'18 de outubro', place:'Alcobaça, Leiria', price:'8€ — 18€',
+     url:'https://racefinder.pt/event/trail-monges-de-cister-2026/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/03/pexels-runffwpu-18408910-2-300x450.jpg',
+     blurb:'Trail solidário dos Bombeiros Voluntários de Alcobaça, com meta no Mosteiro de Alcobaça.'},
+    {id:'rota-castanha-castanheiro', name:'Trail e Caminhada "Rota da Castanha e do Castanheiro"', sport:['trail'], region:'centro', distance:['curta','media'], goals:['diversao'],
+     dist:'9 km caminhada · 9 · 18 km', date:'24 de outubro', place:'Sernancelhe, Viseu', price:'Grátis — 5€',
+     url:'https://racefinder.pt/event/trail-e-caminhada-rota-da-castanha-e-do-castanheiro/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/08/pexels-alin-serban-1867310-32798754-3-300x450.jpg',
+     blurb:'Trail e caminhada pela produção de castanha de Sernancelhe, dos 5 aos 80 anos.'},
+    {id:'night-run-pegoes', name:'Night Run Pegões', sport:['estrada'], region:'lvt', distance:['curta'], goals:['diversao'],
+     dist:'5 km caminhada · 10 km', date:'24 de outubro', place:'Pegões, Montijo', price:'Grátis — 13€',
+     url:'https://racefinder.pt/event/night-run-pegoes/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/08/pexels-runffwpu-10226363-300x450.jpg',
+     blurb:'Corrida noturna festiva pelos aniversário da União de Freguesias de Pegões, no Montijo.'},
+    {id:'trilhos-nabao-bruxas', name:'Trilhos do Nabão — Corrida das Bruxas 2026', sport:['trail'], region:'lvt', distance:['curta','media'], goals:['diversao','recorde'],
+     dist:'6 km caminhada · 15 km, noturno de Halloween', date:'30–31 de outubro', place:'Tomar, Santarém', price:'6€ — 14€',
+     url:'https://racefinder.pt/event/trilhos-do-nabao-corrida-das-bruxas-2026/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/08/pexels-runffwpu-35599350-300x450.jpg',
+     blurb:'Trail noturno temático de Halloween em Linhaceira, com prémio para a máscara mais original.'},
+    {id:'trail-do-zezere', name:'11º Trail do Zêzere', sport:['trail'], region:'lvt', distance:['curta','media','longa'], goals:['recorde','endurance'],
+     dist:'13 km caminhada · 22 · 34 · 49 km', date:'14–15 de novembro', place:'Ferreira do Zêzere, Santarém', price:'Grátis — 40€',
+     url:'https://racefinder.pt/event/trail-do-zezere/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/08/pexels-alin-serban-1867310-29116008-300x450.jpg',
+     blurb:'Trail junto ao Rio Zêzere, certificado pela ITRA, com quatro distâncias à escolha.'},
+    {id:'meia-maratona-nazare', name:'50ª Meia Maratona Internacional da Nazaré', sport:['estrada'], region:'centro', distance:['curta','media'], goals:['recorde'],
+     dist:'8 km caminhada · 10 · 21 km', date:'15 de novembro', place:'Nazaré, Leiria', price:'8€ — 15€',
+     url:'https://racefinder.pt/event/50a-meia-maratona-internacional-da-nazare/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/08/pexels-kaandurmus-15057325-300x450.jpg',
+     blurb:'50ª edição da meia maratona da Nazaré, num percurso quase plano junto ao mar.'},
+    {id:'meia-maratona-evora', name:'Meia Maratona Évora', sport:['estrada'], region:'alentejo', distance:['curta','media'], goals:['recorde'],
+     dist:'5 km caminhada · 10 · 21 km', date:'21–22 de novembro', place:'Évora', price:'5€ — 18€',
+     url:'https://racefinder.pt/event/meia-maratona-evora-2/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/05/587984681_1283951107102245_8015149188376804672_n-300x450.jpg',
+     blurb:'A Meia de Évora, com partida junto ao Aqueduto da Água de Prata e chegada na Praça do Giraldo.'},
+    {id:'adn-race-ponta-sol', name:'ADN Race Ponta do Sol', sport:['trail'], region:'ilhas', distance:['media'], goals:['recorde'],
+     dist:'14 · 25 km', date:'22 de novembro', place:'Ponta do Sol, Madeira', price:'17€ — 32€',
+     url:'https://racefinder.pt/event/adn-race-ponta-do-sol-2/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/08/pexels-runffwpu-37882667-300x450.jpg',
+     blurb:'Trail madeirense por levadas e trilhos, a contar para o Campeonato Regional de Trail.'},
+    {id:'spt-urban-night-trail-alenquer', name:'SPT Urban Night Trail — Alenquer Presépio de Portugal', sport:['trail'], region:'lvt', distance:['curta'], goals:['diversao','recorde'],
+     dist:'8 km caminhada · 13 km', date:'5 de dezembro', place:'Alenquer, Lisboa', price:'9€ — 14€',
+     url:'https://racefinder.pt/event/spt-urban-night-trail-alenquer-presepio-de-portugal/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/08/pexels-lara-jameson-9363518-300x450.jpg',
+     blurb:'Trail urbano noturno pelo ambiente natalício de Alenquer, o Presépio de Portugal.'},
+    {id:'pinga-trail', name:'9ª Edição do Pinga Trail', sport:['trail'], region:'lvt', distance:['curta','media'], goals:['primeiro','recorde'],
+     dist:'10 km caminhada · 16 · 23 km', date:'6 de dezembro', place:'Arruda dos Vinhos, Lisboa', price:'13€ — 19€',
+     url:'https://racefinder.pt/event/9a-edicao-do-pinga-trail/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/08/pexels-runffwpu-37882667-300x450.jpg',
+     blurb:'Trail por caminhos militares e fortes do Vale Encantado, em Arruda dos Vinhos.'},
+    {id:'sao-silvestre-almada', name:'X São Silvestre Almada', sport:['estrada'], region:'lvt', distance:['curta'], goals:['diversao','recorde'],
+     dist:'5 km caminhada · 5 · 10 km', date:'11–12 de dezembro', place:'Almada, Setúbal', price:'7€ — 14€',
+     url:'https://racefinder.pt/event/x-sao-silvestre-almada/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/08/pexels-runffwpu-10313663-300x450.jpg',
+     blurb:'São Silvestre em Almada, com partida e chegada na Praça São João Batista.'},
+    {id:'corrida-dos-reis-fatima', name:'8ª Corrida dos Reis — Bênção do Atleta', sport:['estrada'], region:'lvt', distance:['curta'], goals:['diversao','primeiro'],
+     dist:'7 km caminhada · 10 km', date:'10 de janeiro', place:'Fátima, Ourém', price:'Grátis — 12€',
+     url:'https://racefinder.pt/event/8a-corrida-dos-reis-bencao-do-atleta/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/08/pexels-aryapandusedjati-2486819-34712181-300x450.jpg',
+     blurb:'Corrida em Fátima com cerimónia de bênção dos atletas, junto ao Posto de Turismo.'},
+    {id:'trail-montes-saloios', name:'XII Trail Montes Saloios', sport:['trail'], region:'lvt', distance:['curta','media','longa','ultra'], goals:['primeiro','recorde','endurance'],
+     dist:'10 km caminhada · 10 · 15 · 31 · 50 km', date:'21 de fevereiro', place:'Sintra, Lisboa', price:'10€ — 25€',
+     url:'https://racefinder.pt/event/xii-trail-montes-saloios/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/08/pexels-alin-serban-1867310-32798759-1-300x450.jpg',
+     blurb:'Trail semi-autónomo em Covas de Ferro, Sintra, com cinco distâncias à escolha.'},
+    {id:'corrida-solidaria-reigoso', name:'Corrida Solidária Reigoso', sport:['estrada'], region:'centro', distance:['curta','media'], goals:['diversao'],
+     dist:'8 km caminhada · 10 · 15 km', date:'28 de fevereiro', place:'Oliveira de Frades, Viseu', price:'6,50€ — 13€',
+     url:'https://racefinder.pt/event/corrida-solidaria-reigoso-2/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/08/pexels-runffwpu-10313668-300x450.jpg',
+     blurb:'Corrida solidária em Reigoso, a apoiar bombeiros voluntários e causas locais.'},
+    {id:'backyard-ultra-ansiao', name:'Backyard Ultra Ansião', sport:['trail'], region:'centro', distance:['ultra'], goals:['endurance'],
+     dist:'voltas de 6,706 km, evento Bronze Ticket', date:'20 de março', place:'Ansião, Leiria', price:'55€',
+     url:'https://racefinder.pt/event/backyard-ultra-ansiao/',
+     img:'https://racefinder.pt/wp-content/uploads/2026/08/pexels-runffwpu-38010740-300x450.jpg',
+     blurb:'Backyard ultra no Camporês, uma volta a cada hora, até restar um só corredor.'},
   ];
 
   var els = {
